@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KAI — Knowledge Action Intelligence v1</title>
+<title>KAI — Knowledge Action Intelligence</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -357,7 +357,7 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--ink); color
 <div id="authScreen" class="auth-screen">
   <div class="auth-card">
     <div class="auth-badge">KAI</div>
-    <div class="auth-title">Knowledge Action Intelligence v2</div>
+    <div class="auth-title">Knowledge Action Intelligence</div>
     <div class="auth-sub">Organisational intelligence — built for us</div>
     <div class="auth-features">
       <div class="auth-feat"><b>📬 Smart Inbox</b>Prioritised by your stakeholder map</div>
@@ -581,9 +581,9 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--ink); color
 <script>
 const CLIENT_ID = '294776404978-p9p6q310nqisej0ohvt0kbsfd1hoqrkm.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.file';
-const REDIRECT_URI = window.location.origin + window.location.pathname;
+const REDIRECT_URI = 'https://kishore510.github.io/kai-demo';
 // UPDATE THIS after deploying Cloudflare Worker:
-const WORKER_URL = 'https://kai-demo-proxy.kishore510.workers.dev';
+const WORKER_URL = 'YOUR_CLOUDFLARE_WORKER_URL';
 
 let accessToken = null;
 let gmailData = [];
