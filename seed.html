@@ -616,6 +616,29 @@ if (sessionStorage.getItem('kai_gate') === '1') {
   });
 }
 
+
+function checkGate() {
+  var val = document.getElementById('gateInput').value;
+  if (val === 'KAI-Demo-2026') {
+    document.getElementById('gateScreen').style.display = 'none';
+    document.querySelector('.card').style.display = 'block';
+    sessionStorage.setItem('kai_gate', '1');
+  } else {
+    document.getElementById('gateError').style.display = 'block';
+    document.getElementById('gateInput').value = '';
+    document.getElementById('gateInput').focus();
+  }
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  if (sessionStorage.getItem('kai_gate') === '1') {
+    var g = document.getElementById('gateScreen');
+    if (g) g.style.display = 'none';
+    var c = document.querySelector('.card');
+    if (c) c.style.display = 'block';
+  }
+});
+
 </script>
 </body>
 </html>
