@@ -106,6 +106,10 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .stat-n { font-weight: 500; font-size: 22px; line-height: 1; color: var(--teal); }
 .stat-n.y { color: var(--amber); } .stat-n.c { color: var(--coral); } .stat-n.p { color: var(--purple); }
 .stat-l { font-size: 10px; color: #888; margin-top: 4px; line-height: 1.4; }
+.stat-clickable { cursor: pointer; transition: all 0.15s; position: relative; }
+.stat-clickable:hover { border-color: #9FE1CB; background: #F8FDF8; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.stat-arrow { position: absolute; bottom: 8px; right: 10px; font-size: 11px; color: #bbb; transition: color 0.15s; }
+.stat-clickable:hover .stat-arrow { color: var(--teal); }
 
 .wb-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; overflow: hidden; }
 .wb-row { display: flex; align-items: flex-start; gap: 8px; padding: 9px 13px; border-bottom: 0.5px solid #F0F0EC; }
@@ -267,6 +271,97 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
   .b-title { font-size: 14px; }
   .stats-2 { gap: 7px; }
 }
+
+/* ── MEETING PREP ── */
+.day-row { cursor: pointer; transition: background 0.12s; }
+.day-row:hover { background: #F0FBF7; }
+.day-row:hover .day-nm { color: var(--teal); }
+
+/* Meeting detail overlay */
+.meeting-overlay {
+  display: none; position: fixed; inset: 0; z-index: 400;
+  background: rgba(0,0,0,0.35); backdrop-filter: blur(4px);
+  align-items: flex-end; justify-content: center;
+}
+.meeting-overlay.open { display: flex; }
+.meeting-sheet {
+  background: white; border-radius: 20px 20px 0 0;
+  width: 100%; max-width: 720px; max-height: 92vh;
+  display: flex; flex-direction: column;
+  animation: slideSheet 0.3s ease;
+  box-shadow: 0 -4px 32px rgba(0,0,0,0.15);
+}
+@keyframes slideSheet { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+.meeting-sheet-handle {
+  width: 36px; height: 4px; background: #E0E0D8;
+  border-radius: 2px; margin: 10px auto 0; flex-shrink: 0;
+}
+.meeting-sheet-header {
+  padding: 14px 20px 12px; border-bottom: 0.5px solid #E0E0D8; flex-shrink: 0;
+}
+.meeting-sheet-title { font-size: 17px; font-weight: 500; color: #1a1a1a; margin-bottom: 4px; }
+.meeting-sheet-meta { font-size: 12px; color: #888; display: flex; gap: 12px; flex-wrap: wrap; }
+.meeting-sheet-meta span { display: flex; align-items: center; gap: 4px; }
+.meeting-sheet-body { flex: 1; overflow-y: auto; padding: 0; }
+.meeting-sheet-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #F4F4F0; border: none; cursor: pointer;
+  font-size: 14px; display: flex; align-items: center; justify-content: center;
+  color: #888; transition: all 0.12s;
+}
+.meeting-sheet-close:hover { background: #E0E0D8; color: #333; }
+
+/* Prep sections */
+.prep-section { padding: 14px 20px; border-bottom: 0.5px solid #F0F0EC; }
+.prep-section:last-child { border-bottom: none; }
+.prep-section-title {
+  font-size: 10px; font-weight: 500; letter-spacing: 1.5px;
+  color: var(--teal); text-transform: uppercase; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.prep-loading {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: #888; padding: 8px 0;
+}
+.prep-content { font-size: 13px; color: #333; line-height: 1.65; white-space: pre-wrap; }
+.prep-bullet { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 7px; }
+.prep-bullet-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); flex-shrink: 0; margin-top: 5px; }
+.prep-bullet-text { font-size: 13px; color: #333; line-height: 1.55; }
+
+/* Related emails */
+.rel-email { display: flex; align-items: flex-start; gap: 9px; padding: 9px 12px; background: #F8F8F5; border: 0.5px solid #E0E0D8; border-radius: 8px; margin-bottom: 6px; cursor: pointer; transition: background 0.1s; }
+.rel-email:hover { background: var(--teal-lt); border-color: #9FE1CB; }
+.rel-email-from { font-size: 11.5px; font-weight: 500; color: #1a1a1a; margin-bottom: 2px; }
+.rel-email-subj { font-size: 11px; color: #666; }
+
+/* Prep chat */
+.prep-chat { display: flex; flex-direction: column; height: 360px; }
+.prep-chat-msgs { flex: 1; overflow-y: auto; padding: 12px 20px; display: flex; flex-direction: column; gap: 10px; background: #F8F8F5; }
+.prep-quick-prompts { padding: 8px 20px; border-top: 0.5px solid #E0E0D8; border-bottom: 0.5px solid #E0E0D8; display: flex; gap: 5px; flex-wrap: wrap; background: white; }
+.prep-qp { font-size: 11px; padding: 4px 10px; border-radius: 100px; border: 0.5px solid #E0E0D8; background: white; color: #666; cursor: pointer; transition: all 0.12s; font-family: inherit; white-space: nowrap; }
+.prep-qp:hover { border-color: var(--teal); color: var(--teal-dk); background: var(--teal-lt); }
+.prep-input-row { padding: 10px 20px; background: white; display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0; }
+.prep-input { flex: 1; background: #F8F8F5; border: 0.5px solid #E0E0D8; border-radius: 10px; padding: 8px 12px; font-size: 14px; outline: none; min-height: 38px; max-height: 90px; resize: none; font-family: inherit; color: #1a1a1a; transition: border-color 0.12s; }
+.prep-input:focus { border-color: #9FE1CB; background: white; }
+.prep-input::placeholder { color: #bbb; }
+.prep-send { width: 34px; height: 34px; border-radius: 8px; background: var(--teal); border: none; cursor: pointer; color: white; font-size: 15px; flex-shrink: 0; transition: background 0.12s; display: flex; align-items: center; justify-content: center; }
+.prep-send:hover { background: var(--teal-dk); }
+.prep-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Tab bar inside sheet */
+.prep-tabs { display: flex; border-bottom: 0.5px solid #E0E0D8; flex-shrink: 0; }
+.prep-tab { flex: 1; padding: 10px; font-size: 12px; font-weight: 500; color: #888; border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; font-family: inherit; }
+.prep-tab.active { color: var(--teal-dk); border-bottom-color: var(--teal); }
+.prep-tab:hover { color: #333; background: #F8F8F5; }
+.prep-tab-content { display: none; }
+.prep-tab-content.active { display: flex; flex-direction: column; }
+
+@media (max-width: 768px) {
+  .meeting-sheet { max-height: 88vh; border-radius: 16px 16px 0 0; }
+  .prep-chat { height: 300px; }
+}
+
 </style>
 </head>
 <body>
@@ -308,7 +403,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
     <div class="t-logo">
       <div class="t-badge">KAI</div>
       <span class="t-name">KAI</span>
-      <span style="font-size:11px;color:#aaa">· Knowledge Action Intelligence</span>
+      <span style="font-size:11px;color:#555">· Knowledge Action Intelligence</span>
     </div>
     <div class="t-right">
       <div class="t-dot"></div>
@@ -398,18 +493,34 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
         </div>
         <div class="right-col">
           <div class="stats-2">
-            <div class="stat-c"><div class="stat-n" id="statEmails">–</div><div class="stat-l">Emails needing<br>attention</div></div>
-            <div class="stat-c"><div class="stat-n y" id="statClashes">–</div><div class="stat-l">Calendar<br>clashes</div></div>
-            <div class="stat-c"><div class="stat-n c" id="statWellbeing">–</div><div class="stat-l">Wellbeing<br>flag</div></div>
-            <div class="stat-c"><div class="stat-n p" id="statTimecodes">3</div><div class="stat-l">Timecodes<br>suggested</div></div>
+            <div class="stat-c stat-clickable" onclick="goToInboxUrgent()" title="View urgent emails">
+              <div class="stat-n" id="statEmails">–</div>
+              <div class="stat-l">Emails needing<br>attention</div>
+              <div class="stat-arrow">→</div>
+            </div>
+            <div class="stat-c stat-clickable" onclick="goToCalendar()" title="View calendar clashes">
+              <div class="stat-n y" id="statClashes">–</div>
+              <div class="stat-l">Calendar<br>clashes</div>
+              <div class="stat-arrow">→</div>
+            </div>
+            <div class="stat-c stat-clickable" onclick="goToWellbeing()" title="View wellbeing nudges">
+              <div class="stat-n c" id="statWellbeing">–</div>
+              <div class="stat-l">Wellbeing<br>flag</div>
+              <div class="stat-arrow">→</div>
+            </div>
+            <div class="stat-c stat-clickable" onclick="goToTimecodes()" title="View timecode suggestions">
+              <div class="stat-n p" id="statTimecodes">3</div>
+              <div class="stat-l">Timecodes<br>suggested</div>
+              <div class="stat-arrow">→</div>
+            </div>
           </div>
-          <div class="wb-card">
+          <div class="wb-card" id="wellbeingSection">
             <div class="card-hdr">Wellbeing Nudges</div>
             <div id="wellbeingNudges">
               <div style="padding:14px;font-size:11px;color:var(--muted)">Analysing your week...</div>
             </div>
           </div>
-          <div class="tc-card">
+          <div class="tc-card" id="timecodesSection">
             <div class="card-hdr">Timecode Suggestions</div>
             <div class="tc-row"><span class="tc-code">PRJ-042</span><span class="tc-desc">Digital Transformation meetings</span></div>
             <div class="tc-row"><span class="tc-code">GOV-011</span><span class="tc-desc">Board + governance reviews</span></div>
@@ -494,6 +605,68 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
       </div>
     </div>
 
+
+    <!-- MEETING PREP OVERLAY -->
+    <div class="meeting-overlay" id="meetingOverlay" onclick="closeMeetingPrep(event)">
+      <div class="meeting-sheet" id="meetingSheet">
+        <div class="meeting-sheet-handle"></div>
+        <button class="meeting-sheet-close" onclick="closeMeetingSheet()">✕</button>
+        <div class="meeting-sheet-header">
+          <div class="meeting-sheet-title" id="sheetTitle">Meeting</div>
+          <div class="meeting-sheet-meta" id="sheetMeta"></div>
+        </div>
+        <!-- Tabs -->
+        <div class="prep-tabs">
+          <button class="prep-tab active" onclick="switchPrepTab('brief', this)">📋 Brief</button>
+          <button class="prep-tab" onclick="switchPrepTab('emails', this)">📬 Related Emails</button>
+          <button class="prep-tab" onclick="switchPrepTab('prep', this)">✨ Prep with KAI</button>
+        </div>
+        <div class="meeting-sheet-body">
+          <!-- Brief tab -->
+          <div class="prep-tab-content active" id="prepTab-brief">
+            <div class="prep-section">
+              <div class="prep-section-title">🎯 What this meeting is about</div>
+              <div id="prepSummary" class="prep-content">
+                <div class="prep-loading"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div> KAI is preparing your brief...</div>
+              </div>
+            </div>
+            <div class="prep-section">
+              <div class="prep-section-title">💡 Suggested talking points</div>
+              <div id="prepTalkingPoints" class="prep-content">
+                <div class="prep-loading"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div> Generating talking points...</div>
+              </div>
+            </div>
+            <div class="prep-section">
+              <div class="prep-section-title">⚠️ Things to watch out for</div>
+              <div id="prepWatchOut" class="prep-content">
+                <div class="prep-loading"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div> Analysing risks...</div>
+              </div>
+            </div>
+          </div>
+          <!-- Related emails tab -->
+          <div class="prep-tab-content" id="prepTab-emails">
+            <div class="prep-section">
+              <div class="prep-section-title">📬 Emails related to this meeting</div>
+              <div id="prepRelatedEmails"></div>
+            </div>
+          </div>
+          <!-- Prep chat tab -->
+          <div class="prep-tab-content" id="prepTab-prep">
+            <div class="prep-chat">
+              <div class="prep-chat-msgs" id="prepChatMsgs"></div>
+              <div class="prep-quick-prompts" id="prepQuickPrompts"></div>
+              <div class="prep-input-row">
+                <textarea class="prep-input" id="prepChatInput" placeholder="Ask KAI to help you prep..." rows="1"
+                  onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendPrepChat()}"
+                  oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+                <button class="prep-send" id="prepSendBtn" onclick="sendPrepChat()">↑</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -532,6 +705,45 @@ function signOut() {
 }
 
 // ── GMAIL ──
+async function checkTokenValid() {
+  // Test token with a lightweight call
+  const r = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+    headers: { Authorization: 'Bearer ' + accessToken }
+  });
+  if (r.status === 401) {
+    // Token expired — show refresh prompt
+    accessToken = null;
+    sessionStorage.removeItem('token');
+    showTokenExpiredBanner();
+    return false;
+  }
+  return true;
+}
+
+function showTokenExpiredBanner() {
+  const existing = document.getElementById('tokenBanner');
+  if (existing) return;
+  const banner = document.createElement('div');
+  banner.id = 'tokenBanner';
+  banner.style.cssText = 'position:fixed;top:52px;left:0;right:0;z-index:500;background:#FAEEDA;border-bottom:1px solid #F5D38A;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:#854F0B;';
+  banner.innerHTML = `
+    <span>⚠️ Your session has expired — data may be outdated</span>
+    <button onclick="reAuth()" style="background:#BA7517;color:white;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:500;font-family:inherit;">Refresh session</button>
+  `;
+  document.body.appendChild(banner);
+}
+
+function reAuth() {
+  // Re-trigger OAuth — token will be refreshed on return
+  sessionStorage.removeItem('token');
+  startAuth();
+}
+
+// Check token every 45 minutes
+setInterval(async () => {
+  if (accessToken) await checkTokenValid();
+}, 45 * 60 * 1000);
+
 async function fetchEmails() {
   const r = await fetch(
     'https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=20&labelIds=INBOX',
@@ -623,15 +835,22 @@ function renderWeekAhead(events) {
 
   return sorted.map(([date, evs]) => {
     const dayName = getDayName(date);
-    const items = evs.map(ev => {
+    const items = evs.map((ev, idx) => {
       const t = getTime(ev);
       const s = ev.summary || '';
       let tagClass = 'normal', tagLabel = t;
+      const isSkip = s.includes('Transit') || s.includes('KAI Timecode');
       if (s.includes('FOCUS') || s.includes('PREP')) { tagClass = 'focus'; tagLabel = s.includes('PREP') ? 'PREP' : 'FOCUS'; }
       else if (s.includes('CLASH') || s.toLowerCase().includes('clash')) { tagClass = 'clash'; tagLabel = 'CLASH'; }
       else if (s.includes('TRAVEL') || s.includes('Transit')) { tagClass = 'travel'; tagLabel = 'TRAVEL'; }
-      const displayName = s.replace(/\s*\(.*?\)\s*/g,'').replace(/^(FOCUS|PREP|TRAVEL):\s*/,'').substring(0,50);
-      return `<div class="day-item"><span class="tag ${tagClass}">${tagLabel}</span>${displayName}</div>`;
+      const displayName = s.replace(/\s*\(.*?\)\s*/g,'').replace(/^(FOCUS|PREP|TRAVEL):\s*/,'').substring(0,52);
+      const evIdx = calendarData.findIndex(e => e.id === ev.id);
+      const clickable = !isSkip;
+      return `<div class="day-item ${clickable ? 'meeting-clickable' : ''}" ${clickable ? `onclick="openMeetingPrep(${evIdx})" style="cursor:pointer"` : ''} title="${clickable ? 'Click to prep for this meeting' : ''}">
+        <span class="tag ${tagClass}">${tagLabel}</span>
+        <span style="flex:1">${displayName}</span>
+        ${clickable ? '<span style="font-size:10px;color:#ccc;margin-left:4px">›</span>' : ''}
+      </div>`;
     }).join('');
     return `<div class="day-row"><div class="day-nm">${dayName}</div><div class="day-items">${items}</div></div>`;
   }).join('');
@@ -818,7 +1037,7 @@ async function callClaude(userMsg, isChat = true) {
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
       max_tokens: 1024,
-      system: isChat ? buildKaiSystem() : 'You are a professional email assistant for a senior government official. Be concise and direct.',
+      system: systemToUse,
       messages
     })
   });
@@ -917,9 +1136,68 @@ async function handleCallback() {
   return true;
 }
 
+function goToInboxUrgent() {
+  // Switch to inbox panel and filter to urgent
+  const inboxNav = document.querySelector('[data-panel="inbox"]');
+  if (inboxNav) {
+    switchPanel(inboxNav);
+    // Also sync mobile nav
+    const mobInbox = document.querySelector('.mob-nav-item[data-panel="inbox"]');
+    if (mobInbox) mobNav(mobInbox);
+    // Set urgent filter
+    setTimeout(() => {
+      const urgentBtn = document.querySelector('.fbtn:nth-child(2)');
+      if (urgentBtn) filterEmails('urgent', urgentBtn);
+    }, 100);
+  }
+}
+
+function goToCalendar() {
+  // Switch to briefing and scroll to week ahead
+  const briefNav = document.querySelector('[data-panel="briefing"]');
+  if (briefNav) {
+    switchPanel(briefNav);
+    const mobBrief = document.querySelector('.mob-nav-item[data-panel="briefing"]');
+    if (mobBrief) mobNav(mobBrief);
+    setTimeout(() => {
+      const weekCard = document.querySelector('.week-card');
+      if (weekCard) weekCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 150);
+  }
+}
+
+function goToWellbeing() {
+  const briefNav = document.querySelector('[data-panel="briefing"]');
+  if (briefNav) {
+    switchPanel(briefNav);
+    const mobBrief = document.querySelector('.mob-nav-item[data-panel="briefing"]');
+    if (mobBrief) mobNav(mobBrief);
+    setTimeout(() => {
+      const wb = document.getElementById('wellbeingSection');
+      if (wb) wb.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 150);
+  }
+}
+
+function goToTimecodes() {
+  const briefNav = document.querySelector('[data-panel="briefing"]');
+  if (briefNav) {
+    switchPanel(briefNav);
+    const mobBrief = document.querySelector('.mob-nav-item[data-panel="briefing"]');
+    if (mobBrief) mobNav(mobBrief);
+    setTimeout(() => {
+      const tc = document.getElementById('timecodesSection');
+      if (tc) tc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 150);
+  }
+}
+
 async function refreshData() {
   const btn = document.getElementById('refreshBtn');
   if (btn) btn.classList.add('spinning');
+  // Check token is still valid first
+  const valid = await checkTokenValid();
+  if (!valid) { if (btn) btn.classList.remove('spinning'); return; }
   document.getElementById('pillStatus').textContent = 'Refreshing...';
   document.getElementById('briefingSub').textContent = 'Refreshing your inbox and calendar...';
   try {
@@ -1159,6 +1437,268 @@ function checkAutoArchiveRecommendations() {
       msgs.scrollTop = msgs.scrollHeight;
     }, 3000);
   }
+}
+
+
+// ── MEETING PREP ──
+let currentMeeting = null;
+let prepChatHistory = [];
+
+function openMeetingPrep(evIdx) {
+  const ev = calendarData[evIdx];
+  if (!ev) return;
+  currentMeeting = ev;
+  prepChatHistory = [];
+
+  // Set header
+  const title = ev.summary || 'Meeting';
+  const cleanTitle = title.replace(/^(FOCUS|PREP|TRAVEL):\s*/,'').replace(/\s*\(.*?\)\s*/g,'').trim();
+  document.getElementById('sheetTitle').textContent = cleanTitle;
+
+  const time = getTime(ev);
+  const dayName = getDayName(ev.start?.date || ev.start?.dateTime?.split('T')[0]);
+  const duration = ev.start?.dateTime && ev.end?.dateTime
+    ? Math.round((new Date(ev.end.dateTime) - new Date(ev.start.dateTime)) / 60000) + ' min'
+    : '';
+  const desc = ev.description || '';
+  const timecodeMatch = desc.match(/KAI timecode:\s*(\S+)/i);
+  const timecode = timecodeMatch ? timecodeMatch[1] : '';
+
+  document.getElementById('sheetMeta').innerHTML = `
+    <span>📅 ${dayName}</span>
+    ${time ? `<span>⏰ ${time}</span>` : ''}
+    ${duration ? `<span>⏱ ${duration}</span>` : ''}
+    ${timecode ? `<span style="background:var(--teal-lt);color:var(--teal-dk);padding:1px 7px;border-radius:100px;font-size:10px;font-weight:500">${timecode}</span>` : ''}
+  `;
+
+  // Reset tabs
+  switchPrepTab('brief', document.querySelector('.prep-tab'));
+  document.querySelectorAll('.prep-tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('prepTab-brief').classList.add('active');
+  document.querySelectorAll('.prep-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.prep-tab').classList.add('active');
+
+  // Reset content
+  document.getElementById('prepSummary').innerHTML = '<div class="prep-loading"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div> KAI is preparing your brief...</div>';
+  document.getElementById('prepTalkingPoints').innerHTML = '<div class="prep-loading"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div> Generating talking points...</div>';
+  document.getElementById('prepWatchOut').innerHTML = '<div class="prep-loading"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div> Analysing...</div>';
+
+  // Show overlay
+  document.getElementById('meetingOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Load related emails
+  loadRelatedEmails(ev);
+
+  // Init prep chat
+  initPrepChat(ev);
+
+  // Generate brief async
+  generateMeetingBrief(ev);
+}
+
+function closeMeetingSheet() {
+  document.getElementById('meetingOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  currentMeeting = null;
+}
+
+function closeMeetingPrep(e) {
+  if (e.target === document.getElementById('meetingOverlay')) closeMeetingSheet();
+}
+
+function switchPrepTab(tab, btn) {
+  document.querySelectorAll('.prep-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.prep-tab-content').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('prepTab-' + tab).classList.add('active');
+}
+
+function loadRelatedEmails(ev) {
+  const title = (ev.summary || '').toLowerCase();
+  const words = title.split(/\s+/).filter(w => w.length > 3);
+  const related = gmailData.filter(email => {
+    const combined = (email.subject + ' ' + email.from + ' ' + email.snippet).toLowerCase();
+    return words.some(w => combined.includes(w));
+  });
+
+  const container = document.getElementById('prepRelatedEmails');
+  if (related.length === 0) {
+    container.innerHTML = '<div style="font-size:12px;color:#888;padding:8px 0">No emails directly related to this meeting found in your inbox.</div>';
+    return;
+  }
+  container.innerHTML = related.slice(0,5).map(email => `
+    <div class="rel-email" onclick="openRelatedEmail('${email.id}')">
+      <div style="flex:1">
+        <div class="rel-email-from">${email.from}</div>
+        <div class="rel-email-subj">${email.subject}</div>
+      </div>
+      <span class="pri ${email.priority}">${email.priority.toUpperCase()}</span>
+    </div>
+  `).join('');
+}
+
+function openRelatedEmail(emailId) {
+  closeMeetingSheet();
+  setTimeout(() => {
+    selectEmail(emailId);
+    const inboxNav = document.querySelector('[data-panel="inbox"]');
+    if (inboxNav) switchPanel(inboxNav);
+    const mobInbox = document.querySelector('.mob-nav-item[data-panel="inbox"]');
+    if (mobInbox) mobNav(mobInbox);
+  }, 200);
+}
+
+function initPrepChat(ev) {
+  const cleanTitle = (ev.summary || 'this meeting').replace(/^(FOCUS|PREP|TRAVEL):\s*/,'').replace(/\s*\(.*?\)\s*/g,'').trim();
+  const time = getTime(ev);
+  const desc = ev.description || '';
+
+  prepChatHistory = [{
+    role: 'assistant',
+    content: `I'm ready to help you prep for **${cleanTitle}**${time ? ' at ' + time : ''}. I can draft an agenda, suggest talking points, write a pre-read, or help you think through a deck structure. What would you like to work on?`
+  }];
+
+  const msgs = document.getElementById('prepChatMsgs');
+  msgs.innerHTML = `
+    <div class="msg">
+      <div class="m-av kai">KAI</div>
+      <div class="m-bub kai">I'm ready to help you prep for <b>${cleanTitle}</b>${time ? ' at ' + time : ''}. I can draft an agenda, write talking points, create a pre-read, or structure a deck. What would you like to work on?</div>
+    </div>`;
+
+  // Dynamic quick prompts based on meeting type
+  const titleLower = cleanTitle.toLowerCase();
+  let prompts = ['Draft an agenda', 'Key talking points', 'Write a pre-read note', 'Help me structure a deck', 'What questions should I ask?'];
+  if (titleLower.includes('board') || titleLower.includes('governance')) {
+    prompts = ['Draft board paper outline', 'Key risks to raise', 'Decision points needed', 'Write exec summary', 'Prep briefing for attendees'];
+  } else if (titleLower.includes('1:1') || titleLower.includes('director')) {
+    prompts = ['What to raise with the Director', 'Draft talking points', 'Pending items to cover', 'How to frame the AI strategy', 'Draft a follow-up note'];
+  } else if (titleLower.includes('project') || titleLower.includes('prj')) {
+    prompts = ['Project status summary', 'Risks and blockers', 'Draft milestone update', 'Stakeholder questions', 'Actions from last time'];
+  }
+
+  document.getElementById('prepQuickPrompts').innerHTML = prompts.map(p =>
+    `<button class="prep-qp" onclick="sendPrepQuick('${p}')">${p}</button>`
+  ).join('');
+}
+
+async function generateMeetingBrief(ev) {
+  const cleanTitle = (ev.summary || 'meeting').replace(/^(FOCUS|PREP|TRAVEL):\s*/,'').replace(/\s*\(.*?\)\s*/g,'').trim();
+  const time = getTime(ev);
+  const desc = ev.description || '';
+  const relatedEmails = gmailData.filter(email => {
+    const words = cleanTitle.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+    const combined = (email.subject + ' ' + email.snippet).toLowerCase();
+    return words.some(w => combined.includes(w));
+  }).slice(0,3).map(e => `- Email from ${e.from}: "${e.subject}"`).join('\n');
+
+  const prompt = `You are KAI, an AI assistant for a senior Enterprise Platform Architect at a UK financial services regulator.
+
+Generate a concise meeting prep brief for this meeting. Respond with exactly three sections separated by ||| :
+
+Section 1 - WHAT THIS IS ABOUT (2-3 sentences explaining the purpose and context)
+Section 2 - TALKING POINTS (exactly 4 bullet points, each starting with •)
+Section 3 - WATCH OUT FOR (exactly 3 bullet points of risks/things to be aware of, each starting with •)
+
+Meeting: ${cleanTitle}
+Time: ${time}
+Calendar description: ${desc || 'none'}
+Related emails in inbox:
+${relatedEmails || 'none'}
+
+Be specific to this organisation's context — financial services regulator, governance-heavy environment, senior leadership audience.`;
+
+  try {
+    const response = await callClaude(prompt, false);
+    const parts = response.split('|||');
+
+    if (parts[0]) {
+      document.getElementById('prepSummary').innerHTML =
+        `<div class="prep-content">${parts[0].trim().replace(/\n/g, '<br>')}</div>`;
+    }
+    if (parts[1]) {
+      const bullets = parts[1].trim().split('\n').filter(l => l.trim().startsWith('•'));
+      document.getElementById('prepTalkingPoints').innerHTML = bullets.map(b =>
+        `<div class="prep-bullet"><div class="prep-bullet-dot"></div><div class="prep-bullet-text">${b.replace('•','').trim()}</div></div>`
+      ).join('');
+    }
+    if (parts[2]) {
+      const bullets = parts[2].trim().split('\n').filter(l => l.trim().startsWith('•'));
+      document.getElementById('prepWatchOut').innerHTML = bullets.map(b =>
+        `<div class="prep-bullet"><div class="prep-bullet-dot" style="background:var(--coral)"></div><div class="prep-bullet-text">${b.replace('•','').trim()}</div></div>`
+      ).join('');
+    }
+  } catch(e) {
+    document.getElementById('prepSummary').innerHTML = '<div style="font-size:12px;color:#888">Brief generation requires the Cloudflare Worker to be configured.</div>';
+    document.getElementById('prepTalkingPoints').innerHTML = '';
+    document.getElementById('prepWatchOut').innerHTML = '';
+  }
+}
+
+async function sendPrepChat() {
+  const input = document.getElementById('prepChatInput');
+  const btn = document.getElementById('prepSendBtn');
+  const text = input.value.trim();
+  if (!text || !currentMeeting) return;
+
+  input.value = ''; input.style.height = 'auto'; btn.disabled = true;
+
+  const cleanTitle = (currentMeeting.summary || 'meeting').replace(/^(FOCUS|PREP|TRAVEL):\s*/,'').replace(/\s*\(.*?\)\s*/g,'').trim();
+
+  // Add user message
+  const msgs = document.getElementById('prepChatMsgs');
+  const userDiv = document.createElement('div');
+  userDiv.className = 'msg user';
+  userDiv.innerHTML = `<div class="m-av user">You</div><div class="m-bub user">${text}</div>`;
+  msgs.appendChild(userDiv);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  // Add typing
+  const typingDiv = document.createElement('div');
+  typingDiv.id = 'prepTyping'; typingDiv.className = 'msg';
+  typingDiv.innerHTML = '<div class="m-av kai">KAI</div><div class="m-bub kai"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>';
+  msgs.appendChild(typingDiv);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  prepChatHistory.push({ role: 'user', content: text });
+
+  const system = `You are KAI — a meeting preparation assistant for a senior Enterprise Platform Architect at a UK financial services regulator.
+
+You are helping them prepare for: ${cleanTitle}
+Time: ${getTime(currentMeeting)}
+Meeting description: ${currentMeeting.description || 'none'}
+Related emails: ${gmailData.filter(e => {
+    const words = cleanTitle.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+    return words.some(w => (e.subject + e.snippet).toLowerCase().includes(w));
+  }).slice(0,3).map(e => e.from + ': ' + e.subject).join(', ') || 'none'}
+
+You can help with: agendas, talking points, deck structures, pre-read notes, risk analysis, stakeholder questions, action item lists.
+When drafting content like deck outlines or agendas, be specific and structured. Use headers and bullets.
+Keep responses concise but substantive. This is a professional context.`;
+
+  try {
+    const reply = await callClaude(text, true, system, prepChatHistory.slice(0,-1));
+    document.getElementById('prepTyping')?.remove();
+    const replyDiv = document.createElement('div');
+    replyDiv.className = 'msg';
+    replyDiv.innerHTML = `<div class="m-av kai">KAI</div><div class="m-bub kai" style="max-width:100%">${reply.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>').replace(/^- /gm,'• ')}</div>`;
+    msgs.appendChild(replyDiv);
+    msgs.scrollTop = msgs.scrollHeight;
+    prepChatHistory.push({ role: 'assistant', content: reply });
+  } catch(e) {
+    document.getElementById('prepTyping')?.remove();
+    const errDiv = document.createElement('div');
+    errDiv.className = 'msg';
+    errDiv.innerHTML = '<div class="m-av kai">KAI</div><div class="m-bub kai">Unable to connect — check your Worker URL configuration.</div>';
+    msgs.appendChild(errDiv);
+  }
+  btn.disabled = false;
+}
+
+function sendPrepQuick(text) {
+  document.getElementById('prepChatInput').value = text;
+  switchPrepTab('prep', document.querySelectorAll('.prep-tab')[2]);
+  sendPrepChat();
 }
 
 </script>
