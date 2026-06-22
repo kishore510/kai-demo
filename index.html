@@ -592,42 +592,18 @@ let chatHistory = [];
 let selectedEmailId = null;
 let currentFilter = 'all';
 
-// ── PKCE ──
-function genVerifier() {
-  const a = new Uint8Array(32); crypto.getRandomValues(a);
-  return btoa(String.fromCharCode(...a)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
-}
-async function genChallenge(v) {
-  const e = new TextEncoder().encode(v);
-  const h = await crypto.subtle.digest('SHA-256', e);
-  return btoa(String.fromCharCode(...new Uint8Array(h))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
-}
+// OAuth implicit flow — no PKCE needed
 
 async function startAuth() {
-  const v = genVerifier();
-  const c = await genChallenge(v);
-  sessionStorage.setItem('pv', v);
   const p = new URLSearchParams({
-    client_id: CLIENT_ID, redirect_uri: REDIRECT_URI,
-    response_type: 'code', scope: SCOPES,
-    code_challenge: c, code_challenge_method: 'S256',
-    access_type: 'offline', prompt: 'consent',
+    client_id: CLIENT_ID,
+    redirect_uri: REDIRECT_URI,
+    response_type: 'token',
+    scope: SCOPES,
+    prompt: 'consent',
     login_hint: 'kai.demo.2026@gmail.com'
   });
   window.location = 'https://accounts.google.com/o/oauth2/v2/auth?' + p;
-}
-
-async function exchangeCode(code) {
-  const r = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: CLIENT_ID, code,
-      code_verifier: sessionStorage.getItem('pv'),
-      grant_type: 'authorization_code', redirect_uri: REDIRECT_URI
-    })
-  });
-  return r.json();
 }
 
 function signOut() {
@@ -987,17 +963,20 @@ async function loadApp() {
 }
 
 async function handleCallback() {
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get('code');
-  if (!code) return false;
+  // Implicit flow returns token in hash fragment: #access_token=...
+  const hash = window.location.hash.substring(1);
+  const params = new URLSearchParams(hash);
+  const token = params.get('access_token');
+  if (!token) return false;
+  // Clear the hash from URL
   window.history.replaceState({}, '', window.location.pathname);
-  const tokens = await exchangeCode(code);
-  if (!tokens.access_token) return false;
-  accessToken = tokens.access_token;
+  accessToken = token;
   sessionStorage.setItem('token', accessToken);
-  const uRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', { headers: { Authorization: 'Bearer ' + accessToken } });
-  const uData = await uRes.json();
-  sessionStorage.setItem('userEmail', uData.email || '');
+  try {
+    const uRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', { headers: { Authorization: 'Bearer ' + accessToken } });
+    const uData = await uRes.json();
+    sessionStorage.setItem('userEmail', uData.email || '');
+  } catch(e) {}
   return true;
 }
 
