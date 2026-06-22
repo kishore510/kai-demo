@@ -92,7 +92,7 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--ink); color
 <div id="gateScreen" class="gate-screen">
   <div class="gate-card">
     <div class="gate-badge">KAI</div>
-    <div class="gate-title">KAI Demo Tools v2</div>
+    <div class="gate-title">KAI Demo Tools v3</div>
     <div class="gate-sub">Enter the demo password to continue</div>
     <input class="gate-input" type="password" id="gateInput"
       placeholder="Password"
@@ -203,25 +203,9 @@ async function startAuth() {
     login_hint: 'kai.demo.2026@gmail.com'
   });
   window.location = 'https://accounts.google.com/o/oauth2/v2/auth?' + p;
-);
-  window.location = 'https://accounts.google.com/o/oauth2/v2/auth?' + params;
+
 }
 
-async function exchangeCode(code) {
-  const verifier = sessionStorage.getItem('pkce_verifier');
-  const res = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: CLIENT_ID,
-      code,
-      code_verifier: verifier,
-      grant_type: 'authorization_code',
-      redirect_uri: REDIRECT_URI
-    })
-  });
-  return res.json();
-}
 
 async function getUserEmail() {
   const res = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
@@ -561,17 +545,6 @@ async function handleCallback() {
   accessToken = token;
   sessionStorage.setItem('token', accessToken);
   return true;
-}, '', window.location.pathname);
-  try {
-    const tokens = await exchangeCode(code);
-    if (!tokens.access_token) throw new Error('No access token');
-    accessToken = tokens.access_token;
-    sessionStorage.setItem('access_token', accessToken);
-    return true;
-  } catch(e) {
-    alert('Auth failed: ' + e.message);
-    return false;
-  }
 }
 
 async function init() {
