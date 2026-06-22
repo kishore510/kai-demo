@@ -1,1 +1,1221 @@
-<html><body><h1>KAI — Coming Soon</h1></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KAI — Knowledge Action Intelligence</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #07081a; --teal: #00c2b3; --tealDim: rgba(0,194,179,0.12);
+  --coral: #ff5f4e; --yellow: #ffd84d; --purple: #7b5ea7;
+  --green: #22c55e; --white: #fff;
+  --surface: #10111f; --surface2: #161728;
+  --border: rgba(255,255,255,0.07); --text: rgba(255,255,255,0.88);
+  --muted: rgba(255,255,255,0.42); --sidebar: 252px;
+}
+
+body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--ink); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+/* ── AUTH SCREEN ── */
+.auth-screen {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 30% 20%, rgba(123,94,167,0.15) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 80%, rgba(0,194,179,0.1) 0%, transparent 60%), var(--ink);
+}
+.auth-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 48px 44px; max-width: 460px; width: 100%;
+  text-align: center;
+}
+.auth-badge {
+  width: 64px; height: 64px; border-radius: 18px; margin: 0 auto 20px;
+  background: linear-gradient(135deg, var(--teal), var(--purple));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 22px;
+  box-shadow: 0 0 32px rgba(0,194,179,0.45);
+}
+.auth-title { font-weight: 800; font-size: 26px; margin-bottom: 6px; }
+.auth-sub { font-size: 13px; color: var(--muted); margin-bottom: 8px; font-style: italic; }
+.auth-desc { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.65; margin: 20px 0 28px; }
+.auth-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--teal); color: var(--ink); font-weight: 700;
+  font-size: 14px; padding: 13px 28px; border-radius: 11px;
+  border: none; cursor: pointer; transition: all 0.15s; font-family: inherit;
+  width: 100%; justify-content: center;
+}
+.auth-btn:hover { background: #00d9c8; transform: translateY(-1px); }
+.auth-note { font-size: 11px; color: var(--muted); margin-top: 16px; line-height: 1.5; }
+.auth-features { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 20px 0; text-align: left; }
+.auth-feat { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 11.5px; color: rgba(255,255,255,0.6); }
+.auth-feat b { color: var(--teal); display: block; margin-bottom: 2px; font-size: 12px; }
+
+/* ── APP LAYOUT ── */
+.app { display: grid; grid-template-columns: var(--sidebar) 1fr; grid-template-rows: 52px 1fr; height: 100vh; }
+
+/* TOPBAR */
+.topbar {
+  grid-column: 1/-1; background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 18px; gap: 12px;
+  position: sticky; top: 0; z-index: 100;
+}
+.t-logo { display: flex; align-items: center; gap: 9px; }
+.t-badge {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--teal), var(--purple));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 10px;
+  box-shadow: 0 0 12px rgba(0,194,179,0.35);
+}
+.t-name { font-weight: 800; font-size: 16px; }
+.t-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.t-user { font-size: 11px; color: var(--teal); font-family: 'Courier New', monospace; }
+.t-signout { font-size: 11px; color: var(--muted); background: none; border: none; cursor: pointer; padding: 3px 8px; border-radius: 5px; transition: color 0.12s; }
+.t-signout:hover { color: var(--coral); }
+.t-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 7px var(--teal); animation: pd 2s ease infinite; }
+@keyframes pd { 0%,100%{opacity:1}50%{opacity:0.35} }
+
+/* SIDEBAR */
+.sidebar {
+  background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow-y: auto; padding: 14px 0;
+}
+.nav-sec { padding: 5px 14px; margin-top: 6px; }
+.nav-lbl { font-size: 9px; font-weight: 700; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 5px; }
+.nav-item {
+  display: flex; align-items: center; gap: 9px; padding: 7px 10px;
+  border-radius: 7px; cursor: pointer; font-size: 12.5px; color: var(--muted);
+  transition: all 0.12s; margin-bottom: 1px; border: 1px solid transparent;
+}
+.nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+.nav-item.active { background: var(--tealDim); color: var(--teal); border-color: rgba(0,194,179,0.18); }
+.nav-icon { font-size: 14px; width: 18px; text-align: center; }
+.nav-badge { margin-left: auto; background: var(--coral); color: white; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 100px; min-width: 16px; text-align: center; }
+.nav-badge.t { background: var(--teal); color: var(--ink); }
+.kai-pill {
+  margin: auto 14px 14px; background: var(--tealDim);
+  border: 1px solid rgba(0,194,179,0.2); border-radius: 9px; padding: 10px 12px;
+}
+.kai-pill-name { font-size: 10px; font-weight: 700; color: var(--teal); margin-bottom: 1px; }
+.kai-pill-sub { font-size: 9.5px; color: var(--muted); }
+
+/* MAIN */
+.main { overflow-y: auto; display: flex; flex-direction: column; }
+.panel { display: none; flex-direction: column; height: 100%; }
+.panel.active { display: flex; }
+
+/* ── BRIEFING ── */
+.b-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); }
+.b-title { font-weight: 800; font-size: 20px; margin-bottom: 3px; }
+.b-sub { font-size: 11.5px; color: var(--muted); }
+.b-grid { display: grid; grid-template-columns: 1fr 268px; gap: 16px; padding: 16px 24px; flex: 1; }
+
+.week-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.card-hdr { padding: 11px 14px; border-bottom: 1px solid var(--border); font-size: 9px; font-weight: 700; letter-spacing: 1.5px; color: var(--teal); text-transform: uppercase; }
+.day-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.day-row:last-child { border-bottom: none; }
+.day-nm { font-weight: 800; font-size: 9.5px; color: var(--yellow); width: 28px; flex-shrink: 0; padding-top: 2px; }
+.day-items { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.day-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: rgba(255,255,255,0.7); }
+.tag { font-size: 8.5px; font-weight: 700; padding: 1px 6px; border-radius: 100px; white-space: nowrap; flex-shrink: 0; font-family: 'Courier New', monospace; }
+.tag.focus  { background: rgba(0,194,179,0.18); color: var(--teal); }
+.tag.clash  { background: rgba(255,95,78,0.18); color: #ff8070; }
+.tag.prep   { background: rgba(255,216,77,0.18); color: var(--yellow); }
+.tag.travel { background: rgba(123,94,167,0.2); color: #b59de0; }
+.tag.heavy  { background: rgba(255,95,78,0.18); color: #ff8070; }
+.tag.light  { background: rgba(0,194,179,0.18); color: var(--teal); }
+.tag.reply  { background: rgba(255,255,255,0.08); color: var(--muted); }
+
+.right-col { display: flex; flex-direction: column; gap: 12px; }
+.stats-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat-c { background: var(--surface2); border: 1px solid var(--border); border-radius: 11px; padding: 13px; }
+.stat-n { font-weight: 800; font-size: 24px; line-height: 1; color: var(--teal); }
+.stat-n.y { color: var(--yellow); } .stat-n.c { color: var(--coral); } .stat-n.p { color: var(--purple); }
+.stat-l { font-size: 10px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+
+.wb-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.wb-row { display: flex; align-items: flex-start; gap: 9px; padding: 9px 13px; border-bottom: 1px solid var(--border); }
+.wb-row:last-child { border-bottom: none; }
+.wb-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.wb-txt { font-size: 11px; color: rgba(255,255,255,0.72); line-height: 1.5; }
+.wb-txt b { color: var(--white); }
+
+.tc-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.tc-row { display: flex; align-items: center; gap: 9px; padding: 8px 13px; border-bottom: 1px solid var(--border); }
+.tc-row:last-child { border-bottom: none; }
+.tc-code { font-family: 'Courier New', monospace; font-size: 9.5px; font-weight: 700; background: var(--ink); color: var(--yellow); padding: 2px 7px; border-radius: 4px; flex-shrink: 0; }
+.tc-desc { font-size: 10.5px; color: var(--muted); }
+
+/* ── INBOX ── */
+.inbox-layout { display: grid; grid-template-columns: 308px 1fr; height: 100%; }
+.email-list { border-right: 1px solid var(--border); overflow-y: auto; }
+.email-list-hdr { padding: 14px 16px; border-bottom: 1px solid var(--border); font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--surface2); z-index: 10; }
+.fbtn { font-size: 10px; padding: 3px 9px; border-radius: 100px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.12s; font-family: inherit; }
+.fbtn.active { background: var(--tealDim); border-color: rgba(0,194,179,0.25); color: var(--teal); }
+.email-item { padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
+.email-item:hover { background: rgba(255,255,255,0.025); }
+.email-item.selected { background: var(--tealDim); border-left: 2.5px solid var(--teal); }
+.email-item.unread .e-subject { font-weight: 600; color: var(--white); }
+.e-meta { display: flex; justify-content: space-between; margin-bottom: 3px; }
+.e-from { font-size: 11.5px; font-weight: 600; color: var(--text); }
+.e-time { font-size: 10px; color: var(--muted); font-family: 'Courier New', monospace; }
+.e-subject { font-size: 11.5px; color: rgba(255,255,255,0.7); margin-bottom: 3px; }
+.e-preview { font-size: 10.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.e-tags { display: flex; gap: 4px; margin-top: 5px; }
+.pri { font-size: 8.5px; font-weight: 700; padding: 1px 5px; border-radius: 100px; font-family: 'Courier New', monospace; }
+.pri.urgent { background: rgba(255,95,78,0.18); color: var(--coral); }
+.pri.high   { background: rgba(255,216,77,0.18); color: var(--yellow); }
+.pri.normal { background: rgba(255,255,255,0.07); color: var(--muted); }
+.pri.fyi    { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.25); }
+.pri.unread { background: rgba(0,194,179,0.15); color: var(--teal); }
+
+/* Email detail */
+.email-detail { display: flex; flex-direction: column; overflow: hidden; }
+.ed-hdr { padding: 18px 22px; border-bottom: 1px solid var(--border); }
+.ed-subject { font-weight: 800; font-size: 16px; margin-bottom: 7px; }
+.ed-meta { font-size: 11.5px; color: var(--muted); margin-bottom: 10px; }
+.ed-body { flex: 1; overflow-y: auto; padding: 18px 22px; }
+.ed-text { font-size: 12.5px; line-height: 1.72; color: rgba(255,255,255,0.78); white-space: pre-wrap; }
+.ed-actions { padding: 12px 22px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+.btn { padding: 7px 14px; border-radius: 7px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.12s; font-family: inherit; }
+.btn-p { background: var(--teal); color: var(--ink); }
+.btn-p:hover { background: #00d9c8; }
+.btn-p:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-s { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid var(--border); }
+.btn-s:hover { background: rgba(255,255,255,0.09); }
+.draft-area { border-top: 1px solid var(--border); padding: 14px 22px; background: var(--surface2); }
+.draft-lbl { font-size: 9.5px; font-weight: 700; letter-spacing: 1.5px; color: var(--teal); text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.draft-txt { font-size: 12px; line-height: 1.7; color: rgba(255,255,255,0.75); white-space: pre-wrap; min-height: 50px; }
+.typing { display: inline-flex; gap: 3px; align-items: center; }
+.tdot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal); animation: tb 1.2s ease infinite; }
+.tdot:nth-child(2){animation-delay:.2s}.tdot:nth-child(3){animation-delay:.4s}
+@keyframes tb{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+
+/* ── CHAT ── */
+.chat-layout { display: flex; flex-direction: column; height: 100%; }
+.chat-hdr { padding: 14px 22px; border-bottom: 1px solid var(--border); font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 9px; }
+.chat-msgs { flex: 1; overflow-y: auto; padding: 18px 22px; display: flex; flex-direction: column; gap: 14px; }
+.msg { display: flex; gap: 10px; max-width: 78%; }
+.msg.user { align-self: flex-end; flex-direction: row-reverse; }
+.m-av { width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; }
+.m-av.kai { background: linear-gradient(135deg, var(--teal), var(--purple)); color: white; }
+.m-av.user { background: var(--purple); color: white; }
+.m-bub { padding: 11px 14px; border-radius: 11px; font-size: 12.5px; line-height: 1.62; }
+.m-bub.kai { background: var(--surface2); border: 1px solid var(--border); color: rgba(255,255,255,0.85); }
+.m-bub.user { background: var(--teal); color: var(--ink); font-weight: 500; }
+.quick-prompts { padding: 0 22px 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+.qp { font-size: 11px; padding: 4px 11px; border-radius: 100px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.12s; font-family: inherit; }
+.qp:hover { border-color: var(--teal); color: var(--teal); background: var(--tealDim); }
+.chat-input-area { padding: 12px 22px; border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: flex-end; }
+.chat-in { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 9px 13px; color: var(--text); font-size: 12.5px; resize: none; outline: none; min-height: 40px; max-height: 110px; transition: border-color 0.12s; font-family: inherit; }
+.chat-in:focus { border-color: rgba(0,194,179,0.35); }
+.chat-in::placeholder { color: var(--muted); }
+.send-btn { width: 38px; height: 38px; border-radius: 9px; background: var(--teal); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--ink); font-size: 15px; flex-shrink: 0; transition: all 0.12s; }
+.send-btn:hover { background: #00d9c8; }
+.send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 10px; color: var(--muted); }
+.empty-icon { font-size: 36px; opacity: 0.4; }
+::-webkit-scrollbar { width: 3px; } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.09); border-radius: 2px; }
+
+/* LOADING */
+.loading-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; }
+.spinner { width: 32px; height: 32px; border: 2px solid var(--border); border-top-color: var(--teal); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text { font-size: 13px; color: var(--muted); }
+
+/* ── MOBILE BOTTOM NAV ── */
+.mobile-nav {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 6px 0 env(safe-area-inset-bottom, 6px);
+  flex-direction: row;
+}
+.mob-nav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  gap: 2px; padding: 6px 4px; cursor: pointer;
+  font-size: 9px; color: var(--muted); transition: color 0.15s;
+  position: relative; border: none; background: none; font-family: inherit;
+}
+.mob-nav-item.active { color: var(--teal); }
+.mob-nav-item .mob-icon { font-size: 20px; line-height: 1; }
+.mob-nav-item .mob-badge {
+  position: absolute; top: 4px; right: calc(50% - 18px);
+  background: var(--coral); color: white;
+  font-size: 8px; font-weight: 700; padding: 0 4px;
+  border-radius: 100px; min-width: 14px; text-align: center;
+}
+.mobile-back {
+  display: none; align-items: center; gap: 6px;
+  padding: 10px 16px; border-bottom: 1px solid var(--border);
+  font-size: 12px; color: var(--teal); cursor: pointer;
+  background: none; border-left: none; border-right: none; border-top: none;
+  font-family: inherit; width: 100%; text-align: left;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: 52px 1fr; height: 100dvh; }
+  .topbar { padding: 0 12px; gap: 8px; }
+  .t-name { font-size: 15px; }
+  .topbar .t-sub-text { display: none; }
+  .t-user { max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
+  .sidebar { display: none; }
+  .main { grid-column: 1; padding-bottom: 64px; }
+  .mobile-nav { display: flex; }
+  .b-header { padding: 14px 16px 12px; }
+  .b-title { font-size: 16px; }
+  .b-grid { grid-template-columns: 1fr; padding: 12px 14px 80px; gap: 12px; overflow-y: auto; }
+  .stat-c { padding: 10px; }
+  .stat-n { font-size: 20px; }
+  .stat-l { font-size: 9.5px; }
+  .inbox-layout { grid-template-columns: 1fr; grid-template-rows: 1fr; height: calc(100dvh - 52px - 64px); }
+  .email-list { border-right: none; max-height: 100%; overflow-y: auto; }
+  .email-detail { display: none; position: fixed; inset: 0; z-index: 120; background: var(--ink); padding-top: 52px; flex-direction: column; overflow-y: auto; }
+  .email-detail.mob-open { display: flex; }
+  .mobile-back { display: flex; }
+  .ed-hdr { padding: 14px 16px; }
+  .ed-body { padding: 14px 16px; flex: 1; overflow-y: auto; }
+  .ed-subject { font-size: 14px; }
+  .ed-actions { padding: 10px 16px; flex-wrap: wrap; }
+  .draft-area { padding: 12px 16px; }
+  .chat-layout { height: calc(100dvh - 52px - 64px); }
+  .chat-hdr { padding: 12px 16px; font-size: 13px; }
+  .chat-msgs { padding: 12px 14px; gap: 10px; }
+  .quick-prompts { padding: 0 14px 8px; gap: 5px; }
+  .qp { font-size: 10.5px; padding: 4px 10px; }
+  .chat-input-area { padding: 10px 14px; }
+  .chat-in { font-size: 16px; }
+  .msg { max-width: 90%; }
+  .m-bub { font-size: 13px; padding: 10px 12px; }
+  .auth-card { padding: 28px 20px; border-radius: 0; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; border: none; }
+  .auth-features { grid-template-columns: 1fr; gap: 6px; }
+  .auth-title { font-size: 22px; }
+  .day-item { font-size: 11px; }
+  .day-row { padding: 8px 12px; }
+  .wb-txt { font-size: 10.5px; }
+  .email-item { padding: 10px 14px; }
+  .e-from { font-size: 12px; }
+  .e-subject { font-size: 11px; }
+}
+@media (max-width: 400px) {
+  .b-title { font-size: 14px; }
+  .stats-2 { gap: 7px; }
+}
+
+/* ── ARCHIVE ── */
+.arch-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3);
+  color: var(--green); font-size: 9px; font-weight: 700;
+  padding: 1px 6px; border-radius: 100px; font-family: 'Courier New', monospace;
+}
+.arch-toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  background: var(--surface); border: 1px solid rgba(34,197,94,0.4);
+  border-left: 3px solid var(--green);
+  border-radius: 10px; padding: 12px 18px; z-index: 300;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  animation: slideUp 0.3s ease; min-width: 280px; max-width: 90vw;
+}
+@keyframes slideUp { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+.arch-toast-icon { font-size: 18px; flex-shrink: 0; }
+.arch-toast-body { flex: 1; }
+.arch-toast-title { font-size: 12px; font-weight: 700; color: var(--green); margin-bottom: 2px; }
+.arch-toast-sub { font-size: 10.5px; color: var(--muted); }
+.btn-archive { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+.btn-archive:hover { background: rgba(34,197,94,0.2); }
+.btn-archive:disabled { opacity: 0.5; cursor: not-allowed; }
+.archive-panel { padding: 16px 24px; overflow-y: auto; }
+.archive-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px; border-radius: 9px;
+  background: var(--surface2); border: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.archive-item-icon { font-size: 18px; flex-shrink: 0; }
+.archive-item-name { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.archive-item-meta { font-size: 10px; color: var(--muted); }
+.archive-item-link { font-size: 10px; color: var(--teal); text-decoration: none; }
+.archive-item-link:hover { text-decoration: underline; }
+.auto-flag {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 12px; background: rgba(34,197,94,0.06);
+  border: 1px solid rgba(34,197,94,0.2); border-radius: 8px;
+  font-size: 11px; color: rgba(255,255,255,0.7); margin-bottom: 4px;
+}
+.auto-flag .flag-icon { font-size: 13px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="authScreen" class="auth-screen">
+  <div class="auth-card">
+    <div class="auth-badge">KAI</div>
+    <div class="auth-title">Knowledge Action Intelligence</div>
+    <div class="auth-sub">Organisational intelligence — built for us</div>
+    <div class="auth-features">
+      <div class="auth-feat"><b>📬 Smart Inbox</b>Prioritised by your stakeholder map</div>
+      <div class="auth-feat"><b>📅 Calendar</b>Clashes, focus time, prep slots</div>
+      <div class="auth-feat"><b>🕐 Timecodes</b>Auto-mapped to our projects</div>
+      <div class="auth-feat"><b>💚 Wellbeing</b>Load detection and nudges</div>
+      <div class="auth-feat"><b>🗄️ Compliance Archive</b>Auto-saves regulatory emails to Drive</div>
+      <div class="auth-feat"><b>✨ Ask KAI</b>Conversational AI across your whole week</div>
+    </div>
+    <button class="auth-btn" onclick="startAuth()">
+      🔐 Connect with Google to Start
+    </button>
+    <div class="auth-note">
+      Sign in with your KAI demo Gmail account.<br>
+      If Google shows "app not verified" — click Advanced → Go to KAI Demo (unsafe).<br>
+      This is safe — you own the app and the account.
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="loadingScreen" class="loading-screen" style="display:none">
+  <div class="spinner"></div>
+  <div class="loading-text">Loading your KAI briefing...</div>
+</div>
+
+<!-- APP -->
+<div id="appScreen" class="app" style="display:none">
+  <header class="topbar">
+    <div class="t-logo">
+      <div class="t-badge">KAI</div>
+      <span class="t-name">KAI</span>
+      <span style="font-size:10.5px;color:var(--muted);font-family:'Courier New',monospace">· Knowledge Action Intelligence</span>
+    </div>
+    <div class="t-right">
+      <div class="t-dot"></div>
+      <span class="t-user" id="topbarEmail"></span>
+      <button class="t-signout" onclick="signOut()">Sign out</button>
+    </div>
+  </header>
+
+  <!-- MOBILE BOTTOM NAV -->
+  <nav class="mobile-nav">
+    <button class="mob-nav-item active" data-panel="briefing" onclick="mobNav(this)">
+      <span class="mob-icon">🌅</span>Briefing
+    </button>
+    <button class="mob-nav-item" data-panel="inbox" onclick="mobNav(this)">
+      <span class="mob-icon">📬</span>Inbox
+      <span class="mob-badge" id="mobInboxBadge" style="display:none"></span>
+    </button>
+    <button class="mob-nav-item" data-panel="chat" onclick="mobNav(this)">
+      <span class="mob-icon">💬</span>Ask KAI
+    </button>
+    <button class="mob-nav-item" data-panel="briefing" onclick="mobNav(this)">
+      <span class="mob-icon">💚</span>Wellbeing
+    </button>
+    <button class="mob-nav-item" data-panel="archive" onclick="mobNav(this)">
+      <span class="mob-icon">🗄️</span>Archive
+      <span class="mob-badge" id="mobArchiveBadge" style="display:none"></span>
+    </button>
+  </nav>
+
+  <nav class="sidebar">
+    <div class="nav-sec">
+      <div class="nav-lbl">Overview</div>
+      <div class="nav-item active" data-panel="briefing" onclick="switchPanel(this)">
+        <span class="nav-icon">🌅</span> Morning Briefing
+      </div>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-lbl">Productivity</div>
+      <div class="nav-item" data-panel="inbox" onclick="switchPanel(this)">
+        <span class="nav-icon">📬</span> Smart Inbox
+        <span class="nav-badge" id="inboxBadge">–</span>
+      </div>
+      <div class="nav-item" data-panel="chat" onclick="switchPanel(this)">
+        <span class="nav-icon">💬</span> Ask KAI
+        <span class="nav-badge t">AI</span>
+      </div>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-lbl">Insights</div>
+      <div class="nav-item" data-panel="briefing" onclick="switchPanel(this)">
+        <span class="nav-icon">🕐</span> Timecodes
+      </div>
+      <div class="nav-item" data-panel="briefing" onclick="switchPanel(this)">
+        <span class="nav-icon">💚</span> Wellbeing
+      </div>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-lbl">Compliance</div>
+      <div class="nav-item" data-panel="archive" onclick="switchPanel(this)">
+        <span class="nav-icon">🗄️</span> KAI Archive
+        <span class="nav-badge t" id="archiveBadge">0</span>
+      </div>
+    </div>
+    <div class="kai-pill">
+      <div class="kai-pill-name">KAI is active</div>
+      <div class="kai-pill-sub" id="pillStatus">Reading your inbox...</div>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- BRIEFING -->
+    <div class="panel active" id="panel-briefing">
+      <div class="b-header">
+        <div class="b-title">Good morning — here's your week</div>
+        <div class="b-sub" id="briefingSub">Loading your briefing...</div>
+      </div>
+      <div class="b-grid">
+        <div>
+          <div class="week-card">
+            <div class="card-hdr">Week Ahead — from your Calendar</div>
+            <div id="weekAhead">
+              <div style="padding:20px;font-size:12px;color:var(--muted);text-align:center">Loading calendar...</div>
+            </div>
+          </div>
+        </div>
+        <div class="right-col">
+          <div class="stats-2">
+            <div class="stat-c"><div class="stat-n" id="statEmails">–</div><div class="stat-l">Emails needing<br>attention</div></div>
+            <div class="stat-c"><div class="stat-n y" id="statClashes">–</div><div class="stat-l">Calendar<br>clashes</div></div>
+            <div class="stat-c"><div class="stat-n c" id="statWellbeing">–</div><div class="stat-l">Wellbeing<br>flag</div></div>
+            <div class="stat-c"><div class="stat-n p" id="statTimecodes">3</div><div class="stat-l">Timecodes<br>suggested</div></div>
+          </div>
+          <div class="wb-card">
+            <div class="card-hdr">Wellbeing Nudges</div>
+            <div id="wellbeingNudges">
+              <div style="padding:14px;font-size:11px;color:var(--muted)">Analysing your week...</div>
+            </div>
+          </div>
+          <div class="tc-card">
+            <div class="card-hdr">Timecode Suggestions</div>
+            <div class="tc-row"><span class="tc-code">PRJ-042</span><span class="tc-desc">Digital Transformation meetings</span></div>
+            <div class="tc-row"><span class="tc-code">GOV-011</span><span class="tc-desc">Board + governance reviews</span></div>
+            <div class="tc-row"><span class="tc-code">BAU-001</span><span class="tc-desc">1:1s and standups</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INBOX -->
+    <div class="panel" id="panel-inbox">
+      <div class="inbox-layout">
+        <div class="email-list">
+          <div class="email-list-hdr">
+            Inbox
+            <div style="display:flex;gap:5px">
+              <button class="fbtn active" onclick="filterEmails('all',this)">All</button>
+              <button class="fbtn" onclick="filterEmails('urgent',this)">Urgent</button>
+            </div>
+          </div>
+          <div id="emailList"><div style="padding:20px;font-size:12px;color:var(--muted);text-align:center">Loading inbox...</div></div>
+        </div>
+        <div class="email-detail" id="emailDetail">
+          <button class="mobile-back" onclick="closeMobileEmail()">← Back to inbox</button>
+          <div class="empty-state"><div class="empty-icon">📭</div><div style="font-size:12px">Select an email to read</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="panel" id="panel-chat">
+      <div class="chat-layout">
+        <div class="chat-hdr">
+          <div class="t-badge" style="width:26px;height:26px;font-size:9px">KAI</div>
+          Ask KAI about your day
+        </div>
+        <div class="chat-msgs" id="chatMsgs">
+          <div class="msg">
+            <div class="m-av kai">KAI</div>
+            <div class="m-bub kai">Hi — I'm KAI, your organisational intelligence assistant. I've read your inbox and calendar. What would you like help with?</div>
+          </div>
+        </div>
+        <div class="quick-prompts">
+          <button class="qp" onclick="sendQuick(this)">What should I prioritise today?</button>
+          <button class="qp" onclick="sendQuick(this)">Summarise my week ahead</button>
+          <button class="qp" onclick="sendQuick(this)">Any urgent emails I've missed?</button>
+          <button class="qp" onclick="sendQuick(this)">How does Wednesday look?</button>
+          <button class="qp" onclick="sendQuick(this)">Draft a reply to the Director</button>
+        </div>
+        <div class="chat-input-area">
+          <textarea class="chat-in" id="chatIn" placeholder="Ask KAI about your inbox, calendar, priorities..." rows="1"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
+            oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+          <button class="send-btn" id="sendBtn" onclick="sendChat()">↑</button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ARCHIVE -->
+    <div class="panel" id="panel-archive">
+      <div class="b-header">
+        <div class="b-title">KAI Archive</div>
+        <div class="b-sub">Regulatory and important emails saved to Google Drive</div>
+      </div>
+      <div class="archive-panel">
+        <div style="margin-bottom:16px">
+          <div class="card-hdr" style="border-radius:8px 8px 0 0;padding:10px 14px;background:var(--surface2);border:1px solid var(--border)">AUTO-ARCHIVE RULES ACTIVE</div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:12px 14px;display:flex;flex-direction:column;gap:6px">
+            <div class="auto-flag"><span class="flag-icon">🔴</span>URGENT emails from Director level and above</div>
+            <div class="auto-flag"><span class="flag-icon">📋</span>Emails containing: governance, regulatory, compliance, sign-off, board decision, FCA</div>
+            <div class="auto-flag"><span class="flag-icon">👤</span>Emails from approved stakeholder domains</div>
+            <div class="auto-flag"><span class="flag-icon">💬</span>Any email you manually flag with "KAI save this"</div>
+          </div>
+        </div>
+        <div class="card-hdr" style="border-radius:8px 8px 0 0;padding:10px 14px;background:var(--surface2);border:1px solid var(--border)">ARCHIVED ITEMS</div>
+        <div id="archiveList" style="background:var(--surface2);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:12px 14px">
+          <div style="font-size:12px;color:var(--muted);text-align:center;padding:20px">
+            No items archived yet. Open an email and click <b style="color:var(--green)">🗄️ Archive to Drive</b> to save it.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const CLIENT_ID = '294776404978-p9p631onqisej0ohvt0kbsfd1hoqrkm.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.file';
+const REDIRECT_URI = window.location.origin + window.location.pathname;
+// UPDATE THIS after deploying Cloudflare Worker:
+const WORKER_URL = 'https://kai-demo-proxy.kishore510.workers.dev';
+
+let accessToken = null;
+let gmailData = [];
+let calendarData = [];
+let chatHistory = [];
+let selectedEmailId = null;
+let currentFilter = 'all';
+
+// ── PKCE ──
+function genVerifier() {
+  const a = new Uint8Array(32); crypto.getRandomValues(a);
+  return btoa(String.fromCharCode(...a)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+}
+async function genChallenge(v) {
+  const e = new TextEncoder().encode(v);
+  const h = await crypto.subtle.digest('SHA-256', e);
+  return btoa(String.fromCharCode(...new Uint8Array(h))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+}
+
+async function startAuth() {
+  const v = genVerifier();
+  const c = await genChallenge(v);
+  sessionStorage.setItem('pv', v);
+  const p = new URLSearchParams({
+    client_id: CLIENT_ID, redirect_uri: REDIRECT_URI,
+    response_type: 'code', scope: SCOPES,
+    code_challenge: c, code_challenge_method: 'S256',
+    access_type: 'offline', prompt: 'consent',
+    login_hint: 'kai.demo.2026@gmail.com'
+  });
+  window.location = 'https://accounts.google.com/o/oauth2/v2/auth?' + p;
+}
+
+async function exchangeCode(code) {
+  const r = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id: CLIENT_ID, code,
+      code_verifier: sessionStorage.getItem('pv'),
+      grant_type: 'authorization_code', redirect_uri: REDIRECT_URI
+    })
+  });
+  return r.json();
+}
+
+function signOut() {
+  accessToken = null; sessionStorage.clear();
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('appScreen').style.display = 'none';
+}
+
+// ── GMAIL ──
+async function fetchEmails() {
+  const r = await fetch(
+    'https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=20&labelIds=INBOX',
+    { headers: { Authorization: 'Bearer ' + accessToken } }
+  );
+  const d = await r.json();
+  if (!d.messages) return [];
+  const msgs = await Promise.all(d.messages.slice(0,10).map(m =>
+    fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${m.id}?format=full`,
+      { headers: { Authorization: 'Bearer ' + accessToken } }).then(r => r.json())
+  ));
+  return msgs.map(parseEmail);
+}
+
+function parseEmail(msg) {
+  const h = msg.payload?.headers || [];
+  const get = (name) => h.find(x => x.name.toLowerCase() === name.toLowerCase())?.value || '';
+  const isUnread = msg.labelIds?.includes('UNREAD');
+  const from = get('From');
+  const fromName = from.replace(/<.*>/, '').trim().replace(/"/g,'') || from;
+  const fromEmail = (from.match(/<(.+)>/) || [,''])[1] || from;
+  const subject = get('Subject') || '(no subject)';
+  const date = get('Date');
+  const snippet = msg.snippet || '';
+
+  let priority = 'normal';
+  const fl = fromEmail.toLowerCase();
+  const sl = subject.toLowerCase();
+  if (fl.includes('sarah.chen') || fl.includes('director') || sl.includes('urgent')) priority = 'urgent';
+  else if (fl.includes('marcus.webb') || fl.includes('james.thornton') || fl.includes('cto') || fl.includes('head of risk')) priority = 'high';
+  else if (fl.includes('helpdesk') || fl.includes('noreply') || fl.includes('newsletter')) priority = 'fyi';
+  else if (fl.includes('priya') || fl.includes('programme')) priority = 'high';
+
+  let body = '';
+  const extractBody = (part) => {
+    if (part.mimeType === 'text/plain' && part.body?.data) {
+      try { body = atob(part.body.data.replace(/-/g,'+').replace(/_/g,'/')); } catch(e) {}
+    }
+    if (part.parts) part.parts.forEach(extractBody);
+  };
+  extractBody(msg.payload || {});
+
+  const timeAgo = () => {
+    const sent = new Date(date);
+    const diff = (Date.now() - sent) / 3600000;
+    if (diff < 1) return 'Just now';
+    if (diff < 24) return Math.floor(diff) + 'h ago';
+    return Math.floor(diff/24) + 'd ago';
+  };
+
+  return { id: msg.id, from: fromName.trim(), fromEmail, subject, snippet, body: body || snippet, time: timeAgo(), priority, unread: isUnread };
+}
+
+// ── CALENDAR ──
+async function fetchCalendar() {
+  const now = new Date();
+  const end = new Date(now); end.setDate(now.getDate() + 7);
+  const r = await fetch(
+    `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${now.toISOString()}&timeMax=${end.toISOString()}&singleEvents=true&orderBy=startTime&maxResults=30`,
+    { headers: { Authorization: 'Bearer ' + accessToken } }
+  );
+  return (await r.json()).items || [];
+}
+
+// ── RENDER ──
+function getDayName(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return ['SUN','MON','TUE','WED','THU','FRI','SAT'][d.getDay()];
+}
+
+function getTime(ev) {
+  if (ev.start?.date) return 'All day';
+  if (!ev.start?.dateTime) return '';
+  return new Date(ev.start.dateTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+
+function renderWeekAhead(events) {
+  const days = {};
+  events.forEach(ev => {
+    const d = ev.start?.date || ev.start?.dateTime?.split('T')[0];
+    if (!d) return;
+    if (!days[d]) days[d] = [];
+    days[d].push(ev);
+  });
+
+  const sorted = Object.entries(days).sort(([a],[b]) => a.localeCompare(b)).slice(0,5);
+  if (!sorted.length) return '<div style="padding:16px;font-size:12px;color:var(--muted)">No upcoming events found. Make sure you ran the data seeder.</div>';
+
+  return sorted.map(([date, evs]) => {
+    const dayName = getDayName(date);
+    const items = evs.map(ev => {
+      const t = getTime(ev);
+      const s = ev.summary || '';
+      let tagClass = 'normal', tagLabel = t;
+      if (s.includes('FOCUS') || s.includes('PREP')) { tagClass = 'focus'; tagLabel = s.includes('PREP') ? 'PREP' : 'FOCUS'; }
+      else if (s.includes('CLASH') || s.toLowerCase().includes('clash')) { tagClass = 'clash'; tagLabel = 'CLASH'; }
+      else if (s.includes('TRAVEL') || s.includes('Transit')) { tagClass = 'travel'; tagLabel = 'TRAVEL'; }
+      const displayName = s.replace(/\s*\(.*?\)\s*/g,'').replace(/^(FOCUS|PREP|TRAVEL):\s*/,'').substring(0,50);
+      return `<div class="day-item"><span class="tag ${tagClass}">${tagLabel}</span>${displayName}</div>`;
+    }).join('');
+    return `<div class="day-row"><div class="day-nm">${dayName}</div><div class="day-items">${items}</div></div>`;
+  }).join('');
+}
+
+function analyseBriefing(emails, events) {
+  const urgentCount = emails.filter(e => e.priority === 'urgent' || e.priority === 'high').length;
+  document.getElementById('statEmails').textContent = urgentCount || emails.filter(e=>e.unread).length;
+
+  // Count clashes
+  const byDay = {};
+  events.forEach(ev => {
+    const d = ev.start?.dateTime?.split('T')[0];
+    if (d) { if (!byDay[d]) byDay[d] = []; byDay[d].push(ev); }
+  });
+  let clashes = 0;
+  Object.values(byDay).forEach(dayEvs => {
+    for (let i = 0; i < dayEvs.length; i++) {
+      for (let j = i+1; j < dayEvs.length; j++) {
+        const s1 = new Date(dayEvs[i].start?.dateTime), e1 = new Date(dayEvs[i].end?.dateTime);
+        const s2 = new Date(dayEvs[j].start?.dateTime);
+        if (s2 < e1) clashes++;
+      }
+    }
+  });
+  document.getElementById('statClashes').textContent = clashes;
+
+  // Wellbeing
+  let heavyDay = '';
+  Object.entries(byDay).forEach(([d, evs]) => {
+    if (evs.length >= 5) heavyDay = getDayName(d);
+  });
+  document.getElementById('statWellbeing').textContent = heavyDay || '–';
+
+  // Wellbeing nudges
+  const nudges = [];
+  Object.entries(byDay).forEach(([d, evs]) => {
+    if (evs.length >= 5) nudges.push({ level: '#dd3333', text: `<b>${getDayName(d)} looks intense</b> — ${evs.length} meetings detected. Want me to protect a 30 min lunch slot?` });
+  });
+  if (emails.filter(e=>e.unread&&(e.priority==='urgent'||e.priority==='high')).length > 2)
+    nudges.push({ level: '#ddaa00', text: `<b>Multiple high-priority unread emails.</b> Recommend addressing these before your first meeting.` });
+  nudges.push({ level: '#22aa55', text: `<b>Timecodes ready</b> — KAI has matched this week's meetings to PRJ-042, GOV-011 and BAU-001.` });
+
+  document.getElementById('wellbeingNudges').innerHTML = nudges.slice(0,3).map(n =>
+    `<div class="wb-row"><div class="wb-dot" style="background:${n.level}"></div><div class="wb-txt">${n.text}</div></div>`
+  ).join('');
+
+  document.getElementById('briefingSub').textContent = `KAI analysed ${emails.length} emails and ${events.length} calendar events · Updated just now`;
+  document.getElementById('pillStatus').textContent = `${urgentCount} urgent items need attention`;
+}
+
+function renderEmailList() {
+  const filtered = currentFilter === 'all' ? gmailData : gmailData.filter(e => e.priority === currentFilter);
+  const priorityOrder = { urgent:0, high:1, normal:2, fyi:3 };
+  const sorted = [...filtered].sort((a,b) => (priorityOrder[a.priority]||2) - (priorityOrder[b.priority]||2));
+  document.getElementById('inboxBadge').textContent = gmailData.filter(e=>e.unread).length;
+
+  document.getElementById('emailList').innerHTML = sorted.map(e => `
+    <div class="email-item ${e.unread?'unread':''} ${selectedEmailId===e.id?'selected':''}" onclick="selectEmail('${e.id}')">
+      <div class="e-meta"><span class="e-from">${e.from}</span><span class="e-time">${e.time}</span></div>
+      <div class="e-subject">${e.subject}</div>
+      <div class="e-preview">${e.snippet}</div>
+      <div class="e-tags">
+        <span class="pri ${e.priority}">${e.priority.toUpperCase()}</span>
+        ${e.unread ? '<span class="pri unread">UNREAD</span>' : ''}
+        ${shouldAutoArchive(e) ? '<span class="arch-badge">📋 ARCHIVE RECOMMENDED</span>' : ''}
+        ${e.archived ? '<span class="arch-badge">🗄️ ARCHIVED</span>' : ''}
+      </div>
+    </div>
+  `).join('') || '<div style="padding:20px;font-size:12px;color:var(--muted);text-align:center">No emails found</div>';
+}
+
+function filterEmails(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderEmailList();
+}
+
+function selectEmail(id) {
+  selectedEmailId = id;
+  const email = gmailData.find(e => e.id === id);
+  if (!email) return;
+  renderEmailList();
+  if (window.innerWidth <= 768) { document.getElementById("emailDetail").classList.add("mob-open"); }
+
+  document.getElementById('emailDetail').innerHTML = `
+    <div class="ed-hdr">
+      <div class="ed-subject">${email.subject}</div>
+      <div class="ed-meta"><b>${email.from}</b> &lt;${email.fromEmail}&gt;<br>${email.time}</div>
+      <span class="pri ${email.priority}">${email.priority.toUpperCase()} PRIORITY</span>
+    </div>
+    <div class="ed-body"><div class="ed-text">${email.body || email.snippet}</div></div>
+    <div class="ed-actions">
+      <button class="btn btn-p" onclick="draftReply('${email.id}')">✨ KAI Draft Reply</button>
+      <button class="btn btn-archive" id="archiveBtn-${email.id}" onclick="archiveEmail('${email.id}')">🗄️ Archive to Drive</button>
+      <button class="btn btn-s">Reply</button>
+      <button class="btn btn-s">Forward</button>
+    </div>
+    <div class="draft-area" id="draftArea" style="display:none">
+      <div class="draft-lbl">✦ KAI Draft Reply</div>
+      <div class="draft-txt" id="draftTxt"></div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn btn-p" onclick="copyDraft()">Copy</button>
+        <button class="btn btn-s" onclick="document.getElementById('draftArea').style.display='none'">Dismiss</button>
+      </div>
+    </div>
+  `;
+}
+
+async function draftReply(emailId) {
+  const email = gmailData.find(e => e.id === emailId);
+  const da = document.getElementById('draftArea');
+  const dt = document.getElementById('draftTxt');
+  da.style.display = 'block';
+  dt.innerHTML = '<div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>';
+
+  const prompt = `You are a senior Enterprise Platform Architect at a UK financial services regulator. Draft a professional, direct reply to this email. Be concise. No sycophancy. Sign off with "Best regards," only.
+
+From: ${email.from}
+Subject: ${email.subject}
+Message: ${email.body}
+
+Write only the email body. No subject line.`;
+
+  try {
+    const reply = await callClaude(prompt, false);
+    dt.textContent = reply;
+  } catch(e) {
+    dt.textContent = 'Unable to generate draft — check your Cloudflare Worker URL is configured.';
+  }
+}
+
+function copyDraft() {
+  navigator.clipboard.writeText(document.getElementById('draftTxt').textContent);
+  event.target.textContent = 'Copied!';
+  setTimeout(() => event.target.textContent = 'Copy', 1800);
+}
+
+// ── CLAUDE ──
+const KAI_SYSTEM = `You are KAI — Knowledge Action Intelligence. You are the personal organisational intelligence assistant for a senior Enterprise Platform Architect at a UK financial services regulatory organisation.
+
+You have analysed their inbox and calendar. Key facts this week:
+- ${() => gmailData.filter(e=>e.priority==='urgent').length} URGENT emails including one from the Director needing a strategy paper by 2pm today
+- Head of Risk needs sign-off on AI control framework before Tuesday Governance Board
+- CTO email unreplied for 26+ hours
+- Calendar clash Monday 2pm (Architecture Review vs Director 1:1)
+- Wednesday: 6 back-to-back meetings, no lunch break detected
+- Thursday: London travel day
+- Timecodes: PRJ-042 (Digital Transformation), GOV-011 (Governance), BAU-001 (BAU)
+
+Be direct, concise and professional. You know how this organisation works. Give specific, actionable answers.`;
+
+async function callClaude(userMsg, isChat = true) {
+  const messages = isChat
+    ? [...chatHistory, { role:'user', content: userMsg }]
+    : [{ role:'user', content: userMsg }];
+
+  if (WORKER_URL === 'YOUR_CLOUDFLARE_WORKER_URL') {
+    return "⚠️ Cloudflare Worker URL not configured yet. Update the WORKER_URL variable in index.html with your Worker URL, then redeploy to GitHub Pages.";
+  }
+
+  const res = await fetch(WORKER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1024,
+      system: isChat ? KAI_SYSTEM : 'You are a professional email assistant. Be concise.',
+      messages
+    })
+  });
+  const data = await res.json();
+  return data.content?.[0]?.text || 'No response';
+}
+
+function addMsg(role, text) {
+  const msgs = document.getElementById('chatMsgs');
+  const d = document.createElement('div');
+  d.className = 'msg ' + role;
+  d.innerHTML = `<div class="m-av ${role}">${role==='kai'?'KAI':'You'}</div><div class="m-bub ${role}">${text.replace(/\n/g,'<br>')}</div>`;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addTyping() {
+  const msgs = document.getElementById('chatMsgs');
+  const d = document.createElement('div');
+  d.className = 'msg kai'; d.id = 'typing';
+  d.innerHTML = '<div class="m-av kai">KAI</div><div class="m-bub kai"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>';
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+async function sendChat() {
+  const inp = document.getElementById('chatIn');
+  const btn = document.getElementById('sendBtn');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = ''; inp.style.height = 'auto'; btn.disabled = true;
+  addMsg('user', text);
+  chatHistory.push({ role:'user', content: text });
+  addTyping();
+  try {
+    const reply = await callClaude(text, true);
+    document.getElementById('typing')?.remove();
+    addMsg('kai', reply);
+    chatHistory.push({ role:'assistant', content: reply });
+  } catch(e) {
+    document.getElementById('typing')?.remove();
+    addMsg('kai', 'Having trouble connecting. Please check your Worker URL configuration.');
+  }
+  btn.disabled = false; inp.focus();
+}
+
+function sendQuick(btn) { document.getElementById('chatIn').value = btn.textContent; sendChat(); }
+
+function switchPanel(item) {
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  item.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + item.dataset.panel).classList.add('active');
+}
+
+// ── INIT ──
+async function loadApp() {
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('loadingScreen').style.display = 'flex';
+  try {
+    const email = sessionStorage.getItem('userEmail') || '';
+    document.getElementById('topbarEmail').textContent = email;
+    const [emails, events] = await Promise.all([fetchEmails(), fetchCalendar()]);
+    gmailData = emails;
+    calendarData = events;
+    document.getElementById('weekAhead').innerHTML = renderWeekAhead(events);
+    renderEmailList();
+    analyseBriefing(emails, events);
+    const urgentEmails = emails.filter(e=>e.priority==='urgent'||e.priority==='high');
+    chatHistory = [{ role:'assistant', content:`Hi — I'm KAI. I've read your inbox and calendar. You have ${urgentEmails.length} high-priority emails and ${events.length} events this week. What would you like help with?` }];
+    document.getElementById('chatMsgs').innerHTML = `<div class="msg"><div class="m-av kai">KAI</div><div class="m-bub kai">Hi — I've read your inbox and calendar. You have <b>${urgentEmails.length} high-priority emails</b> and <b>${events.length} calendar events</b> this week. What would you like help with?</div></div>`;
+    checkAutoArchiveRecommendations();
+  } catch(e) {
+    console.error(e);
+    document.getElementById('weekAhead').innerHTML = '<div style="padding:16px;font-size:12px;color:var(--coral)">Error loading data. Token may have expired — try signing out and back in.</div>';
+  }
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display = 'grid';
+}
+
+async function handleCallback() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (!code) return false;
+  window.history.replaceState({}, '', window.location.pathname);
+  const tokens = await exchangeCode(code);
+  if (!tokens.access_token) return false;
+  accessToken = tokens.access_token;
+  sessionStorage.setItem('token', accessToken);
+  const uRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', { headers: { Authorization: 'Bearer ' + accessToken } });
+  const uData = await uRes.json();
+  sessionStorage.setItem('userEmail', uData.email || '');
+  return true;
+}
+
+async function init() {
+  const stored = sessionStorage.getItem('token');
+  if (stored) { accessToken = stored; await loadApp(); return; }
+  const fromCallback = await handleCallback();
+  if (fromCallback) { await loadApp(); return; }
+  document.getElementById('authScreen').style.display = 'flex';
+}
+
+init();
+
+function mobNav(btn) {
+  document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const panel = btn.dataset.panel;
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + panel).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(i => {
+    if (i.dataset.panel === panel) i.classList.add('active');
+    else i.classList.remove('active');
+  });
+}
+
+function closeMobileEmail() {
+  document.getElementById('emailDetail').classList.remove('mob-open');
+}
+
+// ── ARCHIVE ──
+const archivedItems = [];
+const REGULATORY_KEYWORDS = ['governance','regulatory','compliance','sign-off','board decision','fca','risk framework','control framework','audit','policy','approval','minister','exco','urgent'];
+
+function shouldAutoArchive(email) {
+  if (email.priority === 'urgent' || email.priority === 'high') return true;
+  const combined = (email.subject + ' ' + email.snippet + ' ' + (email.body||'')).toLowerCase();
+  return REGULATORY_KEYWORDS.some(kw => combined.includes(kw));
+}
+
+function getArchiveFolder(email) {
+  const subj = (email.subject + ' ' + (email.body||'')).toLowerCase();
+  if (subj.includes('governance') || subj.includes('board') || subj.includes('control framework')) return 'KAI Archive/Governance';
+  if (subj.includes('regulatory') || subj.includes('fca') || subj.includes('compliance') || subj.includes('risk')) return 'KAI Archive/Regulatory';
+  if (subj.includes('prj-042') || subj.includes('digital transformation') || subj.includes('project')) return 'KAI Archive/Projects/PRJ-042';
+  if (email.priority === 'urgent' || email.priority === 'high') return 'KAI Archive/Stakeholder Correspondence';
+  return 'KAI Archive/General';
+}
+
+async function ensureDriveFolder(folderPath) {
+  // Create nested folders in Drive, return final folder ID
+  const parts = folderPath.split('/');
+  let parentId = 'root';
+  for (const part of parts) {
+    // Search for existing folder
+    const search = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=name='${encodeURIComponent(part)}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false`,
+      { headers: { Authorization: 'Bearer ' + accessToken } }
+    );
+    const result = await search.json();
+    if (result.files && result.files.length > 0) {
+      parentId = result.files[0].id;
+    } else {
+      // Create folder
+      const create = await fetch('https://www.googleapis.com/drive/v3/files', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: part, mimeType: 'application/vnd.google-apps.folder', parents: [parentId] })
+      });
+      const folder = await create.json();
+      parentId = folder.id;
+    }
+    await new Promise(r => setTimeout(r, 100));
+  }
+  return parentId;
+}
+
+async function archiveEmail(emailId) {
+  const email = gmailData.find(e => e.id === emailId);
+  if (!email) return;
+
+  const btn = document.getElementById('archiveBtn-' + emailId);
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Archiving...'; }
+
+  try {
+    const folder = getArchiveFolder(email);
+    const folderId = await ensureDriveFolder(folder);
+
+    // Build email content as plain text file
+    const dateStr = new Date().toISOString().split('T')[0];
+    const fileName = `${dateStr} — ${email.subject.substring(0,60).replace(/[/\?%*:|"<>]/g,'')}.txt`;
+    const fileContent = [
+      'KAI ARCHIVED EMAIL',
+      '==================',
+      `Date Archived: ${new Date().toLocaleString('en-GB')}`,
+      `Archive Location: ${folder}`,
+      `Auto-Archive Triggered: ${shouldAutoArchive(email) ? 'Yes' : 'No — Manual'}`,
+      '',
+      'EMAIL DETAILS',
+      '=============',
+      `From: ${email.from} <${email.fromEmail}>`,
+      `Subject: ${email.subject}`,
+      `Received: ${email.time}`,
+      `Priority: ${email.priority.toUpperCase()}`,
+      '',
+      'MESSAGE',
+      '=======',
+      email.body || email.snippet,
+      '',
+      '---',
+      'Archived by KAI — Knowledge Action Intelligence',
+    ].join('\n');
+
+    // Upload to Drive
+    const metadata = { name: fileName, parents: [folderId] };
+    const form = new FormData();
+    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+    form.append('file', new Blob([fileContent], { type: 'text/plain' }));
+
+    const upload = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + accessToken },
+      body: form
+    });
+    const file = await upload.json();
+
+    if (!file.id) throw new Error('Upload failed');
+
+    // Mark as archived
+    email.archived = true;
+    archivedItems.unshift({ email, folder, fileName, fileId: file.id, link: file.webViewLink, archivedAt: new Date() });
+
+    // Update UI
+    if (btn) { btn.textContent = '✅ Archived'; btn.style.background = 'rgba(34,197,94,0.2)'; }
+    renderEmailList();
+    updateArchivePanel();
+    showArchiveToast(email, folder, file.webViewLink);
+    document.getElementById('archiveBadge').textContent = archivedItems.length;
+    const mab=document.getElementById('mobArchiveBadge'); if(mab){mab.textContent=archivedItems.length;mab.style.display='block';}
+
+    // Tell KAI about it in chat context
+    chatHistory.push({ role:'user', content: `I just archived the email "${email.subject}" from ${email.from}` });
+    chatHistory.push({ role:'assistant', content: `Done — I've saved "${email.subject}" to ${folder} in Google Drive. This email has been added to the compliance archive. Do you want me to draft a response acknowledging receipt?` });
+
+  } catch(err) {
+    if (btn) { btn.disabled = false; btn.textContent = '🗄️ Archive to Drive'; }
+    showArchiveToast(null, null, null, err.message);
+  }
+}
+
+function showArchiveToast(email, folder, link, error = null) {
+  const existing = document.getElementById('archiveToast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.id = 'archiveToast';
+  toast.className = 'arch-toast';
+
+  if (error) {
+    toast.style.borderLeftColor = 'var(--coral)';
+    toast.innerHTML = `
+      <div class="arch-toast-icon">⚠️</div>
+      <div class="arch-toast-body">
+        <div class="arch-toast-title" style="color:var(--coral)">Archive failed</div>
+        <div class="arch-toast-sub">${error}</div>
+      </div>`;
+  } else {
+    toast.innerHTML = `
+      <div class="arch-toast-icon">🗄️</div>
+      <div class="arch-toast-body">
+        <div class="arch-toast-title">Archived to Google Drive</div>
+        <div class="arch-toast-sub">Saved to ${folder} ${link ? '· <a href="' + link + '" target="_blank" style="color:var(--teal)">Open in Drive</a>' : ''}</div>
+      </div>
+      <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0 0 0 8px">×</button>`;
+  }
+
+  document.body.appendChild(toast);
+  setTimeout(() => toast?.remove(), 6000);
+}
+
+function updateArchivePanel() {
+  const list = document.getElementById('archiveList');
+  if (!list) return;
+  if (archivedItems.length === 0) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px">No items archived yet.</div>';
+    return;
+  }
+  list.innerHTML = archivedItems.map(item => `
+    <div class="archive-item">
+      <div class="archive-item-icon">📄</div>
+      <div style="flex:1;min-width:0">
+        <div class="archive-item-name">${item.email.subject.substring(0,55)}${item.email.subject.length > 55 ? '...' : ''}</div>
+        <div class="archive-item-meta">From: ${item.email.from} · ${item.archivedAt.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'})}</div>
+        <div class="archive-item-meta" style="color:var(--green)">${item.folder}</div>
+        ${item.link ? `<a href="${item.link}" target="_blank" class="archive-item-link">Open in Drive →</a>` : ''}
+      </div>
+      <span class="arch-badge">SAVED</span>
+    </div>
+  `).join('');
+}
+
+// Auto-archive check on load — flag urgent emails
+function checkAutoArchiveRecommendations() {
+  const recommended = gmailData.filter(e => !e.archived && shouldAutoArchive(e));
+  if (recommended.length > 0) {
+    const names = recommended.slice(0,2).map(e => e.from).join(', ');
+    const msg = `📋 I've identified ${recommended.length} email${recommended.length>1?'s':''} that should be archived for compliance — from ${names}${recommended.length>2?' and others':''}. Open them and use the <b>Archive to Drive</b> button, or say "KAI archive all urgent emails" and I'll do it for you.`;
+    setTimeout(() => {
+      const msgs = document.getElementById('chatMsgs');
+      if (!msgs) return;
+      const d = document.createElement('div');
+      d.className = 'msg';
+      d.innerHTML = `<div class="m-av kai">KAI</div><div class="m-bub kai">${msg}</div>`;
+      msgs.appendChild(d);
+      msgs.scrollTop = msgs.scrollHeight;
+    }, 3000);
+  }
+}
+
+</script>
+</body>
+</html>
