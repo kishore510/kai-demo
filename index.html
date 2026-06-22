@@ -675,7 +675,7 @@ const CLIENT_ID = '294776404978-p9p6q310nqisej0ohvt0kbsfd1hoqrkm.apps.googleuser
 const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.file';
 const REDIRECT_URI = 'https://kishore510.github.io/kai-demo';
 // UPDATE THIS after deploying Cloudflare Worker:
-const WORKER_URL = 'https://kai-demo-proxy.kishore510.workers.dev';
+const WORKER_URL = 'https://kai-demo-proxy.kishore510.workers.dev/';
 
 let accessToken = null;
 let gmailData = [];
@@ -1078,6 +1078,7 @@ async function sendChat() {
     addMsg('kai', reply);
     chatHistory.push({ role:'assistant', content: reply });
   } catch(e) {
+    console.error('Claude call failed:', e);
     document.getElementById('typing')?.remove();
     addMsg('kai', 'Having trouble connecting. Please check your Worker URL configuration.');
   }
