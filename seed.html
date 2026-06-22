@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KAI — Data Seeder</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #07081a; --teal: #00c2b3; --coral: #ff5f4e;
+  --yellow: #ffd84d; --purple: #7b5ea7; --green: #22c55e;
+  --white: #fff; --surface: #111120; --border: rgba(255,255,255,0.08);
+  --muted: rgba(255,255,255,0.45); --text: rgba(255,255,255,0.88);
+}
+body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--ink); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 40px 20px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 36px; width: 100%; max-width: 720px; margin-bottom: 20px; }
+.logo { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.badge { width: 42px; height: 42px; border-radius: 11px; background: linear-gradient(135deg, var(--teal), var(--purple)); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; box-shadow: 0 0 20px rgba(0,194,179,0.4); }
+.title { font-weight: 800; font-size: 22px; }
+.subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.desc { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.65; margin-bottom: 28px; }
+.desc b { color: var(--white); }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 10px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+.btn-primary { background: var(--teal); color: var(--ink); }
+.btn-primary:hover { background: #00d9c8; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.btn-secondary { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: rgba(255,255,255,0.1); }
+.status-list { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+.status-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); font-size: 13px; }
+.status-icon { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+.status-icon.pending { background: rgba(255,255,255,0.08); color: var(--muted); }
+.status-icon.running { background: rgba(0,194,179,0.2); color: var(--teal); animation: spin 1s linear infinite; }
+.status-icon.done { background: rgba(34,197,94,0.2); color: var(--green); }
+.status-icon.error { background: rgba(255,95,78,0.2); color: var(--coral); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.status-label { flex: 1; }
+.status-detail { font-size: 11px; color: var(--muted); }
+.progress-bar { width: 100%; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-top: 20px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--teal), var(--purple)); border-radius: 2px; transition: width 0.4s ease; }
+.summary-box { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-radius: 12px; padding: 18px 20px; margin-top: 20px; display: none; }
+.summary-box.visible { display: block; }
+.summary-title { font-weight: 700; color: var(--green); font-size: 14px; margin-bottom: 10px; }
+.summary-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.summary-stat { text-align: center; }
+.summary-n { font-weight: 800; font-size: 24px; color: var(--teal); }
+.summary-l { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.warning-box { background: rgba(255,95,78,0.08); border: 1px solid rgba(255,95,78,0.25); border-radius: 12px; padding: 16px 18px; margin-bottom: 20px; font-size: 12.5px; color: rgba(255,255,255,0.7); line-height: 1.6; }
+.warning-box b { color: var(--coral); }
+.auth-section { display: none; }
+.auth-section.visible { display: block; }
+.signin-section { text-align: center; padding: 20px 0; }
+.section-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 14px; }
+
+.gate-screen {
+  min-height: 100vh; display: flex; align-items: center;
+  justify-content: center; background: #F4F4F0; padding: 20px;
+}
+.gate-card {
+  background: white; border: 0.5px solid #E0E0D8;
+  border-radius: 16px; padding: 36px 32px;
+  max-width: 380px; width: 100%; text-align: center;
+}
+.gate-badge {
+  width: 52px; height: 52px; border-radius: 14px;
+  background: #1D9E75; margin: 0 auto 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 18px; color: white;
+}
+.gate-title { font-size: 20px; font-weight: 500; color: #1a1a1a; margin-bottom: 6px; }
+.gate-sub { font-size: 13px; color: #888; margin-bottom: 24px; }
+.gate-input {
+  width: 100%; padding: 10px 14px; border: 0.5px solid #E0E0D8;
+  border-radius: 9px; font-size: 14px; outline: none;
+  font-family: inherit; margin-bottom: 12px; text-align: center;
+  letter-spacing: 2px; transition: border-color 0.15s;
+  background: #F8F8F5; color: #1a1a1a;
+}
+.gate-input:focus { border-color: #9FE1CB; background: white; }
+.gate-btn {
+  width: 100%; padding: 11px; background: #1D9E75; color: white;
+  border: none; border-radius: 9px; font-size: 14px; font-weight: 500;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.gate-btn:hover { background: #0F6E56; }
+.gate-error { font-size: 12px; color: #D85A30; margin-top: 8px; display: none; }
+
+</style>
+</head>
+<body>
+
+<div id="gateScreen" class="gate-screen">
+  <div class="gate-card">
+    <div class="gate-badge">KAI</div>
+    <div class="gate-title">KAI Demo Tools</div>
+    <div class="gate-sub">Enter the demo password to continue</div>
+    <input class="gate-input" type="password" id="gateInput"
+      placeholder="Password"
+      onkeydown="if(event.key==='Enter') checkGate()">
+    <button class="gate-btn" onclick="checkGate()">Continue</button>
+    <div class="gate-error" id="gateError">Incorrect password — try again</div>
+  </div>
+</div>
+
+
+<div class="card" style="display:none">
+  <div class="logo">
+    <div class="badge">KAI</div>
+    <div>
+      <div class="title">KAI Demo — Data Seeder</div>
+      <div class="subtitle">Populates your Gmail account with realistic mock data</div>
+    </div>
+  </div>
+
+  <p class="desc">
+    This tool creates <b>7 realistic emails</b> and <b>16 calendar events</b> in your KAI demo Gmail account.
+    All data is crafted to showcase every KAI feature — stakeholder prioritisation, calendar clash detection,
+    wellbeing nudges, timecode suggestions and travel-aware mode.<br><br>
+    Sign in with <b>kai.demo.2026@gmail.com</b> when prompted. Do not use your real account.
+  </p>
+
+  <div class="warning-box">
+    <b>Important:</b> Sign in with your KAI demo Gmail account only (kai.demo.2026@gmail.com).
+    If Google shows an "app not verified" warning, click <b>Advanced</b> then <b>Go to KAI Demo (unsafe)</b> — this is safe, you own both the app and the account.
+  </div>
+
+  <!-- Not signed in -->
+  <div id="signinSection">
+    <div class="signin-section">
+      <div class="section-label">Step 1 — Authorise Access</div>
+      <button class="btn btn-primary" onclick="startAuth()">
+        🔐 Sign in with Google to Begin
+      </button>
+    </div>
+  </div>
+
+  <!-- Signed in -->
+  <div id="seedSection" style="display:none">
+    <div class="section-label">Step 2 — Create Mock Data</div>
+    <p style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:16px">
+      Signed in as: <span id="userEmail" style="color:var(--teal);font-weight:600"></span>
+    </p>
+    <button class="btn btn-primary" id="seedBtn" onclick="runSeeding()">
+      🌱 Create All Mock Data
+    </button>
+    <button class="btn btn-secondary" style="margin-left:10px" onclick="signOut()">Sign out</button>
+
+    <div class="progress-bar" id="progressBar" style="display:none">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+
+    <div class="status-list" id="statusList"></div>
+
+    <div class="summary-box" id="summaryBox">
+      <div class="summary-title">✅ All mock data created successfully</div>
+      <div class="summary-stats">
+        <div class="summary-stat">
+          <div class="summary-n" id="emailCount">0</div>
+          <div class="summary-l">Emails created</div>
+        </div>
+        <div class="summary-stat">
+          <div class="summary-n" id="eventCount">0</div>
+          <div class="summary-l">Calendar events</div>
+        </div>
+        <div class="summary-stat">
+          <div class="summary-n">✓</div>
+          <div class="summary-l">Ready to demo</div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:14px;line-height:1.6">
+        Your demo Gmail account is now populated. Open the KAI demo app and sign in with the same account to see KAI in action.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+const CLIENT_ID = '294776404978-p9p6q310nqisej0ohvt0kbsfd1hoqrkm.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/gmail.compose https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/calendar';
+const REDIRECT_URI = window.location.origin + window.location.pathname;
+
+let accessToken = null;
+
+// ── PKCE HELPERS ──
+function generateCodeVerifier() {
+  const arr = new Uint8Array(32);
+  crypto.getRandomValues(arr);
+  return btoa(String.fromCharCode(...arr)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+}
+async function generateCodeChallenge(verifier) {
+  const enc = new TextEncoder().encode(verifier);
+  const hash = await crypto.subtle.digest('SHA-256', enc);
+  return btoa(String.fromCharCode(...new Uint8Array(hash))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+}
+
+async function startAuth() {
+  const p = new URLSearchParams({
+    client_id: CLIENT_ID,
+    redirect_uri: REDIRECT_URI,
+    response_type: 'token',
+    scope: SCOPES,
+    prompt: 'consent',
+    login_hint: 'kai.demo.2026@gmail.com'
+  });
+  window.location = 'https://accounts.google.com/o/oauth2/v2/auth?' + p;
+});
+  window.location = 'https://accounts.google.com/o/oauth2/v2/auth?' + params;
+}
+
+async function exchangeCode(code) {
+  const verifier = sessionStorage.getItem('pkce_verifier');
+  const res = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id: CLIENT_ID,
+      code,
+      code_verifier: verifier,
+      grant_type: 'authorization_code',
+      redirect_uri: REDIRECT_URI
+    })
+  });
+  return res.json();
+}
+
+async function getUserEmail() {
+  const res = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+    headers: { Authorization: 'Bearer ' + accessToken }
+  });
+  const data = await res.json();
+  return data.email;
+}
+
+function signOut() {
+  accessToken = null;
+  sessionStorage.clear();
+  document.getElementById('signinSection').style.display = 'block';
+  document.getElementById('seedSection').style.display = 'none';
+}
+
+// ── STATUS UI ──
+const tasks = [
+  { id: 'email1', label: 'Email: URGENT from Director (Sarah Chen)',          type: 'email' },
+  { id: 'email2', label: 'Email: URGENT from Head of Risk (Marcus Webb)',     type: 'email' },
+  { id: 'email3', label: 'Email: HIGH from CTO (James Thornton)',             type: 'email' },
+  { id: 'email4', label: 'Email: HIGH from Programme Manager (Priya Sharma)', type: 'email' },
+  { id: 'email5', label: 'Email: NORMAL from EA Lead (Rachel Okonkwo)',       type: 'email' },
+  { id: 'email6', label: 'Email: FYI from IT Helpdesk',                       type: 'email' },
+  { id: 'email7', label: 'Email: FYI All Staff Newsletter',                   type: 'email' },
+  { id: 'cal1',   label: 'Calendar: Monday — Focus block + Director clash',    type: 'cal'   },
+  { id: 'cal2',   label: 'Calendar: Tuesday — Governance Board + prep slot',   type: 'cal'   },
+  { id: 'cal3',   label: 'Calendar: Tuesday — Digital Transformation review',  type: 'cal'   },
+  { id: 'cal4',   label: 'Calendar: Wednesday — 6 back-to-back meetings',      type: 'cal'   },
+  { id: 'cal5',   label: 'Calendar: Thursday — London travel day',             type: 'cal'   },
+  { id: 'cal6',   label: 'Calendar: Friday — Light day + timecode reminder',   type: 'cal'   },
+];
+
+function renderTasks() {
+  const list = document.getElementById('statusList');
+  list.innerHTML = tasks.map(t => `
+    <div class="status-item" id="task-${t.id}">
+      <div class="status-icon pending" id="icon-${t.id}">○</div>
+      <div class="status-label">${t.label}</div>
+      <div class="status-detail" id="detail-${t.id}"></div>
+    </div>
+  `).join('');
+}
+
+function setTaskState(id, state, detail = '') {
+  const icon = document.getElementById('icon-' + id);
+  const det = document.getElementById('detail-' + id);
+  if (!icon) return;
+  icon.className = 'status-icon ' + state;
+  icon.textContent = state === 'pending' ? '○' : state === 'running' ? '↻' : state === 'done' ? '✓' : '✗';
+  det.textContent = detail;
+}
+
+function setProgress(pct) {
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+// ── GMAIL HELPERS ──
+function makeEmail(to, from, fromName, subject, body, date) {
+  const headers = [
+    `From: ${fromName} <${from}>`,
+    `To: ${to}`,
+    `Subject: ${subject}`,
+    `Date: ${date.toUTCString()}`,
+    `Content-Type: text/plain; charset=utf-8`,
+    `MIME-Version: 1.0`,
+  ].join('\r\n');
+  const full = headers + '\r\n\r\n' + body;
+  return btoa(unescape(encodeURIComponent(full))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+}
+
+async function insertEmail(raw, labelIds = ['INBOX', 'UNREAD']) {
+  const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages?internalDateSource=dateHeader', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ raw, labelIds })
+  });
+  if (!res.ok) throw new Error('Gmail insert failed: ' + res.status);
+  return res.json();
+}
+
+// ── CALENDAR HELPERS ──
+async function insertEvent(event) {
+  const res = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+    body: JSON.stringify(event)
+  });
+  if (!res.ok) throw new Error('Calendar insert failed: ' + res.status);
+  return res.json();
+}
+
+function nextWeekday(day) {
+  // Returns date for next Monday=1, Tuesday=2 etc
+  const now = new Date();
+  const today = now.getDay(); // 0=Sun
+  let diff = day - today;
+  if (diff <= 0) diff += 7;
+  const d = new Date(now);
+  d.setDate(now.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function dt(base, h, m = 0) {
+  const d = new Date(base);
+  d.setHours(h, m, 0, 0);
+  return d.toISOString();
+}
+
+function dateOnly(base) {
+  const d = new Date(base);
+  return d.toISOString().split('T')[0];
+}
+
+// ── SEEDING ──
+async function runSeeding() {
+  document.getElementById('seedBtn').disabled = true;
+  document.getElementById('progressBar').style.display = 'block';
+  renderTasks();
+  setProgress(0);
+
+  const userEmail = document.getElementById('userEmail').textContent;
+  const now = new Date();
+  const mon = nextWeekday(1);
+  const tue = nextWeekday(2);
+  const wed = nextWeekday(3);
+  const thu = nextWeekday(4);
+  const fri = nextWeekday(5);
+
+  let emailCount = 0, eventCount = 0;
+
+  const emailDefs = [
+    {
+      id: 'email1',
+      from: 'sarah.chen@organisation.gov.uk',
+      fromName: 'Sarah Chen',
+      subject: 'URGENT: Strategy paper needed by COB today',
+      body: `Hi,
+
+I need the updated architecture strategy paper before the 3pm briefing with the ExCo today. The minister's office has requested a summary of our AI governance position as well — can you include a one-pager on that?
+
+Please send by 2pm at the latest so I have time to review.
+
+Thanks,
+Sarah`,
+      hoursAgo: 2
+    },
+    {
+      id: 'email2',
+      from: 'marcus.webb@organisation.gov.uk',
+      fromName: 'Marcus Webb',
+      subject: 'RE: Governance Board agenda — item 3 needs your input',
+      body: `Following up on yesterday's discussion.
+
+We need your sign-off on the agentic AI control framework before Tuesday's Governance Board. Item 3 on the agenda specifically references the architecture team's position on agent accountability.
+
+Can you confirm you're presenting this, or should I ask someone else to cover?
+
+Marcus`,
+      hoursAgo: 3
+    },
+    {
+      id: 'email3',
+      from: 'james.thornton@organisation.gov.uk',
+      fromName: 'James Thornton',
+      subject: 'AI Control Plane — PoC recommendation deck',
+      body: `Good work on the Control Plane analysis. The AI Board found it very useful — particularly the PoC-rather-than-procure recommendation.
+
+The Chair has asked whether we can extend the analysis to cover Microsoft Fabric. Can you scope that out?
+
+Also — are you free for a brief catch-up next week? Would value your perspective on the broader strategy.
+
+James`,
+      hoursAgo: 26
+    },
+    {
+      id: 'email4',
+      from: 'priya.sharma@organisation.gov.uk',
+      fromName: 'Priya Sharma',
+      subject: 'Digital Transformation project — timeline review needed',
+      body: `Hi,
+
+Wanted to flag that the PRJ-042 milestone review is now 3 days overdue. The programme board meets on Thursday and I need your sign-off on the revised delivery plan before then.
+
+Could we find 30 minutes this week? I've checked your calendar and Thursday morning looks clear before your London travel.
+
+Best,
+Priya`,
+      hoursAgo: 28
+    },
+    {
+      id: 'email5',
+      from: 'rachel.okonkwo@organisation.gov.uk',
+      fromName: 'Rachel Okonkwo',
+      subject: 'Architecture Guild — Thursday session materials',
+      body: `Hi all,
+
+Please find below the agenda for Thursday's Architecture Guild session:
+
+1. Target architecture methodology update
+2. Capability mapping framework review
+3. AOB
+
+Please review before the session. Let me know if you have items to add to AOB.
+
+Rachel`,
+      hoursAgo: 48,
+      unread: false
+    },
+    {
+      id: 'email6',
+      from: 'helpdesk@organisation.gov.uk',
+      fromName: 'IT Helpdesk',
+      subject: 'RE: RE: RE: Laptop refresh programme — Q3 cohort',
+      body: `Your request has been logged.
+
+Reference: HD-29341
+Expected resolution: 5-7 working days
+
+You will receive an automated update when your ticket progresses.
+
+IT Helpdesk`,
+      hoursAgo: 52,
+      unread: false
+    },
+    {
+      id: 'email7',
+      from: 'noreply@organisation.gov.uk',
+      fromName: 'All Staff Newsletter',
+      subject: "This week's all-staff bulletin — issue 47",
+      body: `Welcome to this week's all-staff bulletin.
+
+In this issue:
+• Summer social — save the date: 18 July
+• New expenses policy effective 1 August
+• Mental health awareness week resources
+• Canteen menu changes from next Monday
+
+Have a great week.
+
+Internal Comms`,
+      hoursAgo: 60,
+      unread: false
+    },
+  ];
+
+  // Send emails
+  for (let i = 0; i < emailDefs.length; i++) {
+    const e = emailDefs[i];
+    setTaskState(e.id, 'running', 'creating...');
+    try {
+      const d = new Date(now.getTime() - e.hoursAgo * 3600000);
+      const labels = e.unread === false ? ['INBOX'] : ['INBOX', 'UNREAD'];
+      const raw = makeEmail(userEmail, e.from, e.fromName, e.subject, e.body, d);
+      await insertEmail(raw, labels);
+      setTaskState(e.id, 'done', 'created');
+      emailCount++;
+    } catch(err) {
+      setTaskState(e.id, 'error', err.message);
+    }
+    setProgress(((i + 1) / tasks.length) * 100);
+    await new Promise(r => setTimeout(r, 600));
+  }
+
+  // Calendar events
+  const calEvents = [
+    // Monday
+    { id: 'cal1', events: [
+      { summary: 'FOCUS: Architecture Strategy Paper', description: 'Protected focus time — strategy paper deadline today. KAI: FOCUS block, do not schedule over.', start: { dateTime: dt(mon,9) }, end: { dateTime: dt(mon,11) }, colorId: '2' },
+      { summary: 'Architecture Review — PRJ-042', description: 'Monthly architecture review for Digital Transformation project.', start: { dateTime: dt(mon,14) }, end: { dateTime: dt(mon,15) }, colorId: '6' },
+      { summary: '1:1 with Director (Sarah Chen)', description: 'Regular Director 1:1 — KAI: HIGH PRIORITY clash with Architecture Review at 14:00. Reschedule one?', start: { dateTime: dt(mon,14) }, end: { dateTime: dt(mon,14,30) }, colorId: '11' },
+    ]},
+    // Tuesday
+    { id: 'cal2', events: [
+      { summary: 'PREP: Governance Board', description: 'KAI: Auto-booked prep time before Governance Board. Review agenda and AI control framework position.', start: { dateTime: dt(tue,9,30) }, end: { dateTime: dt(tue,10) }, colorId: '2' },
+      { summary: 'Governance Board — AI Control Framework (GOV-011)', description: 'Quarterly Governance Board. Item 3: Agentic AI accountability framework — architecture team presenting. KAI timecode: GOV-011', start: { dateTime: dt(tue,10) }, end: { dateTime: dt(tue,11) }, colorId: '9' },
+    ]},
+    // Tuesday PRJ
+    { id: 'cal3', events: [
+      { summary: 'Digital Transformation Milestone Review (PRJ-042)', description: 'PRJ-042 programme milestone review. Delivery plan sign-off required. KAI timecode: PRJ-042', start: { dateTime: dt(tue,14) }, end: { dateTime: dt(tue,15) }, colorId: '6' },
+    ]},
+    // Wednesday (heavy day)
+    { id: 'cal4', events: [
+      { summary: 'Team Standup (BAU-001)', description: 'Daily team standup. KAI timecode: BAU-001', start: { dateTime: dt(wed,9) }, end: { dateTime: dt(wed,9,30) } },
+      { summary: 'Architecture Guild — Capability Review (GOV-011)', description: 'Architecture Guild session. KAI timecode: GOV-011', start: { dateTime: dt(wed,9,30) }, end: { dateTime: dt(wed,10,30) } },
+      { summary: 'AI Strategy Session (PRJ-042)', description: 'AI strategy planning session. KAI timecode: PRJ-042', start: { dateTime: dt(wed,10,30) }, end: { dateTime: dt(wed,11,30) } },
+      { summary: 'Risk Framework Review (GOV-011)', description: 'Risk framework quarterly review — no lunch break before this. KAI: WELLBEING FLAG — no lunch detected.', start: { dateTime: dt(wed,11,30) }, end: { dateTime: dt(wed,12,30) }, colorId: '11' },
+      { summary: 'Technology Committee Prep (GOV-011)', description: 'Prep session for next week Technology Committee. KAI timecode: GOV-011', start: { dateTime: dt(wed,13) }, end: { dateTime: dt(wed,14) } },
+      { summary: 'Vendor Briefing — Azure Services (PRJ-042)', description: 'Microsoft Azure services briefing for Digital Transformation programme. KAI timecode: PRJ-042', start: { dateTime: dt(wed,15) }, end: { dateTime: dt(wed,16) } },
+    ]},
+    // Thursday (travel)
+    { id: 'cal5', events: [
+      { summary: 'TRAVEL: London — Canary Wharf Office', description: 'Full day London travel. KAI: TRAVEL MODE — email replies paused, transit time blocked.', start: { date: dateOnly(thu) }, end: { date: dateOnly(thu) }, colorId: '3' },
+      { summary: 'Transit: Liverpool St → Canary Wharf (blocked)', description: 'KAI auto-blocked transit time. Approx 45 mins travel.', start: { dateTime: dt(thu,8) }, end: { dateTime: dt(thu,9) }, colorId: '3' },
+      { summary: 'Architecture Guild Evening Session', description: 'Architecture Guild — evening session in London office.', start: { dateTime: dt(thu,17) }, end: { dateTime: dt(thu,18,30) } },
+    ]},
+    // Friday (light)
+    { id: 'cal6', events: [
+      { summary: '1:1 with Programme Director (BAU-001)', description: 'Regular 1:1. KAI timecode: BAU-001', start: { dateTime: dt(fri,10) }, end: { dateTime: dt(fri,11) } },
+      { summary: 'Architecture Peer Review (PRJ-042)', description: 'PRJ-042 architecture peer review session. KAI timecode: PRJ-042', start: { dateTime: dt(fri,14) }, end: { dateTime: dt(fri,15) } },
+      { summary: 'KAI Timecode Reminder — Log this week', description: 'KAI weekly reminder: log your timecodes before end of day. Suggested: PRJ-042 (5hrs), GOV-011 (4hrs), BAU-001 (2.5hrs)', start: { dateTime: dt(fri,16) }, end: { dateTime: dt(fri,16,15) }, colorId: '2' },
+    ]},
+  ];
+
+  for (let i = 0; i < calEvents.length; i++) {
+    const group = calEvents[i];
+    setTaskState(group.id, 'running', `creating ${group.events.length} events...`);
+    try {
+      for (const ev of group.events) {
+        await insertEvent(ev);
+        await new Promise(r => setTimeout(r, 300));
+        eventCount++;
+      }
+      setTaskState(group.id, 'done', `${group.events.length} events created`);
+    } catch(err) {
+      setTaskState(group.id, 'error', err.message);
+    }
+    setProgress(((emailDefs.length + i + 1) / tasks.length) * 100);
+    await new Promise(r => setTimeout(r, 400));
+  }
+
+  setProgress(100);
+  document.getElementById('emailCount').textContent = emailCount;
+  document.getElementById('eventCount').textContent = eventCount;
+  document.getElementById('summaryBox').classList.add('visible');
+  document.getElementById('seedBtn').disabled = false;
+}
+
+// ── AUTH CALLBACK ──
+async function handleCallback() {
+  const hash = window.location.hash.substring(1);
+  const params = new URLSearchParams(hash);
+  const token = params.get('access_token');
+  if (!token) return false;
+  window.history.replaceState({}, '', window.location.pathname);
+  accessToken = token;
+  sessionStorage.setItem('token', accessToken);
+  return true;
+}, '', window.location.pathname);
+  try {
+    const tokens = await exchangeCode(code);
+    if (!tokens.access_token) throw new Error('No access token');
+    accessToken = tokens.access_token;
+    sessionStorage.setItem('access_token', accessToken);
+    return true;
+  } catch(e) {
+    alert('Auth failed: ' + e.message);
+    return false;
+  }
+}
+
+async function init() {
+  const stored = sessionStorage.getItem('access_token');
+  if (stored) accessToken = stored;
+  const fromCallback = await handleCallback();
+  if (accessToken) {
+    try {
+      const email = await getUserEmail();
+      document.getElementById('userEmail').textContent = email;
+      document.getElementById('signinSection').style.display = 'none';
+      document.getElementById('seedSection').style.display = 'block';
+    } catch(e) {
+      accessToken = null;
+      sessionStorage.removeItem('access_token');
+    }
+  }
+}
+
+init();
+
+function checkGate() {
+  const val = document.getElementById('gateInput').value;
+  if (val === 'KAI-Demo-2026') {
+    document.getElementById('gateScreen').style.display = 'none';
+    document.querySelector('.card').style.display = 'block';
+    sessionStorage.setItem('kai_gate', '1');
+  } else {
+    document.getElementById('gateError').style.display = 'block';
+    document.getElementById('gateInput').value = '';
+    document.getElementById('gateInput').focus();
+  }
+}
+
+// Check if already passed gate this session
+if (sessionStorage.getItem('kai_gate') === '1') {
+  document.addEventListener('DOMContentLoaded', () => {
+    const g = document.getElementById('gateScreen');
+    if (g) g.style.display = 'none';
+    const c = document.querySelector('.card');
+    if (c) c.style.display = 'block';
+  });
+}
+
+</script>
+</body>
+</html>
