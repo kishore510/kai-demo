@@ -52,6 +52,9 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .t-user { font-size: 11px; color: var(--teal); font-family: monospace; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .t-signout { font-size: 11px; color: #999; background: none; border: none; cursor: pointer; padding: 3px 8px; border-radius: 5px; }
 .t-signout:hover { color: var(--coral); }
+.t-refresh { font-size: 16px; color: #999; background: none; border: 0.5px solid #E0E0D8; cursor: pointer; padding: 2px 8px; border-radius: 6px; transition: all 0.15s; line-height: 1; }
+.t-refresh:hover { color: var(--teal); border-color: #9FE1CB; background: var(--teal-lt); }
+.t-refresh.spinning { animation: spin 0.8s linear infinite; color: var(--teal); }
 .t-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); animation: pd 2s ease infinite; }
 @keyframes pd { 0%,100%{opacity:1}50%{opacity:0.4} }
 
@@ -310,6 +313,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
     <div class="t-right">
       <div class="t-dot"></div>
       <span class="t-user" id="topbarEmail"></span>
+      <button class="t-refresh" id="refreshBtn" onclick="refreshData()" title="Refresh inbox and calendar">↻</button>
       <button class="t-signout" onclick="signOut()">Sign out</button>
     </div>
   </header>
@@ -768,18 +772,36 @@ function copyDraft() {
 }
 
 // ── CLAUDE ──
-const KAI_SYSTEM = `You are KAI — Knowledge Action Intelligence. You are the personal organisational intelligence assistant for a senior Enterprise Platform Architect at a UK financial services regulatory organisation.
+function buildKaiSystem() {
+  const urgent = gmailData.filter(e => e.priority === 'urgent');
+  const high = gmailData.filter(e => e.priority === 'high');
+  const unread = gmailData.filter(e => e.unread);
+  const emailSummary = gmailData.slice(0,8).map(e =>
+    `- [${e.priority.toUpperCase()}] From: ${e.from} | Subject: ${e.subject} | ${e.unread ? 'UNREAD' : 'read'} | ${e.time}`
+  ).join('\n');
+  const calSummary = calendarData.slice(0,12).map(ev => {
+    const start = ev.start?.dateTime ? new Date(ev.start.dateTime).toLocaleString('en-GB', {weekday:'short',hour:'2-digit',minute:'2-digit'}) : (ev.start?.date || '');
+    return `- ${start}: ${ev.summary || '(no title)'}`;
+  }).join('\n');
 
-You have analysed their inbox and calendar. Key facts this week:
-- ${() => gmailData.filter(e=>e.priority==='urgent').length} URGENT emails including one from the Director needing a strategy paper by 2pm today
-- Head of Risk needs sign-off on AI control framework before Tuesday Governance Board
-- CTO email unreplied for 26+ hours
-- Calendar clash Monday 2pm (Architecture Review vs Director 1:1)
-- Wednesday: 6 back-to-back meetings, no lunch break detected
-- Thursday: London travel day
-- Timecodes: PRJ-042 (Digital Transformation), GOV-011 (Governance), BAU-001 (BAU)
+  return `You are KAI — Knowledge Action Intelligence. You are the personal organisational intelligence assistant for a senior Enterprise Platform Architect at a UK financial services regulatory organisation.
 
-Be direct, concise and professional. You know how this organisation works. Give specific, actionable answers.`;
+You have just read their REAL inbox and calendar. Use only this actual data — do not invent emails or events.
+
+INBOX (${gmailData.length} emails, ${unread.length} unread, ${urgent.length} urgent):
+${emailSummary || 'No emails loaded yet.'}
+
+CALENDAR (next 7 days, ${calendarData.length} events):
+${calSummary || 'No calendar events loaded yet.'}
+
+TIMECODES: PRJ-042 (Digital Transformation), GOV-011 (Governance and Board), BAU-001 (BAU)
+
+RULES:
+- Only reference emails and events that appear in the data above
+- If the inbox is empty or shows only Google system emails, say so honestly
+- Be direct, concise and professional
+- Give specific actionable answers based on what you can actually see`;
+}
 
 async function callClaude(userMsg, isChat = true) {
   const messages = isChat
@@ -796,7 +818,7 @@ async function callClaude(userMsg, isChat = true) {
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
       max_tokens: 1024,
-      system: isChat ? KAI_SYSTEM : 'You are a professional email assistant. Be concise.',
+      system: isChat ? buildKaiSystem() : 'You are a professional email assistant for a senior government official. Be concise and direct.',
       messages
     })
   });
@@ -893,6 +915,35 @@ async function handleCallback() {
     sessionStorage.setItem('userEmail', uData.email || '');
   } catch(e) {}
   return true;
+}
+
+async function refreshData() {
+  const btn = document.getElementById('refreshBtn');
+  if (btn) btn.classList.add('spinning');
+  document.getElementById('pillStatus').textContent = 'Refreshing...';
+  document.getElementById('briefingSub').textContent = 'Refreshing your inbox and calendar...';
+  try {
+    const [emails, events] = await Promise.all([fetchEmails(), fetchCalendar()]);
+    gmailData = emails;
+    calendarData = events;
+    document.getElementById('weekAhead').innerHTML = renderWeekAhead(events);
+    renderEmailList();
+    analyseBriefing(emails, events);
+    // Reset chat context with fresh data
+    const urgentEmails = emails.filter(e => e.priority === 'urgent' || e.priority === 'high');
+    // Add a refresh message to chat
+    const msgs = document.getElementById('chatMsgs');
+    if (msgs) {
+      const d = document.createElement('div');
+      d.className = 'msg';
+      d.innerHTML = `<div class="m-av kai">KAI</div><div class="m-bub kai">Refreshed — I can now see <b>${emails.length} emails</b> and <b>${events.length} calendar events</b>. ${urgentEmails.length > 0 ? urgentEmails.length + ' need your attention.' : 'No urgent items.'}</div>`;
+      msgs.appendChild(d);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+  } catch(e) {
+    document.getElementById('briefingSub').textContent = 'Refresh failed — try again';
+  }
+  if (btn) btn.classList.remove('spinning');
 }
 
 async function init() {
