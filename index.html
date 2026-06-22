@@ -22,6 +22,7 @@
   --red-lt:  #FCEBEB;
   --green:   #639922;
   --green-lt:#EAF3DE;
+  --muted:   #999;
   --sidebar: 240px;
 }
 
@@ -233,6 +234,68 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-thumb { background: #E0E0D8; border-radius: 2px; }
 
+/* ── MEETING PREP ── */
+.meeting-overlay {
+  display: none; position: fixed; inset: 0; z-index: 400;
+  background: rgba(0,0,0,0.35); backdrop-filter: blur(4px);
+  align-items: flex-end; justify-content: center;
+}
+.meeting-overlay.open { display: flex; }
+.meeting-sheet {
+  background: white; border-radius: 20px 20px 0 0;
+  width: 100%; max-width: 720px; max-height: 92vh;
+  display: flex; flex-direction: column;
+  animation: slideSheet 0.3s ease;
+  box-shadow: 0 -4px 32px rgba(0,0,0,0.15);
+  position: relative;
+}
+@keyframes slideSheet { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+.meeting-sheet-handle { width: 36px; height: 4px; background: #E0E0D8; border-radius: 2px; margin: 10px auto 0; flex-shrink: 0; }
+.meeting-sheet-header { padding: 14px 20px 12px; border-bottom: 0.5px solid #E0E0D8; flex-shrink: 0; }
+.meeting-sheet-title { font-size: 17px; font-weight: 500; color: #1a1a1a; margin-bottom: 4px; }
+.meeting-sheet-meta { font-size: 12px; color: #888; display: flex; gap: 12px; flex-wrap: wrap; }
+.meeting-sheet-meta span { display: flex; align-items: center; gap: 4px; }
+.meeting-sheet-body { flex: 1; overflow-y: auto; padding: 0; }
+.meeting-sheet-close { position: absolute; top: 16px; right: 16px; width: 28px; height: 28px; border-radius: 50%; background: #F4F4F0; border: none; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; color: #888; transition: all 0.12s; }
+.meeting-sheet-close:hover { background: #E0E0D8; color: #333; }
+
+.prep-tabs { display: flex; border-bottom: 0.5px solid #E0E0D8; flex-shrink: 0; }
+.prep-tab { flex: 1; padding: 10px; font-size: 12px; font-weight: 500; color: #888; border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; font-family: inherit; }
+.prep-tab.active { color: var(--teal-dk); border-bottom-color: var(--teal); }
+.prep-tab:hover { color: #333; background: #F8F8F5; }
+.prep-tab-content { display: none; }
+.prep-tab-content.active { display: flex; flex-direction: column; }
+
+.prep-section { padding: 14px 20px; border-bottom: 0.5px solid #F0F0EC; }
+.prep-section:last-child { border-bottom: none; }
+.prep-section-title { font-size: 10px; font-weight: 500; letter-spacing: 1.5px; color: var(--teal); text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.prep-loading { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #888; padding: 8px 0; }
+.prep-content { font-size: 13px; color: #333; line-height: 1.65; white-space: pre-wrap; }
+.prep-bullet { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 7px; }
+.prep-bullet-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); flex-shrink: 0; margin-top: 5px; }
+.prep-bullet-text { font-size: 13px; color: #333; line-height: 1.55; }
+
+.rel-email { display: flex; align-items: flex-start; gap: 9px; padding: 9px 12px; background: #F8F8F5; border: 0.5px solid #E0E0D8; border-radius: 8px; margin-bottom: 6px; cursor: pointer; transition: background 0.1s; }
+.rel-email:hover { background: var(--teal-lt); border-color: #9FE1CB; }
+.rel-email-from { font-size: 11.5px; font-weight: 500; color: #1a1a1a; margin-bottom: 2px; }
+.rel-email-subj { font-size: 11px; color: #666; }
+
+.prep-chat { display: flex; flex-direction: column; height: 360px; }
+.prep-chat-msgs { flex: 1; overflow-y: auto; padding: 12px 20px; display: flex; flex-direction: column; gap: 10px; background: #F8F8F5; }
+.prep-quick-prompts { padding: 8px 20px; border-top: 0.5px solid #E0E0D8; border-bottom: 0.5px solid #E0E0D8; display: flex; gap: 5px; flex-wrap: wrap; background: white; }
+.prep-qp { font-size: 11px; padding: 4px 10px; border-radius: 100px; border: 0.5px solid #E0E0D8; background: white; color: #666; cursor: pointer; transition: all 0.12s; font-family: inherit; white-space: nowrap; }
+.prep-qp:hover { border-color: var(--teal); color: var(--teal-dk); background: var(--teal-lt); }
+.prep-input-row { padding: 10px 20px; background: white; display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0; }
+.prep-input { flex: 1; background: #F8F8F5; border: 0.5px solid #E0E0D8; border-radius: 10px; padding: 8px 12px; font-size: 14px; outline: none; min-height: 38px; max-height: 90px; resize: none; font-family: inherit; color: #1a1a1a; transition: border-color 0.12s; }
+.prep-input:focus { border-color: #9FE1CB; background: white; }
+.prep-input::placeholder { color: #bbb; }
+.prep-send { width: 34px; height: 34px; border-radius: 8px; background: var(--teal); border: none; cursor: pointer; color: white; font-size: 15px; flex-shrink: 0; transition: background 0.12s; display: flex; align-items: center; justify-content: center; }
+.prep-send:hover { background: var(--teal-dk); }
+.prep-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.kai-action-btn { font-size: 11px; padding: 5px 12px; border-radius: 100px; border: 0.5px solid #9FE1CB; background: var(--teal-lt); color: var(--teal-dk); cursor: pointer; font-family: inherit; font-weight: 500; transition: all 0.12s; }
+.kai-action-btn:hover { background: var(--teal); color: white; }
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
   .app { grid-template-columns: 1fr; grid-template-rows: 52px 1fr; height: 100dvh; }
@@ -266,102 +329,13 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
   .m-bub { font-size: 13px; padding: 10px 12px; }
   .auth-card { padding: 28px 20px; border-radius: 0; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; border: none; box-shadow: none; }
   .day-item { font-size: 11.5px; }
+  .meeting-sheet { max-height: 88vh; border-radius: 16px 16px 0 0; }
+  .prep-chat { height: 300px; }
 }
 @media (max-width: 400px) {
   .b-title { font-size: 14px; }
   .stats-2 { gap: 7px; }
 }
-
-/* ── MEETING PREP ── */
-.day-row { cursor: pointer; transition: background 0.12s; }
-.day-row:hover { background: #F0FBF7; }
-.day-row:hover .day-nm { color: var(--teal); }
-
-/* Meeting detail overlay */
-.meeting-overlay {
-  display: none; position: fixed; inset: 0; z-index: 400;
-  background: rgba(0,0,0,0.35); backdrop-filter: blur(4px);
-  align-items: flex-end; justify-content: center;
-}
-.meeting-overlay.open { display: flex; }
-.meeting-sheet {
-  background: white; border-radius: 20px 20px 0 0;
-  width: 100%; max-width: 720px; max-height: 92vh;
-  display: flex; flex-direction: column;
-  animation: slideSheet 0.3s ease;
-  box-shadow: 0 -4px 32px rgba(0,0,0,0.15);
-}
-@keyframes slideSheet { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
-.meeting-sheet-handle {
-  width: 36px; height: 4px; background: #E0E0D8;
-  border-radius: 2px; margin: 10px auto 0; flex-shrink: 0;
-}
-.meeting-sheet-header {
-  padding: 14px 20px 12px; border-bottom: 0.5px solid #E0E0D8; flex-shrink: 0;
-}
-.meeting-sheet-title { font-size: 17px; font-weight: 500; color: #1a1a1a; margin-bottom: 4px; }
-.meeting-sheet-meta { font-size: 12px; color: #888; display: flex; gap: 12px; flex-wrap: wrap; }
-.meeting-sheet-meta span { display: flex; align-items: center; gap: 4px; }
-.meeting-sheet-body { flex: 1; overflow-y: auto; padding: 0; }
-.meeting-sheet-close {
-  position: absolute; top: 16px; right: 16px;
-  width: 28px; height: 28px; border-radius: 50%;
-  background: #F4F4F0; border: none; cursor: pointer;
-  font-size: 14px; display: flex; align-items: center; justify-content: center;
-  color: #888; transition: all 0.12s;
-}
-.meeting-sheet-close:hover { background: #E0E0D8; color: #333; }
-
-/* Prep sections */
-.prep-section { padding: 14px 20px; border-bottom: 0.5px solid #F0F0EC; }
-.prep-section:last-child { border-bottom: none; }
-.prep-section-title {
-  font-size: 10px; font-weight: 500; letter-spacing: 1.5px;
-  color: var(--teal); text-transform: uppercase; margin-bottom: 10px;
-  display: flex; align-items: center; gap: 6px;
-}
-.prep-loading {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 12px; color: #888; padding: 8px 0;
-}
-.prep-content { font-size: 13px; color: #333; line-height: 1.65; white-space: pre-wrap; }
-.prep-bullet { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 7px; }
-.prep-bullet-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); flex-shrink: 0; margin-top: 5px; }
-.prep-bullet-text { font-size: 13px; color: #333; line-height: 1.55; }
-
-/* Related emails */
-.rel-email { display: flex; align-items: flex-start; gap: 9px; padding: 9px 12px; background: #F8F8F5; border: 0.5px solid #E0E0D8; border-radius: 8px; margin-bottom: 6px; cursor: pointer; transition: background 0.1s; }
-.rel-email:hover { background: var(--teal-lt); border-color: #9FE1CB; }
-.rel-email-from { font-size: 11.5px; font-weight: 500; color: #1a1a1a; margin-bottom: 2px; }
-.rel-email-subj { font-size: 11px; color: #666; }
-
-/* Prep chat */
-.prep-chat { display: flex; flex-direction: column; height: 360px; }
-.prep-chat-msgs { flex: 1; overflow-y: auto; padding: 12px 20px; display: flex; flex-direction: column; gap: 10px; background: #F8F8F5; }
-.prep-quick-prompts { padding: 8px 20px; border-top: 0.5px solid #E0E0D8; border-bottom: 0.5px solid #E0E0D8; display: flex; gap: 5px; flex-wrap: wrap; background: white; }
-.prep-qp { font-size: 11px; padding: 4px 10px; border-radius: 100px; border: 0.5px solid #E0E0D8; background: white; color: #666; cursor: pointer; transition: all 0.12s; font-family: inherit; white-space: nowrap; }
-.prep-qp:hover { border-color: var(--teal); color: var(--teal-dk); background: var(--teal-lt); }
-.prep-input-row { padding: 10px 20px; background: white; display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0; }
-.prep-input { flex: 1; background: #F8F8F5; border: 0.5px solid #E0E0D8; border-radius: 10px; padding: 8px 12px; font-size: 14px; outline: none; min-height: 38px; max-height: 90px; resize: none; font-family: inherit; color: #1a1a1a; transition: border-color 0.12s; }
-.prep-input:focus { border-color: #9FE1CB; background: white; }
-.prep-input::placeholder { color: #bbb; }
-.prep-send { width: 34px; height: 34px; border-radius: 8px; background: var(--teal); border: none; cursor: pointer; color: white; font-size: 15px; flex-shrink: 0; transition: background 0.12s; display: flex; align-items: center; justify-content: center; }
-.prep-send:hover { background: var(--teal-dk); }
-.prep-send:disabled { opacity: 0.4; cursor: not-allowed; }
-
-/* Tab bar inside sheet */
-.prep-tabs { display: flex; border-bottom: 0.5px solid #E0E0D8; flex-shrink: 0; }
-.prep-tab { flex: 1; padding: 10px; font-size: 12px; font-weight: 500; color: #888; border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; font-family: inherit; }
-.prep-tab.active { color: var(--teal-dk); border-bottom-color: var(--teal); }
-.prep-tab:hover { color: #333; background: #F8F8F5; }
-.prep-tab-content { display: none; }
-.prep-tab-content.active { display: flex; flex-direction: column; }
-
-@media (max-width: 768px) {
-  .meeting-sheet { max-height: 88vh; border-radius: 16px 16px 0 0; }
-  .prep-chat { height: 300px; }
-}
-
 </style>
 </head>
 <body>
@@ -454,10 +428,10 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
     </div>
     <div class="nav-sec">
       <div class="nav-lbl">Insights</div>
-      <div class="nav-item" data-panel="briefing" onclick="switchPanel(this)">
+      <div class="nav-item" data-panel="briefing" data-scroll="timecodesSection" onclick="switchPanel(this)">
         <span class="nav-icon">🕐</span> Timecodes
       </div>
-      <div class="nav-item" data-panel="briefing" onclick="switchPanel(this)">
+      <div class="nav-item" data-panel="briefing" data-scroll="wellbeingSection" onclick="switchPanel(this)">
         <span class="nav-icon">💚</span> Wellbeing
       </div>
     </div>
@@ -479,13 +453,19 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
     <!-- BRIEFING -->
     <div class="panel active" id="panel-briefing">
       <div class="b-header">
-        <div class="b-title">Good morning — here's your week</div>
+        <div class="b-title" id="briefingTitle">Good morning — here's your week</div>
         <div class="b-sub" id="briefingSub">Loading your briefing...</div>
       </div>
       <div class="b-grid">
         <div>
+          <div class="week-card" id="todayCard" style="margin-bottom:12px">
+            <div class="card-hdr" style="background:var(--teal-lt);color:var(--teal-dk)">Today — <span id="todayDateLabel"></span></div>
+            <div id="todayEvents">
+              <div style="padding:14px;font-size:12px;color:var(--muted);text-align:center">Loading today...</div>
+            </div>
+          </div>
           <div class="week-card">
-            <div class="card-hdr">Week Ahead — from your Calendar</div>
+            <div class="card-hdr">Rest of Week</div>
             <div id="weekAhead">
               <div style="padding:20px;font-size:12px;color:var(--muted);text-align:center">Loading calendar...</div>
             </div>
@@ -493,9 +473,9 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
         </div>
         <div class="right-col">
           <div class="stats-2">
-            <div class="stat-c stat-clickable" onclick="goToInboxUrgent()" title="View urgent emails">
+            <div class="stat-c stat-clickable" onclick="goToUnreplied()" title="View unread emails">
               <div class="stat-n" id="statEmails">–</div>
-              <div class="stat-l">Emails needing<br>attention</div>
+              <div class="stat-l">Unread / not<br>replied</div>
               <div class="stat-arrow">→</div>
             </div>
             <div class="stat-c stat-clickable" onclick="goToCalendar()" title="View calendar clashes">
@@ -535,10 +515,11 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
       <div class="inbox-layout">
         <div class="email-list">
           <div class="email-list-hdr">
-            Inbox
+            Inbox <span id="inboxFilterLabel" style="font-weight:400;font-size:11px;color:var(--muted);margin-left:4px"></span>
             <div style="display:flex;gap:5px">
               <button class="fbtn active" onclick="filterEmails('all',this)">All</button>
               <button class="fbtn" onclick="filterEmails('urgent',this)">Urgent</button>
+              <button class="fbtn" id="fbtnUnread" onclick="filterEmails('unread',this)">Unread</button>
             </div>
           </div>
           <div id="emailList"><div style="padding:20px;font-size:12px;color:var(--muted);text-align:center">Loading inbox...</div></div>
@@ -579,7 +560,6 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
       </div>
     </div>
 
-
     <!-- ARCHIVE -->
     <div class="panel" id="panel-archive">
       <div class="b-header">
@@ -590,10 +570,10 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
         <div style="margin-bottom:16px">
           <div class="card-hdr" style="border-radius:8px 8px 0 0;padding:10px 14px;background:white;border:0.5px solid #E0E0D8;">AUTO-ARCHIVE RULES ACTIVE</div>
           <div style="background:white;border:0.5px solid #E0E0D8;border-top:none;border-radius:0 0 8px 8px;padding:12px 14px;display:flex;flex-direction:column;gap:6px">
-            <div class="auto-flag"><span class="flag-icon">🔴</span>URGENT emails from Director level and above</div>
-            <div class="auto-flag"><span class="flag-icon">📋</span>Emails containing: governance, regulatory, compliance, sign-off, board decision, FCA</div>
-            <div class="auto-flag"><span class="flag-icon">👤</span>Emails from approved stakeholder domains</div>
-            <div class="auto-flag"><span class="flag-icon">💬</span>Any email you manually flag with "KAI save this"</div>
+            <div class="auto-flag"><span>🔴</span>URGENT emails from Director level and above</div>
+            <div class="auto-flag"><span>📋</span>Emails containing: governance, regulatory, compliance, sign-off, board decision</div>
+            <div class="auto-flag"><span>👤</span>Emails from approved stakeholder domains</div>
+            <div class="auto-flag"><span>💬</span>Any email you manually flag with "KAI save this"</div>
           </div>
         </div>
         <div class="card-hdr" style="border-radius:8px 8px 0 0;padding:10px 14px;background:white;border:0.5px solid #E0E0D8;">ARCHIVED ITEMS</div>
@@ -605,7 +585,6 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
       </div>
     </div>
 
-
     <!-- MEETING PREP OVERLAY -->
     <div class="meeting-overlay" id="meetingOverlay" onclick="closeMeetingPrep(event)">
       <div class="meeting-sheet" id="meetingSheet">
@@ -615,14 +594,12 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
           <div class="meeting-sheet-title" id="sheetTitle">Meeting</div>
           <div class="meeting-sheet-meta" id="sheetMeta"></div>
         </div>
-        <!-- Tabs -->
         <div class="prep-tabs">
           <button class="prep-tab active" onclick="switchPrepTab('brief', this)">📋 Brief</button>
           <button class="prep-tab" onclick="switchPrepTab('emails', this)">📬 Related Emails</button>
           <button class="prep-tab" onclick="switchPrepTab('prep', this)">✨ Prep with KAI</button>
         </div>
         <div class="meeting-sheet-body">
-          <!-- Brief tab -->
           <div class="prep-tab-content active" id="prepTab-brief">
             <div class="prep-section">
               <div class="prep-section-title">🎯 What this meeting is about</div>
@@ -643,14 +620,12 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
               </div>
             </div>
           </div>
-          <!-- Related emails tab -->
           <div class="prep-tab-content" id="prepTab-emails">
             <div class="prep-section">
               <div class="prep-section-title">📬 Emails related to this meeting</div>
               <div id="prepRelatedEmails"></div>
             </div>
           </div>
-          <!-- Prep chat tab -->
           <div class="prep-tab-content" id="prepTab-prep">
             <div class="prep-chat">
               <div class="prep-chat-msgs" id="prepChatMsgs"></div>
@@ -674,8 +649,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 const CLIENT_ID = '294776404978-p9p6q310nqisej0ohvt0kbsfd1hoqrkm.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.file';
 const REDIRECT_URI = 'https://kishore510.github.io/kai-demo';
-// UPDATE THIS after deploying Cloudflare Worker:
-const WORKER_URL = 'https://kai-demo-proxy.kishore510.workers.dev/';
+const WORKER_URL = 'https://kai-demo-proxy.kishore510.workers.dev';
 
 let accessToken = null;
 let gmailData = [];
@@ -683,10 +657,12 @@ let calendarData = [];
 let chatHistory = [];
 let selectedEmailId = null;
 let currentFilter = 'all';
+let currentMeeting = null;
+let prepChatHistory = [];
 
-// OAuth implicit flow — no PKCE needed
+// ── AUTH ──
 
-async function startAuth() {
+function startAuth() {
   const p = new URLSearchParams({
     client_id: CLIENT_ID,
     redirect_uri: REDIRECT_URI,
@@ -699,59 +675,88 @@ async function startAuth() {
 }
 
 function signOut() {
-  accessToken = null; sessionStorage.clear();
+  accessToken = null;
+  sessionStorage.clear();
   document.getElementById('authScreen').style.display = 'flex';
   document.getElementById('appScreen').style.display = 'none';
 }
 
-// ── GMAIL ──
-async function checkTokenValid() {
-  // Test token with a lightweight call
-  const r = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-    headers: { Authorization: 'Bearer ' + accessToken }
-  });
-  if (r.status === 401) {
-    // Token expired — show refresh prompt
-    accessToken = null;
-    sessionStorage.removeItem('token');
-    showTokenExpiredBanner();
-    return false;
-  }
+// Handles the OAuth implicit flow callback — token arrives in the URL hash
+async function handleCallback() {
+  const hash = window.location.hash.substring(1);
+  const params = new URLSearchParams(hash);
+  const token = params.get('access_token');
+  if (!token) return false;
+  // Clear the token from the URL so it's not visible or re-processed
+  window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+  accessToken = token;
+  // Try to get the user's email to display
+  try {
+    const r = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers: { Authorization: 'Bearer ' + token }
+    });
+    const info = await r.json();
+    if (info.email) sessionStorage.setItem('userEmail', info.email);
+  } catch(e) { /* non-fatal */ }
+  sessionStorage.setItem('token', token);
   return true;
 }
 
+// Check token validity silently — does NOT show the expired banner unless called directly
+async function checkTokenValid() {
+  if (!accessToken) return false;
+  try {
+    const r = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers: { Authorization: 'Bearer ' + accessToken }
+    });
+    if (r.status === 401) {
+      accessToken = null;
+      sessionStorage.removeItem('token');
+      return false;
+    }
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
 function showTokenExpiredBanner() {
-  const existing = document.getElementById('tokenBanner');
-  if (existing) return;
+  if (document.getElementById('tokenBanner')) return;
   const banner = document.createElement('div');
   banner.id = 'tokenBanner';
   banner.style.cssText = 'position:fixed;top:52px;left:0;right:0;z-index:500;background:#FAEEDA;border-bottom:1px solid #F5D38A;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:#854F0B;';
   banner.innerHTML = `
-    <span>⚠️ Your session has expired — data may be outdated</span>
+    <span>⚠️ Your session has expired — please reconnect</span>
     <button onclick="reAuth()" style="background:#BA7517;color:white;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:500;font-family:inherit;">Refresh session</button>
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#BA7517;padding:0 4px;">×</button>
   `;
   document.body.appendChild(banner);
 }
 
 function reAuth() {
-  // Re-trigger OAuth — token will be refreshed on return
   sessionStorage.removeItem('token');
   startAuth();
 }
 
-// Check token every 45 minutes
+// Periodic token check — only fires if app is loaded and token is set
 setInterval(async () => {
-  if (accessToken) await checkTokenValid();
+  if (accessToken) {
+    const valid = await checkTokenValid();
+    if (!valid) showTokenExpiredBanner();
+  }
 }, 45 * 60 * 1000);
+
+// ── GMAIL ──
 
 async function fetchEmails() {
   const r = await fetch(
     'https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=20&labelIds=INBOX',
     { headers: { Authorization: 'Bearer ' + accessToken } }
   );
+  if (r.status === 401) { showTokenExpiredBanner(); return []; }
   const d = await r.json();
   if (!d.messages) return [];
-  const msgs = await Promise.all(d.messages.slice(0,10).map(m =>
+  const msgs = await Promise.all(d.messages.slice(0, 10).map(m =>
     fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${m.id}?format=full`,
       { headers: { Authorization: 'Bearer ' + accessToken } }).then(r => r.json())
   ));
@@ -763,8 +768,8 @@ function parseEmail(msg) {
   const get = (name) => h.find(x => x.name.toLowerCase() === name.toLowerCase())?.value || '';
   const isUnread = msg.labelIds?.includes('UNREAD');
   const from = get('From');
-  const fromName = from.replace(/<.*>/, '').trim().replace(/"/g,'') || from;
-  const fromEmail = (from.match(/<(.+)>/) || [,''])[1] || from;
+  const fromName = from.replace(/<.*>/, '').trim().replace(/"/g, '') || from;
+  const fromEmail = (from.match(/<(.+)>/) || [, ''])[1] || from;
   const subject = get('Subject') || '(no subject)';
   const date = get('Date');
   const snippet = msg.snippet || '';
@@ -774,13 +779,13 @@ function parseEmail(msg) {
   const sl = subject.toLowerCase();
   if (fl.includes('sarah.chen') || fl.includes('director') || sl.includes('urgent')) priority = 'urgent';
   else if (fl.includes('marcus.webb') || fl.includes('james.thornton') || fl.includes('cto') || fl.includes('head of risk')) priority = 'high';
-  else if (fl.includes('helpdesk') || fl.includes('noreply') || fl.includes('newsletter')) priority = 'fyi';
   else if (fl.includes('priya') || fl.includes('programme')) priority = 'high';
+  else if (fl.includes('helpdesk') || fl.includes('noreply') || fl.includes('newsletter')) priority = 'fyi';
 
   let body = '';
   const extractBody = (part) => {
     if (part.mimeType === 'text/plain' && part.body?.data) {
-      try { body = atob(part.body.data.replace(/-/g,'+').replace(/_/g,'/')); } catch(e) {}
+      try { body = atob(part.body.data.replace(/-/g, '+').replace(/_/g, '/')); } catch(e) {}
     }
     if (part.parts) part.parts.forEach(extractBody);
   };
@@ -791,13 +796,14 @@ function parseEmail(msg) {
     const diff = (Date.now() - sent) / 3600000;
     if (diff < 1) return 'Just now';
     if (diff < 24) return Math.floor(diff) + 'h ago';
-    return Math.floor(diff/24) + 'd ago';
+    return Math.floor(diff / 24) + 'd ago';
   };
 
   return { id: msg.id, from: fromName.trim(), fromEmail, subject, snippet, body: body || snippet, time: timeAgo(), priority, unread: isUnread };
 }
 
 // ── CALENDAR ──
+
 async function fetchCalendar() {
   const now = new Date();
   const end = new Date(now); end.setDate(now.getDate() + 7);
@@ -805,14 +811,17 @@ async function fetchCalendar() {
     `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${now.toISOString()}&timeMax=${end.toISOString()}&singleEvents=true&orderBy=startTime&maxResults=30`,
     { headers: { Authorization: 'Bearer ' + accessToken } }
   );
+  if (r.status === 401) { showTokenExpiredBanner(); return []; }
   return (await r.json()).items || [];
 }
 
 // ── RENDER ──
+
 function getDayName(dateStr) {
   if (!dateStr) return '';
-  const d = new Date(dateStr);
-  return ['SUN','MON','TUE','WED','THU','FRI','SAT'][d.getDay()];
+  // Append T12:00:00 to parse as local noon, avoiding UTC midnight DST day-shift
+  const d = new Date(dateStr.length === 10 ? dateStr + 'T12:00:00' : dateStr);
+  return ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][d.getDay()];
 }
 
 function getTime(ev) {
@@ -821,44 +830,83 @@ function getTime(ev) {
   return new Date(ev.start.dateTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 }
 
+// Returns YYYY-MM-DD for today in local time
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function formatFullDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T12:00:00'); // noon to avoid DST edge cases
+  return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+function renderEventRow(ev) {
+  const t = getTime(ev);
+  const s = ev.summary || '';
+  let tagClass = 'reply', tagLabel = t || '';
+  const isSkip = s.includes('Transit') || s.includes('KAI Timecode');
+  if (s.includes('FOCUS') || s.includes('PREP')) { tagClass = 'focus'; tagLabel = s.includes('PREP') ? 'PREP' : 'FOCUS'; }
+  else if (s.includes('CLASH') || s.toLowerCase().includes('clash')) { tagClass = 'clash'; tagLabel = 'CLASH'; }
+  else if (s.includes('TRAVEL') || s.includes('Transit')) { tagClass = 'travel'; tagLabel = 'TRAVEL'; }
+  const displayName = s.replace(/\s*\(.*?\)\s*/g, '').replace(/^(FOCUS|PREP|TRAVEL):\s*/, '').substring(0, 52);
+  const evIdx = calendarData.findIndex(e => e.id === ev.id);
+  const clickable = !isSkip;
+  return `<div class="day-item ${clickable ? 'meeting-clickable' : ''}" ${clickable ? `onclick="openMeetingPrep(${evIdx})" style="cursor:pointer"` : ''} title="${clickable ? 'Click to prep for this meeting' : ''}">
+    <span class="tag ${tagClass}">${tagLabel}</span>
+    <span style="flex:1">${displayName}</span>
+    ${clickable ? '<span style="font-size:10px;color:#ccc;margin-left:4px">›</span>' : ''}
+  </div>`;
+}
+
+function renderToday(events) {
+  const today = todayStr();
+  const todayEvs = events.filter(ev => {
+    const d = ev.start?.date || ev.start?.dateTime?.split('T')[0];
+    return d === today;
+  });
+
+  // Update the date label
+  const lbl = document.getElementById('todayDateLabel');
+  if (lbl) lbl.textContent = formatFullDate(today);
+
+  // Update greeting based on time of day
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const titleEl = document.getElementById('briefingTitle');
+  if (titleEl) titleEl.textContent = `${greeting} — here's your week`;
+
+  if (!todayEvs.length) {
+    return '<div style="padding:14px 14px;font-size:12px;color:var(--muted)">No meetings today.</div>';
+  }
+
+  return todayEvs.map(ev => renderEventRow(ev)).join('');
+}
+
 function renderWeekAhead(events) {
+  const today = todayStr();
   const days = {};
   events.forEach(ev => {
     const d = ev.start?.date || ev.start?.dateTime?.split('T')[0];
-    if (!d) return;
+    if (!d || d === today) return; // today handled separately
     if (!days[d]) days[d] = [];
     days[d].push(ev);
   });
 
-  const sorted = Object.entries(days).sort(([a],[b]) => a.localeCompare(b)).slice(0,5);
-  if (!sorted.length) return '<div style="padding:16px;font-size:12px;color:var(--muted)">No upcoming events found. Make sure you ran the data seeder.</div>';
+  const sorted = Object.entries(days).sort(([a], [b]) => a.localeCompare(b)).slice(0, 5);
+  if (!sorted.length) return '<div style="padding:16px;font-size:12px;color:var(--muted)">No further events this week.</div>';
 
   return sorted.map(([date, evs]) => {
     const dayName = getDayName(date);
-    const items = evs.map((ev, idx) => {
-      const t = getTime(ev);
-      const s = ev.summary || '';
-      let tagClass = 'normal', tagLabel = t;
-      const isSkip = s.includes('Transit') || s.includes('KAI Timecode');
-      if (s.includes('FOCUS') || s.includes('PREP')) { tagClass = 'focus'; tagLabel = s.includes('PREP') ? 'PREP' : 'FOCUS'; }
-      else if (s.includes('CLASH') || s.toLowerCase().includes('clash')) { tagClass = 'clash'; tagLabel = 'CLASH'; }
-      else if (s.includes('TRAVEL') || s.includes('Transit')) { tagClass = 'travel'; tagLabel = 'TRAVEL'; }
-      const displayName = s.replace(/\s*\(.*?\)\s*/g,'').replace(/^(FOCUS|PREP|TRAVEL):\s*/,'').substring(0,52);
-      const evIdx = calendarData.findIndex(e => e.id === ev.id);
-      const clickable = !isSkip;
-      return `<div class="day-item ${clickable ? 'meeting-clickable' : ''}" ${clickable ? `onclick="openMeetingPrep(${evIdx})" style="cursor:pointer"` : ''} title="${clickable ? 'Click to prep for this meeting' : ''}">
-        <span class="tag ${tagClass}">${tagLabel}</span>
-        <span style="flex:1">${displayName}</span>
-        ${clickable ? '<span style="font-size:10px;color:#ccc;margin-left:4px">›</span>' : ''}
-      </div>`;
-    }).join('');
+    const items = evs.map(ev => renderEventRow(ev)).join('');
     return `<div class="day-row"><div class="day-nm">${dayName}</div><div class="day-items">${items}</div></div>`;
   }).join('');
 }
 
 function analyseBriefing(emails, events) {
   const urgentCount = emails.filter(e => e.priority === 'urgent' || e.priority === 'high').length;
-  document.getElementById('statEmails').textContent = urgentCount || emails.filter(e=>e.unread).length;
+  document.getElementById('statEmails').textContent = urgentCount || emails.filter(e => e.unread).length;
 
   // Count clashes
   const byDay = {};
@@ -869,7 +917,7 @@ function analyseBriefing(emails, events) {
   let clashes = 0;
   Object.values(byDay).forEach(dayEvs => {
     for (let i = 0; i < dayEvs.length; i++) {
-      for (let j = i+1; j < dayEvs.length; j++) {
+      for (let j = i + 1; j < dayEvs.length; j++) {
         const s1 = new Date(dayEvs[i].start?.dateTime), e1 = new Date(dayEvs[i].end?.dateTime);
         const s2 = new Date(dayEvs[j].start?.dateTime);
         if (s2 < e1) clashes++;
@@ -890,11 +938,11 @@ function analyseBriefing(emails, events) {
   Object.entries(byDay).forEach(([d, evs]) => {
     if (evs.length >= 5) nudges.push({ level: '#dd3333', text: `<b>${getDayName(d)} looks intense</b> — ${evs.length} meetings detected. Want me to protect a 30 min lunch slot?` });
   });
-  if (emails.filter(e=>e.unread&&(e.priority==='urgent'||e.priority==='high')).length > 2)
+  if (emails.filter(e => e.unread && (e.priority === 'urgent' || e.priority === 'high')).length > 2)
     nudges.push({ level: '#ddaa00', text: `<b>Multiple high-priority unread emails.</b> Recommend addressing these before your first meeting.` });
   nudges.push({ level: '#22aa55', text: `<b>Timecodes ready</b> — KAI has matched this week's meetings to PRJ-042, GOV-011 and BAU-001.` });
 
-  document.getElementById('wellbeingNudges').innerHTML = nudges.slice(0,3).map(n =>
+  document.getElementById('wellbeingNudges').innerHTML = nudges.slice(0, 3).map(n =>
     `<div class="wb-row"><div class="wb-dot" style="background:${n.level}"></div><div class="wb-txt">${n.text}</div></div>`
   ).join('');
 
@@ -902,14 +950,31 @@ function analyseBriefing(emails, events) {
   document.getElementById('pillStatus').textContent = `${urgentCount} urgent items need attention`;
 }
 
-function renderEmailList() {
-  const filtered = currentFilter === 'all' ? gmailData : gmailData.filter(e => e.priority === currentFilter);
-  const priorityOrder = { urgent:0, high:1, normal:2, fyi:3 };
-  const sorted = [...filtered].sort((a,b) => (priorityOrder[a.priority]||2) - (priorityOrder[b.priority]||2));
-  document.getElementById('inboxBadge').textContent = gmailData.filter(e=>e.unread).length;
+// ── INBOX ──
+
+function renderEmailList(customList = null) {
+  let filtered;
+  if (customList) {
+    filtered = customList;
+  } else if (currentFilter === 'all') {
+    filtered = gmailData;
+  } else if (currentFilter === 'unread') {
+    filtered = gmailData.filter(e => e.unread);
+  } else if (currentFilter.startsWith('sender:')) {
+    const name = currentFilter.slice(7).toLowerCase();
+    filtered = gmailData.filter(e => e.from.toLowerCase().includes(name) || e.fromEmail.toLowerCase().includes(name));
+  } else {
+    filtered = gmailData.filter(e => e.priority === currentFilter);
+  }
+  const priorityOrder = { urgent: 0, high: 1, normal: 2, fyi: 3 };
+  const sorted = [...filtered].sort((a, b) => (priorityOrder[a.priority] || 2) - (priorityOrder[b.priority] || 2));
+  const unreadCount = gmailData.filter(e => e.unread).length;
+  document.getElementById('inboxBadge').textContent = unreadCount;
+  const mobBadge = document.getElementById('mobInboxBadge');
+  if (mobBadge) { mobBadge.textContent = unreadCount; mobBadge.style.display = unreadCount > 0 ? 'block' : 'none'; }
 
   document.getElementById('emailList').innerHTML = sorted.map(e => `
-    <div class="email-item ${e.unread?'unread':''} ${selectedEmailId===e.id?'selected':''}" onclick="selectEmail('${e.id}')">
+    <div class="email-item ${e.unread ? 'unread' : ''} ${selectedEmailId === e.id ? 'selected' : ''}" onclick="selectEmail('${e.id}')">
       <div class="e-meta"><span class="e-from">${e.from}</span><span class="e-time">${e.time}</span></div>
       <div class="e-subject">${e.subject}</div>
       <div class="e-preview">${e.snippet}</div>
@@ -926,7 +991,16 @@ function renderEmailList() {
 function filterEmails(f, btn) {
   currentFilter = f;
   document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
+  // Update inbox header label to show active filter context
+  const lbl = document.getElementById('inboxFilterLabel');
+  if (lbl) {
+    if (f === 'all') lbl.textContent = 'All emails';
+    else if (f === 'urgent') lbl.textContent = 'Urgent emails';
+    else if (f === 'unread') lbl.textContent = 'Unread emails';
+    else if (f.startsWith('sender:')) lbl.textContent = 'From: ' + f.slice(7);
+    else lbl.textContent = f.charAt(0).toUpperCase() + f.slice(1) + ' emails';
+  }
   renderEmailList();
 }
 
@@ -935,7 +1009,7 @@ function selectEmail(id) {
   const email = gmailData.find(e => e.id === id);
   if (!email) return;
   renderEmailList();
-  if (window.innerWidth <= 768) { document.getElementById("emailDetail").classList.add("mob-open"); }
+  if (window.innerWidth <= 768) { document.getElementById('emailDetail').classList.add('mob-open'); }
 
   document.getElementById('emailDetail').innerHTML = `
     <div class="ed-hdr">
@@ -963,6 +1037,7 @@ function selectEmail(id) {
 
 async function draftReply(emailId) {
   const email = gmailData.find(e => e.id === emailId);
+  if (!email) return;
   const da = document.getElementById('draftArea');
   const dt = document.getElementById('draftTxt');
   da.style.display = 'block';
@@ -987,48 +1062,85 @@ Write only the email body. No subject line.`;
 function copyDraft() {
   navigator.clipboard.writeText(document.getElementById('draftTxt').textContent);
   event.target.textContent = 'Copied!';
-  setTimeout(() => event.target.textContent = 'Copy', 1800);
+  setTimeout(() => { if (event.target) event.target.textContent = 'Copy'; }, 1800);
 }
 
 // ── CLAUDE ──
+
 function buildKaiSystem() {
+  const now = new Date();
+  const today = todayStr();
+  const todayFormatted = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const timeNow = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
   const urgent = gmailData.filter(e => e.priority === 'urgent');
-  const high = gmailData.filter(e => e.priority === 'high');
   const unread = gmailData.filter(e => e.unread);
-  const emailSummary = gmailData.slice(0,8).map(e =>
-    `- [${e.priority.toUpperCase()}] From: ${e.from} | Subject: ${e.subject} | ${e.unread ? 'UNREAD' : 'read'} | ${e.time}`
+
+  const emailSummary = gmailData.slice(0, 8).map(e =>
+    `- [${e.priority.toUpperCase()}] From: ${e.from} | Subject: ${e.subject} | ${e.unread ? 'UNREAD' : 'read'} | Received: ${e.time}`
   ).join('\n');
-  const calSummary = calendarData.slice(0,12).map(ev => {
-    const start = ev.start?.dateTime ? new Date(ev.start.dateTime).toLocaleString('en-GB', {weekday:'short',hour:'2-digit',minute:'2-digit'}) : (ev.start?.date || '');
+
+  // Split calendar into today vs rest of week
+  const todayEvs = calendarData.filter(ev => {
+    const d = ev.start?.date || ev.start?.dateTime?.split('T')[0];
+    return d === today;
+  });
+  const restEvs = calendarData.filter(ev => {
+    const d = ev.start?.date || ev.start?.dateTime?.split('T')[0];
+    return d && d !== today;
+  });
+
+  const fmtEv = ev => {
+    const start = ev.start?.dateTime
+      ? new Date(ev.start.dateTime).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+      : (ev.start?.date ? new Date(ev.start.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) : '');
     return `- ${start}: ${ev.summary || '(no title)'}`;
-  }).join('\n');
+  };
+
+  const todaySummary = todayEvs.length ? todayEvs.map(fmtEv).join('\n') : 'No meetings today.';
+  const restSummary = restEvs.slice(0, 10).map(fmtEv).join('\n') || 'No further events this week.';
 
   return `You are KAI — Knowledge Action Intelligence. You are the personal organisational intelligence assistant for a senior Enterprise Platform Architect at a UK financial services regulatory organisation.
+
+TODAY IS: ${todayFormatted} — current time is ${timeNow}.
+Use this date when answering questions about today, tomorrow, this week, or how long ago something happened.
 
 You have just read their REAL inbox and calendar. Use only this actual data — do not invent emails or events.
 
 INBOX (${gmailData.length} emails, ${unread.length} unread, ${urgent.length} urgent):
 ${emailSummary || 'No emails loaded yet.'}
 
-CALENDAR (next 7 days, ${calendarData.length} events):
-${calSummary || 'No calendar events loaded yet.'}
+TODAY'S CALENDAR (${todayEvs.length} meetings today):
+${todaySummary}
+
+REST OF WEEK CALENDAR:
+${restSummary}
 
 TIMECODES: PRJ-042 (Digital Transformation), GOV-011 (Governance and Board), BAU-001 (BAU)
 
 RULES:
 - Only reference emails and events that appear in the data above
+- When asked about "today", use TODAY'S CALENDAR section specifically
 - If the inbox is empty or shows only Google system emails, say so honestly
 - Be direct, concise and professional
 - Give specific actionable answers based on what you can actually see`;
 }
 
-async function callClaude(userMsg, isChat = true) {
-  const messages = isChat
-    ? [...chatHistory, { role:'user', content: userMsg }]
-    : [{ role:'user', content: userMsg }];
+// callClaude(userMsg, isChat, systemOverride, historyOverride)
+// - isChat: if true, includes chat history in messages
+// - systemOverride: optional custom system prompt (e.g. for meeting prep)
+// - historyOverride: optional message history array (for multi-turn prep chat)
+async function callClaude(userMsg, isChat = false, systemOverride = null, historyOverride = null) {
+  const system = systemOverride || buildKaiSystem();
 
-  if (WORKER_URL === 'YOUR_CLOUDFLARE_WORKER_URL') {
-    return "⚠️ Cloudflare Worker URL not configured yet. Update the WORKER_URL variable in index.html with your Worker URL, then redeploy to GitHub Pages.";
+  let messages;
+  if (historyOverride) {
+    // Use provided history + new user message
+    messages = [...historyOverride, { role: 'user', content: userMsg }];
+  } else if (isChat) {
+    messages = [...chatHistory, { role: 'user', content: userMsg }];
+  } else {
+    messages = [{ role: 'user', content: userMsg }];
   }
 
   const res = await fetch(WORKER_URL, {
@@ -1037,27 +1149,82 @@ async function callClaude(userMsg, isChat = true) {
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
       max_tokens: 1024,
-      system: buildKaiSystem(),
+      system,
       messages
     })
   });
+  if (!res.ok) throw new Error('Worker responded ' + res.status);
   const data = await res.json();
   return data.content?.[0]?.text || 'No response';
 }
 
-function addMsg(role, text) {
+// ── CHAT ──
+
+// Lightweight intent parser — looks at KAI's reply and extracts an inbox filter action if relevant
+function parseKaiIntent(text) {
+  const t = text.toLowerCase();
+
+  // Sender filter — "emails from X" or "from X"
+  const senderMatch = text.match(/emails? from ([A-Z][a-zA-Z\s]+?)(?:\s*[\.\,\—\-]|$)/m)
+    || text.match(/from ([A-Z][a-zA-Z]+(?:\s[A-Z][a-zA-Z]+)?)\b/m);
+  if (senderMatch) {
+    const name = senderMatch[1].trim();
+    // Don't trigger on generic phrases
+    if (!['The', 'Your', 'KAI', 'Hi', 'A', 'An', 'Our'].includes(name)) {
+      return { label: `Show emails from ${name} →`, filter: 'sender:' + name };
+    }
+  }
+
+  // Unread / unreplied
+  if (t.includes('unread') || t.includes('not replied') || t.includes('haven\'t replied') || t.includes('no reply') || t.includes('unreplied')) {
+    return { label: 'Show unread emails →', filter: 'unread' };
+  }
+
+  // Urgent
+  if ((t.includes('urgent') || t.includes('high priority') || t.includes('needs your attention') || t.includes('need your attention')) && !t.includes('no urgent')) {
+    return { label: 'Show urgent emails →', filter: 'urgent' };
+  }
+
+  // FYI / noise
+  if (t.includes('fyi') || t.includes('newsletter') || t.includes('noise')) {
+    return { label: 'Show FYI emails →', filter: 'fyi' };
+  }
+
+  return null;
+}
+
+function addMsg(role, text, inboxAction = null) {
   const msgs = document.getElementById('chatMsgs');
   const d = document.createElement('div');
   d.className = 'msg ' + role;
-  d.innerHTML = `<div class="m-av ${role}">${role==='kai'?'KAI':'You'}</div><div class="m-bub ${role}">${text.replace(/\n/g,'<br>')}</div>`;
+  const formatted = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+  let actionHtml = '';
+  if (inboxAction) {
+    actionHtml = `<div style="margin-top:8px"><button class="kai-action-btn" onclick="filterInboxBy('${inboxAction.filter}','${inboxAction.label.replace(/'/g, '')}')">${inboxAction.label}</button></div>`;
+  }
+  d.innerHTML = `<div class="m-av ${role}">${role === 'kai' ? 'KAI' : 'You'}</div><div class="m-bub ${role}">${formatted}${actionHtml}</div>`;
   msgs.appendChild(d);
   msgs.scrollTop = msgs.scrollHeight;
 }
 
-function addTyping() {
-  const msgs = document.getElementById('chatMsgs');
+// Switch to inbox and apply a filter — called from KAI action buttons
+function filterInboxBy(filter, label) {
+  // Switch to inbox panel
+  const inboxNav = document.querySelector('.nav-item[data-panel="inbox"]');
+  if (inboxNav) switchPanel(inboxNav);
+  const mobInbox = document.querySelector('.mob-nav-item[data-panel="inbox"]');
+  if (mobInbox) { document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active')); mobInbox.classList.add('active'); }
+  // Apply filter — no matching fbtn for custom filters so pass null
+  const urgentBtn = filter === 'urgent' ? document.querySelector('.fbtn[onclick*="urgent"]') : null;
+  const unreadBtn = filter === 'unread' ? document.getElementById('fbtnUnread') : null;
+  const allBtn = filter === 'all' ? document.querySelector('.fbtn:first-child') : null;
+  filterEmails(filter, urgentBtn || unreadBtn || allBtn || null);
+}
+
+function addTyping(containerId = 'chatMsgs', typingId = 'typing') {
+  const msgs = document.getElementById(containerId);
   const d = document.createElement('div');
-  d.className = 'msg kai'; d.id = 'typing';
+  d.className = 'msg'; d.id = typingId;
   d.innerHTML = '<div class="m-av kai">KAI</div><div class="m-bub kai"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>';
   msgs.appendChild(d);
   msgs.scrollTop = msgs.scrollHeight;
@@ -1070,31 +1237,141 @@ async function sendChat() {
   if (!text) return;
   inp.value = ''; inp.style.height = 'auto'; btn.disabled = true;
   addMsg('user', text);
-  chatHistory.push({ role:'user', content: text });
-  addTyping();
+  chatHistory.push({ role: 'user', content: text });
+  addTyping('chatMsgs', 'typing');
   try {
     const reply = await callClaude(text, true);
     document.getElementById('typing')?.remove();
-    addMsg('kai', reply);
-    chatHistory.push({ role:'assistant', content: reply });
+    const action = parseKaiIntent(reply);
+    addMsg('kai', reply, action);
+    chatHistory.push({ role: 'assistant', content: reply });
   } catch(e) {
-    console.error('Claude call failed:', e);
     document.getElementById('typing')?.remove();
     addMsg('kai', 'Having trouble connecting. Please check your Worker URL configuration.');
   }
   btn.disabled = false; inp.focus();
 }
 
-function sendQuick(btn) { document.getElementById('chatIn').value = btn.textContent; sendChat(); }
+function sendQuick(btn) {
+  document.getElementById('chatIn').value = btn.textContent;
+  sendChat();
+}
+
+// ── NAVIGATION ──
 
 function switchPanel(item) {
+  // Deactivate all nav items
   document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
   item.classList.add('active');
+  // Switch panels
+  const panel = item.dataset.panel;
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-' + item.dataset.panel).classList.add('active');
+  document.getElementById('panel-' + panel).classList.add('active');
+  // If there's a scroll target, scroll to it after panel renders
+  const scrollTarget = item.dataset.scroll;
+  if (scrollTarget) {
+    setTimeout(() => {
+      const el = document.getElementById(scrollTarget);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+}
+
+function mobNav(btn) {
+  document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const panel = btn.dataset.panel;
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + panel).classList.add('active');
+  // Sync sidebar active state — for mobile, just match on panel
+  document.querySelectorAll('.nav-item').forEach(i => {
+    i.classList.toggle('active', i.dataset.panel === panel && !i.dataset.scroll);
+  });
+}
+
+function goToUnreplied() {
+  const inboxNav = document.querySelector('.nav-item[data-panel="inbox"]');
+  if (inboxNav) switchPanel(inboxNav);
+  const mobInbox = document.querySelector('.mob-nav-item[data-panel="inbox"]');
+  if (mobInbox) { document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active')); mobInbox.classList.add('active'); }
+  setTimeout(() => {
+    const unreadBtn = document.getElementById('fbtnUnread');
+    if (unreadBtn) filterEmails('unread', unreadBtn);
+  }, 100);
+}
+
+function goToCalendar() {
+  const briefNav = document.querySelector('.nav-item[data-panel="briefing"]:not([data-scroll])');
+  if (briefNav) switchPanel(briefNav);
+  setTimeout(() => {
+    const weekCard = document.querySelector('.week-card');
+    if (weekCard) weekCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function goToWellbeing() {
+  // Switch to briefing panel
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  // Activate the Wellbeing nav item
+  const wbNav = document.querySelector('.nav-item[data-scroll="wellbeingSection"]');
+  if (wbNav) wbNav.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-briefing').classList.add('active');
+  setTimeout(() => {
+    const wb = document.getElementById('wellbeingSection');
+    if (wb) wb.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function goToTimecodes() {
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  const tcNav = document.querySelector('.nav-item[data-scroll="timecodesSection"]');
+  if (tcNav) tcNav.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-briefing').classList.add('active');
+  setTimeout(() => {
+    const tc = document.getElementById('timecodesSection');
+    if (tc) tc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function closeMobileEmail() {
+  document.getElementById('emailDetail').classList.remove('mob-open');
+}
+
+// ── REFRESH ──
+
+async function refreshData() {
+  const btn = document.getElementById('refreshBtn');
+  if (btn) btn.classList.add('spinning');
+  document.getElementById('pillStatus').textContent = 'Refreshing...';
+  document.getElementById('briefingSub').textContent = 'Refreshing your inbox and calendar...';
+  try {
+    const [emails, events] = await Promise.all([fetchEmails(), fetchCalendar()]);
+    // fetchEmails/fetchCalendar already handle 401 by showing the banner and returning []
+    gmailData = emails;
+    calendarData = events;
+    document.getElementById('todayEvents').innerHTML = renderToday(events);
+    document.getElementById('weekAhead').innerHTML = renderWeekAhead(events);
+    renderEmailList();
+    analyseBriefing(emails, events);
+    const urgentEmails = emails.filter(e => e.priority === 'urgent' || e.priority === 'high');
+    const msgs = document.getElementById('chatMsgs');
+    if (msgs) {
+      const d = document.createElement('div');
+      d.className = 'msg';
+      d.innerHTML = `<div class="m-av kai">KAI</div><div class="m-bub kai">Refreshed — I can see <b>${emails.length} emails</b> and <b>${events.length} calendar events</b>. ${urgentEmails.length > 0 ? urgentEmails.length + ' need your attention.' : 'No urgent items.'}</div>`;
+      msgs.appendChild(d);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+  } catch(e) {
+    document.getElementById('briefingSub').textContent = 'Refresh failed — try again';
+  }
+  if (btn) btn.classList.remove('spinning');
 }
 
 // ── INIT ──
+
 async function loadApp() {
   document.getElementById('authScreen').style.display = 'none';
   document.getElementById('loadingScreen').style.display = 'flex';
@@ -1104,11 +1381,12 @@ async function loadApp() {
     const [emails, events] = await Promise.all([fetchEmails(), fetchCalendar()]);
     gmailData = emails;
     calendarData = events;
+    document.getElementById('todayEvents').innerHTML = renderToday(events);
     document.getElementById('weekAhead').innerHTML = renderWeekAhead(events);
     renderEmailList();
     analyseBriefing(emails, events);
-    const urgentEmails = emails.filter(e=>e.priority==='urgent'||e.priority==='high');
-    chatHistory = [{ role:'assistant', content:`Hi — I'm KAI. I've read your inbox and calendar. You have ${urgentEmails.length} high-priority emails and ${events.length} events this week. What would you like help with?` }];
+    const urgentEmails = emails.filter(e => e.priority === 'urgent' || e.priority === 'high');
+    chatHistory = [];
     document.getElementById('chatMsgs').innerHTML = `<div class="msg"><div class="m-av kai">KAI</div><div class="m-bub kai">Hi — I've read your inbox and calendar. You have <b>${urgentEmails.length} high-priority emails</b> and <b>${events.length} calendar events</b> this week. What would you like help with?</div></div>`;
     checkAutoArchiveRecommendations();
   } catch(e) {
@@ -1119,163 +1397,50 @@ async function loadApp() {
   document.getElementById('appScreen').style.display = 'grid';
 }
 
-async function handleCallback() {
-  // Implicit flow returns token in hash fragment: #access_token=...
-  const hash = window.location.hash.substring(1);
-  const params = new URLSearchParams(hash);
-  const token = params.get('access_token');
-  if (!token) return false;
-  // Clear the hash from URL
-  window.history.replaceState({}, '', window.location.pathname);
-  accessToken = token;
-  sessionStorage.setItem('token', accessToken);
-  try {
-    const uRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', { headers: { Authorization: 'Bearer ' + accessToken } });
-    const uData = await uRes.json();
-    sessionStorage.setItem('userEmail', uData.email || '');
-  } catch(e) {}
-  return true;
-}
-
-function goToInboxUrgent() {
-  // Switch to inbox panel and filter to urgent
-  const inboxNav = document.querySelector('[data-panel="inbox"]');
-  if (inboxNav) {
-    switchPanel(inboxNav);
-    // Also sync mobile nav
-    const mobInbox = document.querySelector('.mob-nav-item[data-panel="inbox"]');
-    if (mobInbox) mobNav(mobInbox);
-    // Set urgent filter
-    setTimeout(() => {
-      const urgentBtn = document.querySelector('.fbtn:nth-child(2)');
-      if (urgentBtn) filterEmails('urgent', urgentBtn);
-    }, 100);
-  }
-}
-
-function goToCalendar() {
-  // Switch to briefing and scroll to week ahead
-  const briefNav = document.querySelector('[data-panel="briefing"]');
-  if (briefNav) {
-    switchPanel(briefNav);
-    const mobBrief = document.querySelector('.mob-nav-item[data-panel="briefing"]');
-    if (mobBrief) mobNav(mobBrief);
-    setTimeout(() => {
-      const weekCard = document.querySelector('.week-card');
-      if (weekCard) weekCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 150);
-  }
-}
-
-function goToWellbeing() {
-  const briefNav = document.querySelector('[data-panel="briefing"]');
-  if (briefNav) {
-    switchPanel(briefNav);
-    const mobBrief = document.querySelector('.mob-nav-item[data-panel="briefing"]');
-    if (mobBrief) mobNav(mobBrief);
-    setTimeout(() => {
-      const wb = document.getElementById('wellbeingSection');
-      if (wb) wb.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 150);
-  }
-}
-
-function goToTimecodes() {
-  const briefNav = document.querySelector('[data-panel="briefing"]');
-  if (briefNav) {
-    switchPanel(briefNav);
-    const mobBrief = document.querySelector('.mob-nav-item[data-panel="briefing"]');
-    if (mobBrief) mobNav(mobBrief);
-    setTimeout(() => {
-      const tc = document.getElementById('timecodesSection');
-      if (tc) tc.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 150);
-  }
-}
-
-async function refreshData() {
-  const btn = document.getElementById('refreshBtn');
-  if (btn) btn.classList.add('spinning');
-  // Check token is still valid first
-  const valid = await checkTokenValid();
-  if (!valid) { if (btn) btn.classList.remove('spinning'); return; }
-  document.getElementById('pillStatus').textContent = 'Refreshing...';
-  document.getElementById('briefingSub').textContent = 'Refreshing your inbox and calendar...';
-  try {
-    const [emails, events] = await Promise.all([fetchEmails(), fetchCalendar()]);
-    gmailData = emails;
-    calendarData = events;
-    document.getElementById('weekAhead').innerHTML = renderWeekAhead(events);
-    renderEmailList();
-    analyseBriefing(emails, events);
-    // Reset chat context with fresh data
-    const urgentEmails = emails.filter(e => e.priority === 'urgent' || e.priority === 'high');
-    // Add a refresh message to chat
-    const msgs = document.getElementById('chatMsgs');
-    if (msgs) {
-      const d = document.createElement('div');
-      d.className = 'msg';
-      d.innerHTML = `<div class="m-av kai">KAI</div><div class="m-bub kai">Refreshed — I can now see <b>${emails.length} emails</b> and <b>${events.length} calendar events</b>. ${urgentEmails.length > 0 ? urgentEmails.length + ' need your attention.' : 'No urgent items.'}</div>`;
-      msgs.appendChild(d);
-      msgs.scrollTop = msgs.scrollHeight;
-    }
-  } catch(e) {
-    document.getElementById('briefingSub').textContent = 'Refresh failed — try again';
-  }
-  if (btn) btn.classList.remove('spinning');
-}
-
 async function init() {
+  // 1. Check for existing valid token in session
   const stored = sessionStorage.getItem('token');
-  if (stored) { accessToken = stored; await loadApp(); return; }
+  if (stored) {
+    accessToken = stored;
+    await loadApp();
+    return;
+  }
+  // 2. Check if we're returning from OAuth (token in URL hash)
   const fromCallback = await handleCallback();
-  if (fromCallback) { await loadApp(); return; }
+  if (fromCallback) {
+    await loadApp();
+    return;
+  }
+  // 3. No token — show auth screen
   document.getElementById('authScreen').style.display = 'flex';
 }
 
 init();
 
-function mobNav(btn) {
-  document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const panel = btn.dataset.panel;
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-' + panel).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(i => {
-    if (i.dataset.panel === panel) i.classList.add('active');
-    else i.classList.remove('active');
-  });
-}
-
-function closeMobileEmail() {
-  document.getElementById('emailDetail').classList.remove('mob-open');
-}
-
 // ── ARCHIVE ──
+
 const archivedItems = [];
-const REGULATORY_KEYWORDS = ['governance','regulatory','compliance','sign-off','board decision','fca','risk framework','control framework','audit','policy','approval','minister','exco','urgent'];
+const REGULATORY_KEYWORDS = ['governance', 'regulatory', 'compliance', 'sign-off', 'board decision', 'risk framework', 'control framework', 'audit', 'policy', 'approval', 'minister', 'exco', 'urgent'];
 
 function shouldAutoArchive(email) {
   if (email.priority === 'urgent' || email.priority === 'high') return true;
-  const combined = (email.subject + ' ' + email.snippet + ' ' + (email.body||'')).toLowerCase();
+  const combined = (email.subject + ' ' + email.snippet + ' ' + (email.body || '')).toLowerCase();
   return REGULATORY_KEYWORDS.some(kw => combined.includes(kw));
 }
 
 function getArchiveFolder(email) {
-  const subj = (email.subject + ' ' + (email.body||'')).toLowerCase();
+  const subj = (email.subject + ' ' + (email.body || '')).toLowerCase();
   if (subj.includes('governance') || subj.includes('board') || subj.includes('control framework')) return 'KAI Archive/Governance';
-  if (subj.includes('regulatory') || subj.includes('fca') || subj.includes('compliance') || subj.includes('risk')) return 'KAI Archive/Regulatory';
+  if (subj.includes('regulatory') || subj.includes('compliance') || subj.includes('risk')) return 'KAI Archive/Regulatory';
   if (subj.includes('prj-042') || subj.includes('digital transformation') || subj.includes('project')) return 'KAI Archive/Projects/PRJ-042';
   if (email.priority === 'urgent' || email.priority === 'high') return 'KAI Archive/Stakeholder Correspondence';
   return 'KAI Archive/General';
 }
 
 async function ensureDriveFolder(folderPath) {
-  // Create nested folders in Drive, return final folder ID
   const parts = folderPath.split('/');
   let parentId = 'root';
   for (const part of parts) {
-    // Search for existing folder
     const search = await fetch(
       `https://www.googleapis.com/drive/v3/files?q=name='${encodeURIComponent(part)}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false`,
       { headers: { Authorization: 'Bearer ' + accessToken } }
@@ -1284,7 +1449,6 @@ async function ensureDriveFolder(folderPath) {
     if (result.files && result.files.length > 0) {
       parentId = result.files[0].id;
     } else {
-      // Create folder
       const create = await fetch('https://www.googleapis.com/drive/v3/files', {
         method: 'POST',
         headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
@@ -1301,17 +1465,13 @@ async function ensureDriveFolder(folderPath) {
 async function archiveEmail(emailId) {
   const email = gmailData.find(e => e.id === emailId);
   if (!email) return;
-
   const btn = document.getElementById('archiveBtn-' + emailId);
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Archiving...'; }
-
   try {
     const folder = getArchiveFolder(email);
     const folderId = await ensureDriveFolder(folder);
-
-    // Build email content as plain text file
     const dateStr = new Date().toISOString().split('T')[0];
-    const fileName = `${dateStr} — ${email.subject.substring(0,60).replace(/[/\?%*:|"<>]/g,'')}.txt`;
+    const fileName = `${dateStr} — ${email.subject.substring(0, 60).replace(/[/\?%*:|"<>]/g, '')}.txt`;
     const fileContent = [
       'KAI ARCHIVED EMAIL',
       '==================',
@@ -1334,7 +1494,6 @@ async function archiveEmail(emailId) {
       'Archived by KAI — Knowledge Action Intelligence',
     ].join('\n');
 
-    // Upload to Drive
     const metadata = { name: fileName, parents: [folderId] };
     const form = new FormData();
     form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
@@ -1346,25 +1505,19 @@ async function archiveEmail(emailId) {
       body: form
     });
     const file = await upload.json();
-
     if (!file.id) throw new Error('Upload failed');
 
-    // Mark as archived
     email.archived = true;
     archivedItems.unshift({ email, folder, fileName, fileId: file.id, link: file.webViewLink, archivedAt: new Date() });
-
-    // Update UI
     if (btn) { btn.textContent = '✅ Archived'; btn.style.background = 'rgba(34,197,94,0.2)'; }
     renderEmailList();
     updateArchivePanel();
     showArchiveToast(email, folder, file.webViewLink);
     document.getElementById('archiveBadge').textContent = archivedItems.length;
-    const mab=document.getElementById('mobArchiveBadge'); if(mab){mab.textContent=archivedItems.length;mab.style.display='block';}
-
-    // Tell KAI about it in chat context
-    chatHistory.push({ role:'user', content: `I just archived the email "${email.subject}" from ${email.from}` });
-    chatHistory.push({ role:'assistant', content: `Done — I've saved "${email.subject}" to ${folder} in Google Drive. This email has been added to the compliance archive. Do you want me to draft a response acknowledging receipt?` });
-
+    const mab = document.getElementById('mobArchiveBadge');
+    if (mab) { mab.textContent = archivedItems.length; mab.style.display = 'block'; }
+    chatHistory.push({ role: 'user', content: `I just archived the email "${email.subject}" from ${email.from}` });
+    chatHistory.push({ role: 'assistant', content: `Done — I've saved "${email.subject}" to ${folder} in Google Drive. Do you want me to draft a response acknowledging receipt?` });
   } catch(err) {
     if (btn) { btn.disabled = false; btn.textContent = '🗄️ Archive to Drive'; }
     showArchiveToast(null, null, null, err.message);
@@ -1374,29 +1527,15 @@ async function archiveEmail(emailId) {
 function showArchiveToast(email, folder, link, error = null) {
   const existing = document.getElementById('archiveToast');
   if (existing) existing.remove();
-
   const toast = document.createElement('div');
   toast.id = 'archiveToast';
   toast.className = 'arch-toast';
-
   if (error) {
     toast.style.borderLeftColor = 'var(--coral)';
-    toast.innerHTML = `
-      <div class="arch-toast-icon">⚠️</div>
-      <div class="arch-toast-body">
-        <div class="arch-toast-title" style="color:var(--coral)">Archive failed</div>
-        <div class="arch-toast-sub">${error}</div>
-      </div>`;
+    toast.innerHTML = `<div class="arch-toast-icon">⚠️</div><div><div class="arch-toast-title" style="color:var(--coral)">Archive failed</div><div class="arch-toast-sub">${error}</div></div>`;
   } else {
-    toast.innerHTML = `
-      <div class="arch-toast-icon">🗄️</div>
-      <div class="arch-toast-body">
-        <div class="arch-toast-title">Archived to Google Drive</div>
-        <div class="arch-toast-sub">Saved to ${folder} ${link ? '· <a href="' + link + '" target="_blank" style="color:var(--teal)">Open in Drive</a>' : ''}</div>
-      </div>
-      <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0 0 0 8px">×</button>`;
+    toast.innerHTML = `<div class="arch-toast-icon">🗄️</div><div><div class="arch-toast-title">Archived to Google Drive</div><div class="arch-toast-sub">Saved to ${folder} ${link ? '· <a href="' + link + '" target="_blank" style="color:var(--teal)">Open in Drive</a>' : ''}</div></div><button onclick="this.parentElement.remove()" style="background:none;border:none;color:#999;cursor:pointer;font-size:18px;padding:0 0 0 8px;margin-left:auto">×</button>`;
   }
-
   document.body.appendChild(toast);
   setTimeout(() => toast?.remove(), 6000);
 }
@@ -1410,10 +1549,10 @@ function updateArchivePanel() {
   }
   list.innerHTML = archivedItems.map(item => `
     <div class="archive-item">
-      <div class="archive-item-icon">📄</div>
+      <div>📄</div>
       <div style="flex:1;min-width:0">
-        <div class="archive-item-name">${item.email.subject.substring(0,55)}${item.email.subject.length > 55 ? '...' : ''}</div>
-        <div class="archive-item-meta">From: ${item.email.from} · ${item.archivedAt.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'})}</div>
+        <div class="archive-item-name">${item.email.subject.substring(0, 55)}${item.email.subject.length > 55 ? '...' : ''}</div>
+        <div class="archive-item-meta">From: ${item.email.from} · ${item.archivedAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</div>
         <div class="archive-item-meta" style="color:var(--green)">${item.folder}</div>
         ${item.link ? `<a href="${item.link}" target="_blank" class="archive-item-link">Open in Drive →</a>` : ''}
       </div>
@@ -1422,12 +1561,11 @@ function updateArchivePanel() {
   `).join('');
 }
 
-// Auto-archive check on load — flag urgent emails
 function checkAutoArchiveRecommendations() {
   const recommended = gmailData.filter(e => !e.archived && shouldAutoArchive(e));
   if (recommended.length > 0) {
-    const names = recommended.slice(0,2).map(e => e.from).join(', ');
-    const msg = `📋 I've identified ${recommended.length} email${recommended.length>1?'s':''} that should be archived for compliance — from ${names}${recommended.length>2?' and others':''}. Open them and use the <b>Archive to Drive</b> button, or say "KAI archive all urgent emails" and I'll do it for you.`;
+    const names = recommended.slice(0, 2).map(e => e.from).join(', ');
+    const msg = `📋 I've identified ${recommended.length} email${recommended.length > 1 ? 's' : ''} that should be archived for compliance — from ${names}${recommended.length > 2 ? ' and others' : ''}. Open them and use the <b>Archive to Drive</b> button.`;
     setTimeout(() => {
       const msgs = document.getElementById('chatMsgs');
       if (!msgs) return;
@@ -1440,10 +1578,7 @@ function checkAutoArchiveRecommendations() {
   }
 }
 
-
 // ── MEETING PREP ──
-let currentMeeting = null;
-let prepChatHistory = [];
 
 function openMeetingPrep(evIdx) {
   const ev = calendarData[evIdx];
@@ -1451,9 +1586,8 @@ function openMeetingPrep(evIdx) {
   currentMeeting = ev;
   prepChatHistory = [];
 
-  // Set header
   const title = ev.summary || 'Meeting';
-  const cleanTitle = title.replace(/^(FOCUS|PREP|TRAVEL):\s*/,'').replace(/\s*\(.*?\)\s*/g,'').trim();
+  const cleanTitle = title.replace(/^(FOCUS|PREP|TRAVEL):\s*/, '').replace(/\s*\(.*?\)\s*/g, '').trim();
   document.getElementById('sheetTitle').textContent = cleanTitle;
 
   const time = getTime(ev);
@@ -1472,29 +1606,22 @@ function openMeetingPrep(evIdx) {
     ${timecode ? `<span style="background:var(--teal-lt);color:var(--teal-dk);padding:1px 7px;border-radius:100px;font-size:10px;font-weight:500">${timecode}</span>` : ''}
   `;
 
-  // Reset tabs
-  switchPrepTab('brief', document.querySelector('.prep-tab'));
-  document.querySelectorAll('.prep-tab-content').forEach(t => t.classList.remove('active'));
-  document.getElementById('prepTab-brief').classList.add('active');
+  // Reset tabs to Brief
   document.querySelectorAll('.prep-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.prep-tab-content').forEach(t => t.classList.remove('active'));
   document.querySelector('.prep-tab').classList.add('active');
+  document.getElementById('prepTab-brief').classList.add('active');
 
   // Reset content
   document.getElementById('prepSummary').innerHTML = '<div class="prep-loading"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div> KAI is preparing your brief...</div>';
   document.getElementById('prepTalkingPoints').innerHTML = '<div class="prep-loading"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div> Generating talking points...</div>';
-  document.getElementById('prepWatchOut').innerHTML = '<div class="prep-loading"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div> Analysing...</div>';
+  document.getElementById('prepWatchOut').innerHTML = '<div class="prep-loading"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div> Analysing risks...</div>';
 
-  // Show overlay
   document.getElementById('meetingOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 
-  // Load related emails
   loadRelatedEmails(ev);
-
-  // Init prep chat
   initPrepChat(ev);
-
-  // Generate brief async
   generateMeetingBrief(ev);
 }
 
@@ -1522,13 +1649,12 @@ function loadRelatedEmails(ev) {
     const combined = (email.subject + ' ' + email.from + ' ' + email.snippet).toLowerCase();
     return words.some(w => combined.includes(w));
   });
-
   const container = document.getElementById('prepRelatedEmails');
   if (related.length === 0) {
     container.innerHTML = '<div style="font-size:12px;color:#888;padding:8px 0">No emails directly related to this meeting found in your inbox.</div>';
     return;
   }
-  container.innerHTML = related.slice(0,5).map(email => `
+  container.innerHTML = related.slice(0, 5).map(email => `
     <div class="rel-email" onclick="openRelatedEmail('${email.id}')">
       <div style="flex:1">
         <div class="rel-email-from">${email.from}</div>
@@ -1543,31 +1669,23 @@ function openRelatedEmail(emailId) {
   closeMeetingSheet();
   setTimeout(() => {
     selectEmail(emailId);
-    const inboxNav = document.querySelector('[data-panel="inbox"]');
+    const inboxNav = document.querySelector('.nav-item[data-panel="inbox"]');
     if (inboxNav) switchPanel(inboxNav);
-    const mobInbox = document.querySelector('.mob-nav-item[data-panel="inbox"]');
-    if (mobInbox) mobNav(mobInbox);
   }, 200);
 }
 
 function initPrepChat(ev) {
-  const cleanTitle = (ev.summary || 'this meeting').replace(/^(FOCUS|PREP|TRAVEL):\s*/,'').replace(/\s*\(.*?\)\s*/g,'').trim();
+  const cleanTitle = (ev.summary || 'this meeting').replace(/^(FOCUS|PREP|TRAVEL):\s*/, '').replace(/\s*\(.*?\)\s*/g, '').trim();
   const time = getTime(ev);
-  const desc = ev.description || '';
 
-  prepChatHistory = [{
-    role: 'assistant',
-    content: `I'm ready to help you prep for **${cleanTitle}**${time ? ' at ' + time : ''}. I can draft an agenda, suggest talking points, write a pre-read, or help you think through a deck structure. What would you like to work on?`
-  }];
+  prepChatHistory = [];
 
-  const msgs = document.getElementById('prepChatMsgs');
-  msgs.innerHTML = `
+  document.getElementById('prepChatMsgs').innerHTML = `
     <div class="msg">
       <div class="m-av kai">KAI</div>
       <div class="m-bub kai">I'm ready to help you prep for <b>${cleanTitle}</b>${time ? ' at ' + time : ''}. I can draft an agenda, write talking points, create a pre-read, or structure a deck. What would you like to work on?</div>
     </div>`;
 
-  // Dynamic quick prompts based on meeting type
   const titleLower = cleanTitle.toLowerCase();
   let prompts = ['Draft an agenda', 'Key talking points', 'Write a pre-read note', 'Help me structure a deck', 'What questions should I ask?'];
   if (titleLower.includes('board') || titleLower.includes('governance')) {
@@ -1584,18 +1702,18 @@ function initPrepChat(ev) {
 }
 
 async function generateMeetingBrief(ev) {
-  const cleanTitle = (ev.summary || 'meeting').replace(/^(FOCUS|PREP|TRAVEL):\s*/,'').replace(/\s*\(.*?\)\s*/g,'').trim();
+  const cleanTitle = (ev.summary || 'meeting').replace(/^(FOCUS|PREP|TRAVEL):\s*/, '').replace(/\s*\(.*?\)\s*/g, '').trim();
   const time = getTime(ev);
   const desc = ev.description || '';
   const relatedEmails = gmailData.filter(email => {
     const words = cleanTitle.toLowerCase().split(/\s+/).filter(w => w.length > 3);
     const combined = (email.subject + ' ' + email.snippet).toLowerCase();
     return words.some(w => combined.includes(w));
-  }).slice(0,3).map(e => `- Email from ${e.from}: "${e.subject}"`).join('\n');
+  }).slice(0, 3).map(e => `- Email from ${e.from}: "${e.subject}"`).join('\n');
 
-  const prompt = `You are KAI, an AI assistant for a senior Enterprise Platform Architect at a UK financial services regulator.
+  const system = `You are KAI, an AI assistant for a senior Enterprise Platform Architect at a UK financial services regulator.
 
-Generate a concise meeting prep brief for this meeting. Respond with exactly three sections separated by ||| :
+Generate a concise meeting prep brief. Respond with exactly three sections separated by ||| :
 
 Section 1 - WHAT THIS IS ABOUT (2-3 sentences explaining the purpose and context)
 Section 2 - TALKING POINTS (exactly 4 bullet points, each starting with •)
@@ -1607,12 +1725,11 @@ Calendar description: ${desc || 'none'}
 Related emails in inbox:
 ${relatedEmails || 'none'}
 
-Be specific to this organisation's context — financial services regulator, governance-heavy environment, senior leadership audience.`;
+Be specific to a financial services regulator context — governance-heavy, senior leadership audience.`;
 
   try {
-    const response = await callClaude(prompt, false);
+    const response = await callClaude('Generate the brief now.', false, system);
     const parts = response.split('|||');
-
     if (parts[0]) {
       document.getElementById('prepSummary').innerHTML =
         `<div class="prep-content">${parts[0].trim().replace(/\n/g, '<br>')}</div>`;
@@ -1620,14 +1737,14 @@ Be specific to this organisation's context — financial services regulator, gov
     if (parts[1]) {
       const bullets = parts[1].trim().split('\n').filter(l => l.trim().startsWith('•'));
       document.getElementById('prepTalkingPoints').innerHTML = bullets.map(b =>
-        `<div class="prep-bullet"><div class="prep-bullet-dot"></div><div class="prep-bullet-text">${b.replace('•','').trim()}</div></div>`
-      ).join('');
+        `<div class="prep-bullet"><div class="prep-bullet-dot"></div><div class="prep-bullet-text">${b.replace('•', '').trim()}</div></div>`
+      ).join('') || `<div class="prep-content">${parts[1].trim()}</div>`;
     }
     if (parts[2]) {
       const bullets = parts[2].trim().split('\n').filter(l => l.trim().startsWith('•'));
       document.getElementById('prepWatchOut').innerHTML = bullets.map(b =>
-        `<div class="prep-bullet"><div class="prep-bullet-dot" style="background:var(--coral)"></div><div class="prep-bullet-text">${b.replace('•','').trim()}</div></div>`
-      ).join('');
+        `<div class="prep-bullet"><div class="prep-bullet-dot" style="background:var(--coral)"></div><div class="prep-bullet-text">${b.replace('•', '').trim()}</div></div>`
+      ).join('') || `<div class="prep-content">${parts[2].trim()}</div>`;
     }
   } catch(e) {
     document.getElementById('prepSummary').innerHTML = '<div style="font-size:12px;color:#888">Brief generation requires the Cloudflare Worker to be configured.</div>';
@@ -1641,12 +1758,10 @@ async function sendPrepChat() {
   const btn = document.getElementById('prepSendBtn');
   const text = input.value.trim();
   if (!text || !currentMeeting) return;
-
   input.value = ''; input.style.height = 'auto'; btn.disabled = true;
 
-  const cleanTitle = (currentMeeting.summary || 'meeting').replace(/^(FOCUS|PREP|TRAVEL):\s*/,'').replace(/\s*\(.*?\)\s*/g,'').trim();
+  const cleanTitle = (currentMeeting.summary || 'meeting').replace(/^(FOCUS|PREP|TRAVEL):\s*/, '').replace(/\s*\(.*?\)\s*/g, '').trim();
 
-  // Add user message
   const msgs = document.getElementById('prepChatMsgs');
   const userDiv = document.createElement('div');
   userDiv.className = 'msg user';
@@ -1654,14 +1769,9 @@ async function sendPrepChat() {
   msgs.appendChild(userDiv);
   msgs.scrollTop = msgs.scrollHeight;
 
-  // Add typing
-  const typingDiv = document.createElement('div');
-  typingDiv.id = 'prepTyping'; typingDiv.className = 'msg';
-  typingDiv.innerHTML = '<div class="m-av kai">KAI</div><div class="m-bub kai"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>';
-  msgs.appendChild(typingDiv);
-  msgs.scrollTop = msgs.scrollHeight;
-
-  prepChatHistory.push({ role: 'user', content: text });
+  addTyping('prepChatMsgs', 'prepTyping');
+  // Do NOT push to prepChatHistory yet — callClaude will append text as the user message
+  // We push after the call so history stays in sync
 
   const system = `You are KAI — a meeting preparation assistant for a senior Enterprise Platform Architect at a UK financial services regulator.
 
@@ -1671,21 +1781,23 @@ Meeting description: ${currentMeeting.description || 'none'}
 Related emails: ${gmailData.filter(e => {
     const words = cleanTitle.toLowerCase().split(/\s+/).filter(w => w.length > 3);
     return words.some(w => (e.subject + e.snippet).toLowerCase().includes(w));
-  }).slice(0,3).map(e => e.from + ': ' + e.subject).join(', ') || 'none'}
+  }).slice(0, 3).map(e => e.from + ': ' + e.subject).join(', ') || 'none'}
 
-You can help with: agendas, talking points, deck structures, pre-read notes, risk analysis, stakeholder questions, action item lists.
-When drafting content like deck outlines or agendas, be specific and structured. Use headers and bullets.
-Keep responses concise but substantive. This is a professional context.`;
+Help with: agendas, talking points, deck structures, pre-read notes, risk analysis, stakeholder questions, action item lists.
+When drafting structured content, use headers and bullets. Keep responses concise but substantive.`;
 
   try {
-    const reply = await callClaude(text, true, system, prepChatHistory.slice(0,-1));
+    // prepChatHistory has prior turns; callClaude appends text as the new user message
+    const reply = await callClaude(text, false, system, prepChatHistory);
     document.getElementById('prepTyping')?.remove();
+    // Now push both turns to history
+    prepChatHistory.push({ role: 'user', content: text });
+    prepChatHistory.push({ role: 'assistant', content: reply });
     const replyDiv = document.createElement('div');
     replyDiv.className = 'msg';
-    replyDiv.innerHTML = `<div class="m-av kai">KAI</div><div class="m-bub kai" style="max-width:100%">${reply.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>').replace(/^- /gm,'• ')}</div>`;
+    replyDiv.innerHTML = `<div class="m-av kai">KAI</div><div class="m-bub kai" style="max-width:100%">${reply.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/^- /gm, '• ')}</div>`;
     msgs.appendChild(replyDiv);
     msgs.scrollTop = msgs.scrollHeight;
-    prepChatHistory.push({ role: 'assistant', content: reply });
   } catch(e) {
     document.getElementById('prepTyping')?.remove();
     const errDiv = document.createElement('div');
@@ -1701,7 +1813,6 @@ function sendPrepQuick(text) {
   switchPrepTab('prep', document.querySelectorAll('.prep-tab')[2]);
   sendPrepChat();
 }
-
 </script>
 </body>
 </html>
