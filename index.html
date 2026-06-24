@@ -293,8 +293,31 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .prep-send:hover { background: var(--teal-dk); }
 .prep-send:disabled { opacity: 0.4; cursor: not-allowed; }
 
-.kai-action-btn { font-size: 11px; padding: 5px 12px; border-radius: 100px; border: 0.5px solid #9FE1CB; background: var(--teal-lt); color: var(--teal-dk); cursor: pointer; font-family: inherit; font-weight: 500; transition: all 0.12s; }
+.clash-row { background: var(--coral-lt); border-radius: 6px; }
+@keyframes clashPulse { 0%,100%{background:var(--coral-lt)} 50%{background:#f5c4b8} }
+.clash-row.pulsing { animation: clashPulse 0.7s ease 3; }
+
+.event-proposal { background: #F8FDF8; border: 0.5px solid #9FE1CB; border-radius: 10px; padding: 12px 14px; margin-top: 8px; }
+.event-proposal-title { font-size: 11px; font-weight: 500; color: var(--teal-dk); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+.event-proposal-field { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.event-proposal-field label { font-size: 10px; color: #888; width: 52px; flex-shrink: 0; }
+.event-proposal-field input { flex: 1; background: white; border: 0.5px solid #E0E0D8; border-radius: 6px; padding: 5px 9px; font-size: 12px; color: #1a1a1a; outline: none; font-family: inherit; transition: border-color 0.12s; }
+.event-proposal-field input:focus { border-color: #9FE1CB; }
+.event-proposal-actions { display: flex; gap: 7px; margin-top: 10px; }
+.btn-create { background: var(--teal); color: white; border: none; padding: 7px 14px; border-radius: 7px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; transition: background 0.12s; }
+.btn-create:hover { background: var(--teal-dk); }
+.btn-create:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-dismiss { background: white; color: #888; border: 0.5px solid #E0E0D8; padding: 7px 12px; border-radius: 7px; font-size: 12px; cursor: pointer; font-family: inherit; }
+.event-created { display: flex; align-items: center; gap: 8px; background: var(--green-lt); border: 0.5px solid #C0DD97; border-radius: 8px; padding: 9px 12px; margin-top: 8px; font-size: 12px; color: #3B6D11; } font-size: 11px; padding: 5px 12px; border-radius: 100px; border: 0.5px solid #9FE1CB; background: var(--teal-lt); color: var(--teal-dk); cursor: pointer; font-family: inherit; font-weight: 500; transition: all 0.12s; }
 .kai-action-btn:hover { background: var(--teal); color: white; }
+.action-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 13px; border-bottom: 0.5px solid #F0F0EC; }
+.action-item:last-child { border-bottom: none; }
+.action-item-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); flex-shrink: 0; margin-top: 4px; }
+.action-item-dot.overdue { background: var(--coral); }
+.action-item-dot.done { background: var(--green); }
+.action-item-text { font-size: 11.5px; color: #333; line-height: 1.45; flex: 1; }
+.action-item-due { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.action-item-done { font-size: 10px; color: var(--teal); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; margin-top: 2px; }
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
@@ -506,6 +529,19 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
             <div class="tc-row"><span class="tc-code">GOV-011</span><span class="tc-desc">Board + governance reviews</span></div>
             <div class="tc-row"><span class="tc-code">BAU-001</span><span class="tc-desc">1:1s and standups</span></div>
           </div>
+          <div class="wb-card" id="notesSection">
+            <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between">
+              <span>Open Actions</span>
+              <span id="notesStatus" style="font-size:9px;color:var(--muted);letter-spacing:0;text-transform:none;font-weight:400">Loading...</span>
+            </div>
+            <div id="notesList">
+              <div style="padding:14px;font-size:11px;color:var(--muted)">Loading actions...</div>
+            </div>
+            <div style="padding:8px 13px;border-top:0.5px solid #F0F0EC">
+              <div style="font-size:10px;color:var(--muted);margin-bottom:1px">Tell KAI to remember something:</div>
+              <div style="font-size:10px;color:#aaa;font-style:italic">"Remember I need to send the strategy paper by Friday"</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -550,6 +586,8 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
           <button class="qp" onclick="sendQuick(this)">Any urgent emails I've missed?</button>
           <button class="qp" onclick="sendQuick(this)">How does Wednesday look?</button>
           <button class="qp" onclick="sendQuick(this)">Draft a reply to the Director</button>
+          <button class="qp" onclick="sendQuick(this)">What are my open actions?</button>
+          <button class="qp" onclick="sendQuick(this)">Remind me in 2 days to follow up</button>
         </div>
         <div class="chat-input-area">
           <textarea class="chat-in" id="chatIn" placeholder="Ask KAI about your inbox, calendar, priorities..." rows="1"
@@ -647,7 +685,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 
 <script>
 const CLIENT_ID = '294776404978-p9p6q310nqisej0ohvt0kbsfd1hoqrkm.apps.googleusercontent.com';
-const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/drive.file';
+const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/drive.file';
 const REDIRECT_URI = 'https://kishore510.github.io/kai-demo';
 const WORKER_URL = 'https://kai-demo-proxy.kishore510.workers.dev';
 
@@ -845,15 +883,17 @@ function formatFullDate(dateStr) {
 function renderEventRow(ev) {
   const t = getTime(ev);
   const s = ev.summary || '';
+  const isClashing = clashedEventIds.has(ev.id);
   let tagClass = 'reply', tagLabel = t || '';
   const isSkip = s.includes('Transit') || s.includes('KAI Timecode');
   if (s.includes('FOCUS') || s.includes('PREP')) { tagClass = 'focus'; tagLabel = s.includes('PREP') ? 'PREP' : 'FOCUS'; }
-  else if (s.includes('CLASH') || s.toLowerCase().includes('clash')) { tagClass = 'clash'; tagLabel = 'CLASH'; }
+  else if (isClashing || s.includes('CLASH') || s.toLowerCase().includes('clash')) { tagClass = 'clash'; tagLabel = 'CLASH'; }
   else if (s.includes('TRAVEL') || s.includes('Transit')) { tagClass = 'travel'; tagLabel = 'TRAVEL'; }
   const displayName = s.replace(/\s*\(.*?\)\s*/g, '').replace(/^(FOCUS|PREP|TRAVEL):\s*/, '').substring(0, 52);
   const evIdx = calendarData.findIndex(e => e.id === ev.id);
   const clickable = !isSkip;
-  return `<div class="day-item ${clickable ? 'meeting-clickable' : ''}" ${clickable ? `onclick="openMeetingPrep(${evIdx})" style="cursor:pointer"` : ''} title="${clickable ? 'Click to prep for this meeting' : ''}">
+  const clashAttr = isClashing ? `data-clash="true"` : '';
+  return `<div class="day-item ${clickable ? 'meeting-clickable' : ''} ${isClashing ? 'clash-row' : ''}" ${clashAttr} ${clickable ? `onclick="openMeetingPrep(${evIdx})" style="cursor:pointer"` : ''} title="${clickable ? 'Click to prep for this meeting' : ''}">
     <span class="tag ${tagClass}">${tagLabel}</span>
     <span style="flex:1">${displayName}</span>
     ${clickable ? '<span style="font-size:10px;color:#ccc;margin-left:4px">›</span>' : ''}
@@ -906,21 +946,29 @@ function renderWeekAhead(events) {
 
 function analyseBriefing(emails, events) {
   const urgentCount = emails.filter(e => e.priority === 'urgent' || e.priority === 'high').length;
-  document.getElementById('statEmails').textContent = urgentCount || emails.filter(e => e.unread).length;
+  const unreadCount = emails.filter(e => e.unread).length;
+  document.getElementById('statEmails').textContent = unreadCount;
 
-  // Count clashes
+  // Count clashes and store clashing event IDs
   const byDay = {};
   events.forEach(ev => {
     const d = ev.start?.dateTime?.split('T')[0];
     if (d) { if (!byDay[d]) byDay[d] = []; byDay[d].push(ev); }
   });
   let clashes = 0;
-  Object.values(byDay).forEach(dayEvs => {
+  clashedEventIds = new Set();
+  clashDayDate = null;
+  Object.entries(byDay).forEach(([date, dayEvs]) => {
     for (let i = 0; i < dayEvs.length; i++) {
       for (let j = i + 1; j < dayEvs.length; j++) {
-        const s1 = new Date(dayEvs[i].start?.dateTime), e1 = new Date(dayEvs[i].end?.dateTime);
+        const e1 = new Date(dayEvs[i].end?.dateTime);
         const s2 = new Date(dayEvs[j].start?.dateTime);
-        if (s2 < e1) clashes++;
+        if (s2 < e1) {
+          clashes++;
+          clashedEventIds.add(dayEvs[i].id);
+          clashedEventIds.add(dayEvs[j].id);
+          if (!clashDayDate) clashDayDate = date;
+        }
       }
     }
   });
@@ -1117,10 +1165,11 @@ REST OF WEEK CALENDAR:
 ${restSummary}
 
 TIMECODES: PRJ-042 (Digital Transformation), GOV-011 (Governance and Board), BAU-001 (BAU)
-
+${buildNotesContext()}
 RULES:
 - Only reference emails and events that appear in the data above
 - When asked about "today", use TODAY'S CALENDAR section specifically
+- If open actions exist, proactively mention overdue ones when relevant
 - If the inbox is empty or shows only Google system emails, say so honestly
 - Be direct, concise and professional
 - Give specific actionable answers based on what you can actually see`;
@@ -1237,6 +1286,28 @@ async function sendChat() {
   if (!text) return;
   inp.value = ''; inp.style.height = 'auto'; btn.disabled = true;
   addMsg('user', text);
+
+  // Check if this is a calendar command — handle locally
+  const calCmd = parseCalendarCommand(text);
+  if (calCmd) {
+    const dateLabel = new Date(calCmd.dateStr + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+    proposeEvent(calCmd.title, calCmd.dateStr, calCmd.timeStr, calCmd.duration,
+      `Here's what I'll create — edit any details before confirming:`);
+    btn.disabled = false; inp.focus();
+    return;
+  }
+
+  // Check if this is a "remember" command — handle locally without calling Claude
+  const rememberText = parseRememberIntent(text);
+  if (rememberText) {
+    const due = extractDueDate(rememberText);
+    await addKaiAction(rememberText, due);
+    const dueMsg = due ? ` I've flagged it as due ${new Date(due).toLocaleDateString('en-GB', { day:'numeric', month:'short' })}.` : '';
+    addMsg('kai', `Got it — I've added that to your open actions and saved it to Drive.${dueMsg} I'll remind you if it goes overdue.`);
+    btn.disabled = false; inp.focus();
+    return;
+  }
+
   chatHistory.push({ role: 'user', content: text });
   addTyping('chatMsgs', 'typing');
   try {
@@ -1304,9 +1375,22 @@ function goToCalendar() {
   const briefNav = document.querySelector('.nav-item[data-panel="briefing"]:not([data-scroll])');
   if (briefNav) switchPanel(briefNav);
   setTimeout(() => {
+    // If we know which day has clashes, scroll to it and pulse the clashing rows
+    if (clashDayDate) {
+      const clashRows = document.querySelectorAll('[data-clash="true"]');
+      if (clashRows.length) {
+        clashRows[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        clashRows.forEach(row => {
+          row.classList.add('pulsing');
+          setTimeout(() => row.classList.remove('pulsing'), 2200);
+        });
+        return;
+      }
+    }
+    // Fallback — just scroll to week card
     const weekCard = document.querySelector('.week-card');
     if (weekCard) weekCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 100);
+  }, 150);
 }
 
 function goToWellbeing() {
@@ -1389,6 +1473,8 @@ async function loadApp() {
     chatHistory = [];
     document.getElementById('chatMsgs').innerHTML = `<div class="msg"><div class="m-av kai">KAI</div><div class="m-bub kai">Hi — I've read your inbox and calendar. You have <b>${urgentEmails.length} high-priority emails</b> and <b>${events.length} calendar events</b> this week. What would you like help with?</div></div>`;
     checkAutoArchiveRecommendations();
+    loadKaiNotes(); // async — non-blocking
+    scanEmailsForCalendarIntents(emails); // async — fires after 5s delay
   } catch(e) {
     console.error(e);
     document.getElementById('weekAhead').innerHTML = '<div style="padding:16px;font-size:12px;color:var(--coral)">Error loading data. Token may have expired — try signing out and back in.</div>';
@@ -1441,23 +1527,27 @@ async function ensureDriveFolder(folderPath) {
   const parts = folderPath.split('/');
   let parentId = 'root';
   for (const part of parts) {
-    const search = await fetch(
-      `https://www.googleapis.com/drive/v3/files?q=name='${encodeURIComponent(part)}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false`,
-      { headers: { Authorization: 'Bearer ' + accessToken } }
-    );
-    const result = await search.json();
-    if (result.files && result.files.length > 0) {
-      parentId = result.files[0].id;
-    } else {
-      const create = await fetch('https://www.googleapis.com/drive/v3/files', {
-        method: 'POST',
-        headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: part, mimeType: 'application/vnd.google-apps.folder', parents: [parentId] })
-      });
-      const folder = await create.json();
-      parentId = folder.id;
-    }
-    await new Promise(r => setTimeout(r, 100));
+    // Try to search for existing folder — may return empty under drive.file scope, that's OK
+    try {
+      const search = await fetch(
+        `https://www.googleapis.com/drive/v3/files?q=name='${encodeURIComponent(part)}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false&fields=files(id)`,
+        { headers: { Authorization: 'Bearer ' + accessToken } }
+      );
+      const result = await search.json();
+      if (result.files && result.files.length > 0) {
+        parentId = result.files[0].id;
+        continue;
+      }
+    } catch(e) { /* search failed — fall through to create */ }
+    // Create the folder
+    const create = await fetch('https://www.googleapis.com/drive/v3/files', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: part, mimeType: 'application/vnd.google-apps.folder', parents: [parentId] })
+    });
+    const folder = await create.json();
+    if (!folder.id) throw new Error('Could not create Drive folder: ' + part);
+    parentId = folder.id;
   }
   return parentId;
 }
@@ -1813,6 +1903,502 @@ function sendPrepQuick(text) {
   switchPrepTab('prep', document.querySelectorAll('.prep-tab')[2]);
   sendPrepChat();
 }
+
+// ── KAI NOTES / OPEN ACTIONS ──
+
+let clashedEventIds = new Set();
+let clashDayDate = null; // date string of the day with clashes, for scrolling
+let kaiNotes = { actions: [], lastUpdated: null };
+
+// Notes file structure:
+// { actions: [{ id, text, due, createdAt, done }], lastUpdated }
+
+async function loadKaiNotes() {
+  try {
+    // 1. Ask Worker for the stored file ID
+    const r = await fetch(WORKER_URL + '/notes-id');
+    // Worker returns non-JSON for non-POST if old worker — handle gracefully
+    if (!r.ok) { renderNotes(); return; }
+    const { fileId } = await r.json();
+
+    if (fileId) {
+      // 2. Fetch the file content from Drive directly
+      kaiNotesFileId = fileId;
+      const dr = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+        headers: { Authorization: 'Bearer ' + accessToken }
+      });
+      if (dr.ok) {
+        kaiNotes = await dr.json();
+      } else {
+        // File was deleted — create a new one
+        kaiNotesFileId = null;
+        await ensureKaiNotesFile();
+      }
+    } else {
+      // No file ID stored yet — create the file
+      await ensureKaiNotesFile();
+    }
+  } catch(e) {
+    // Non-fatal — notes just won't load
+    console.warn('KAI Notes load failed:', e.message);
+  }
+  renderNotes();
+}
+
+async function ensureKaiNotesFile() {
+  try {
+    const content = JSON.stringify({ actions: [], lastUpdated: new Date().toISOString() });
+    const form = new FormData();
+    form.append('metadata', new Blob([JSON.stringify({ name: 'kai-notes.json' })], { type: 'application/json' }));
+    form.append('file', new Blob([content], { type: 'application/json' }));
+    const r = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + accessToken },
+      body: form
+    });
+    const file = await r.json();
+    if (file.id) {
+      kaiNotesFileId = file.id;
+      // Store file ID in Worker KV so all devices can find it
+      await fetch(WORKER_URL + '/notes-id', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileId: file.id })
+      });
+    }
+  } catch(e) {
+    console.warn('KAI Notes file creation failed:', e.message);
+  }
+}
+
+async function saveKaiNotes() {
+  if (!kaiNotesFileId) return;
+  try {
+    kaiNotes.lastUpdated = new Date().toISOString();
+    await fetch(`https://www.googleapis.com/upload/drive/v3/files/${kaiNotesFileId}?uploadType=media`, {
+      method: 'PATCH',
+      headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify(kaiNotes)
+    });
+  } catch(e) {
+    console.warn('KAI Notes save failed:', e.message);
+  }
+}
+
+function renderNotes() {
+  const list = document.getElementById('notesList');
+  const status = document.getElementById('notesStatus');
+  if (!list) return;
+
+  const open = kaiNotes.actions.filter(a => !a.done);
+  const now = new Date();
+  const overdue = open.filter(a => a.due && new Date(a.due + 'T12:00:00') < now);
+
+  if (status) status.textContent = kaiNotesFileId ? '✓ Synced to Drive' : 'Not synced';
+
+  if (open.length === 0) {
+    list.innerHTML = '<div style="padding:12px 13px;font-size:11px;color:var(--muted)">No open actions. Tell KAI to remember something.</div>';
+    return;
+  }
+
+  list.innerHTML = open.map(a => {
+    // Parse due date as local noon to avoid UTC DST day-shift
+    const dueDate = a.due ? new Date(a.due + 'T12:00:00') : null;
+    const isOverdue = dueDate && dueDate < new Date();
+    const dueStr = dueDate ? 'Due: ' + dueDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '';
+    return `<div class="action-item">
+      <div class="action-item-dot ${isOverdue ? 'overdue' : ''}"></div>
+      <div style="flex:1">
+        <div class="action-item-text">${a.text}</div>
+        ${dueStr ? `<div class="action-item-due" style="${isOverdue ? 'color:var(--coral)' : ''}">${isOverdue ? '⚠️ ' : ''}${dueStr}</div>` : ''}
+      </div>
+      <button class="action-item-done" onclick="markActionDone('${a.id}')">✓ Done</button>
+    </div>`;
+  }).join('');
+}
+
+async function addKaiAction(text, due = null) {
+  const action = {
+    id: Date.now().toString(),
+    text,
+    due,
+    createdAt: new Date().toISOString(),
+    done: false
+  };
+  kaiNotes.actions.unshift(action);
+  renderNotes();
+  await saveKaiNotes();
+  return action;
+}
+
+async function markActionDone(id) {
+  const action = kaiNotes.actions.find(a => a.id === id);
+  if (action) {
+    action.done = true;
+    renderNotes();
+    await saveKaiNotes();
+  }
+}
+
+// Parse "remember X" or "remind me to X" from chat input
+function parseRememberIntent(text) {
+  const t = text.toLowerCase().trim();
+  const patterns = [
+    /^remember (?:that )?(?:i need to |i must |to )?(.+)/i,
+    /^remind me to (.+)/i,
+    /^(?:make a note|note down|log) (?:that )?(.+)/i,
+    /^add (?:an? )?action[: ]+(.+)/i,
+    /^(?:don't forget|don't let me forget)[: ]+(.+)/i,
+  ];
+  for (const p of patterns) {
+    const m = text.match(p);
+    if (m) return m[1].trim();
+  }
+  return null;
+}
+
+// Extract due date hint from action text — simple patterns only
+function extractDueDate(text) {
+  const t = text.toLowerCase();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Helper — returns the date of the next occurrence of a weekday (0=Sun..6=Sat)
+  // If today IS that day, returns today (not next week)
+  function nextWeekday(target) {
+    const d = new Date(today);
+    const diff = (target - d.getDay() + 7) % 7; // 0 if today is target day
+    d.setDate(d.getDate() + diff);
+    return d.toISOString().split('T')[0];
+  }
+
+  if (t.includes('today')) return today.toISOString().split('T')[0];
+  if (t.includes('tomorrow')) { const d = new Date(today); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0]; }
+  if (t.includes('friday'))   return nextWeekday(5);
+  if (t.includes('thursday')) return nextWeekday(4);
+  if (t.includes('wednesday'))return nextWeekday(3);
+  if (t.includes('tuesday'))  return nextWeekday(2);
+  if (t.includes('monday'))   return nextWeekday(1);
+  if (t.includes('next week')) { const d = new Date(today); d.setDate(d.getDate() + 7); return d.toISOString().split('T')[0]; }
+  if (t.includes('end of week')) return nextWeekday(5);
+  if (t.includes('end of month')) {
+    const d = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    return d.toISOString().split('T')[0];
+  }
+  return null;
+}
+
+// Build notes context for KAI system prompt
+function buildNotesContext() {
+  const open = kaiNotes.actions.filter(a => !a.done);
+  if (!open.length) return '';
+  const now = new Date();
+  const overdue = open.filter(a => a.due && new Date(a.due + 'T12:00:00') < now);
+  const lines = open.map(a => {
+    const isOverdue = a.due && new Date(a.due + 'T12:00:00') < now;
+    const dueStr = a.due ? ` (due ${new Date(a.due + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })})` : '';
+    return `- ${isOverdue ? '[OVERDUE] ' : ''}${a.text}${dueStr}`;
+  }).join('\n');
+  return `\nOPEN ACTIONS (${open.length} total, ${overdue.length} overdue):\n${lines}`;
+}
+
+
+// ── CALENDAR INTELLIGENCE ──
+
+// Proposal counter for unique IDs
+let proposalCounter = 0;
+
+// Creates a Google Calendar event via API
+async function createCalendarEvent(title, dateStr, timeStr, durationMins, description = '') {
+  // Build start datetime — dateStr is YYYY-MM-DD, timeStr is HH:MM or empty (all-day)
+  let startObj, endObj;
+  if (timeStr) {
+    const start = new Date(dateStr + 'T' + timeStr + ':00');
+    const end = new Date(start.getTime() + durationMins * 60000);
+    startObj = { dateTime: start.toISOString(), timeZone: 'Europe/London' };
+    endObj   = { dateTime: end.toISOString(),   timeZone: 'Europe/London' };
+  } else {
+    // All-day event
+    startObj = { date: dateStr };
+    endObj   = { date: dateStr };
+  }
+
+  const body = {
+    summary: title,
+    description: description || 'Created by KAI — Knowledge Action Intelligence',
+    start: startObj,
+    end: endObj,
+  };
+
+  const r = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (r.status === 401) { showTokenExpiredBanner(); throw new Error('Token expired'); }
+  const data = await r.json();
+  if (!data.id) throw new Error(data.error?.message || 'Event creation failed');
+  return data; // returns full event object including htmlLink
+}
+
+// Renders an event proposal card inside a chat bubble
+// proposalId is used to find the card DOM elements on confirm
+function renderEventProposal(proposalId, title, dateStr, timeStr, durationMins, reason) {
+  return `<div class="event-proposal" id="proposal-${proposalId}">
+    <div class="event-proposal-title">📅 Calendar Event</div>
+    <div style="font-size:12px;color:#555;margin-bottom:10px">${reason}</div>
+    <div class="event-proposal-field">
+      <label>Title</label>
+      <input id="p${proposalId}-title" value="${title.replace(/"/g, '&quot;')}" placeholder="Event title">
+    </div>
+    <div class="event-proposal-field">
+      <label>Date</label>
+      <input id="p${proposalId}-date" type="date" value="${dateStr}">
+    </div>
+    <div class="event-proposal-field">
+      <label>Time</label>
+      <input id="p${proposalId}-time" type="time" value="${timeStr || ''}" placeholder="Leave blank for all-day">
+    </div>
+    <div class="event-proposal-field">
+      <label>Duration</label>
+      <input id="p${proposalId}-dur" type="number" value="${durationMins}" min="15" step="15" style="width:70px"> <span style="font-size:11px;color:#888">mins</span>
+    </div>
+    <div class="event-proposal-actions">
+      <button class="btn-create" onclick="confirmCreateEvent('${proposalId}')">✓ Create event</button>
+      <button class="btn-dismiss" onclick="dismissProposal('${proposalId}')">Dismiss</button>
+    </div>
+  </div>`;
+}
+
+async function confirmCreateEvent(proposalId) {
+  const title    = document.getElementById('p' + proposalId + '-title')?.value?.trim();
+  const dateStr  = document.getElementById('p' + proposalId + '-date')?.value;
+  const timeStr  = document.getElementById('p' + proposalId + '-time')?.value;
+  const dur      = parseInt(document.getElementById('p' + proposalId + '-dur')?.value) || 30;
+  const card     = document.getElementById('proposal-' + proposalId);
+  if (!title || !dateStr) return;
+
+  const btn = card?.querySelector('.btn-create');
+  if (btn) { btn.disabled = true; btn.textContent = 'Creating...'; }
+
+  try {
+    const ev = await createCalendarEvent(title, dateStr, timeStr, dur);
+    const dateLabel = new Date(dateStr + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+    const timeLabel = timeStr ? ' at ' + timeStr : ' (all day)';
+    if (card) card.outerHTML = `<div class="event-created">✅ <div><b>${title}</b> added to your calendar — ${dateLabel}${timeLabel}${ev.htmlLink ? ' · <a href="' + ev.htmlLink + '" target="_blank" style="color:var(--teal)">Open in Calendar</a>' : ''}</div></div>`;
+    // Refresh calendar data in background
+    fetchCalendar().then(events => {
+      calendarData = events;
+      document.getElementById('todayEvents').innerHTML = renderToday(events);
+      document.getElementById('weekAhead').innerHTML = renderWeekAhead(events);
+      analyseBriefing(gmailData, events);
+    });
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.textContent = '✓ Create event'; }
+    const errDiv = document.createElement('div');
+    errDiv.style.cssText = 'font-size:11px;color:var(--coral);margin-top:6px';
+    errDiv.textContent = 'Failed: ' + e.message + '. Make sure calendar.events scope is authorised — sign out and back in.';
+    card?.appendChild(errDiv);
+  }
+}
+
+function dismissProposal(proposalId) {
+  const card = document.getElementById('proposal-' + proposalId);
+  if (card) card.style.display = 'none';
+}
+
+// Propose an event in chat — adds a KAI bubble with an editable proposal card
+function proposeEvent(title, dateStr, timeStr, durationMins, reason) {
+  const id = (++proposalCounter).toString();
+  const msgs = document.getElementById('chatMsgs');
+  const d = document.createElement('div');
+  d.className = 'msg';
+  d.innerHTML = `<div class="m-av kai">KAI</div><div class="m-bub kai" style="max-width:92%">${reason ? reason + '<br><br>' : ''}${renderEventProposal(id, title, dateStr, timeStr, durationMins, '')}</div>`;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// ── EMAIL INTENT DETECTION ──
+
+const MEETING_REQUEST_PATTERNS = [
+  /can we (meet|catch up|find time|grab time|schedule|book)/i,
+  /are you (free|available)/i,
+  /let'?s (meet|catch up|connect|talk|discuss|schedule)/i,
+  /(find|schedule|book|arrange) (a |an )?(meeting|call|time|slot|session)/i,
+  /would (you|you be able to) (meet|join|attend)/i,
+  /(quick |brief )?(call|chat|meeting|catch-?up)/i,
+  /calendar invite/i,
+  /when are you (free|available|next free)/i,
+];
+
+const APPROVAL_PATTERNS = [
+  /(leave|holiday|annual leave|time off).{0,30}(approved|confirmed|granted)/i,
+  /(approved|confirmed).{0,30}(leave|holiday|time off|annual leave)/i,
+  /your (request|application).{0,30}(approved|granted|confirmed)/i,
+];
+
+const TRAINING_PATTERNS = [
+  /(mandatory|required|compulsory).{0,40}(training|course|module|learning)/i,
+  /(training|course|module).{0,40}(mandatory|required|compulsory|must complete|please complete)/i,
+  /complete.{0,30}by/i,
+  /compliance training/i,
+  /you are required to (attend|complete)/i,
+];
+
+const DEADLINE_PATTERNS = [
+  /(deadline|due date).{0,30}\d{1,2}[\/\-\s](jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|\d{1,2})/i,
+  /submit.{0,30}by/i,
+  /required by.{0,30}(monday|tuesday|wednesday|thursday|friday|\d)/i,
+  /please (respond|reply|submit|complete|return).{0,30}by/i,
+];
+
+function detectEmailCalendarIntent(email) {
+  const combined = (email.subject + ' ' + (email.body || email.snippet)).toLowerCase();
+  const full = email.subject + ' ' + (email.body || email.snippet);
+
+  // Meeting request
+  if (MEETING_REQUEST_PATTERNS.some(p => p.test(full))) {
+    return { type: 'meeting', email };
+  }
+  // Approval (holiday/leave)
+  if (APPROVAL_PATTERNS.some(p => p.test(full))) {
+    return { type: 'approval', email };
+  }
+  // Training deadline
+  if (TRAINING_PATTERNS.some(p => p.test(full))) {
+    return { type: 'training', email };
+  }
+  // Deadline
+  if (DEADLINE_PATTERNS.some(p => p.test(full))) {
+    return { type: 'deadline', email };
+  }
+  return null;
+}
+
+// Scan emails and surface calendar action suggestions in chat after load
+function scanEmailsForCalendarIntents(emails) {
+  const intents = emails
+    .filter(e => !e.priority === 'fyi') // skip noise
+    .map(e => detectEmailCalendarIntent(e))
+    .filter(Boolean)
+    .slice(0, 3); // max 3 suggestions at once
+
+  if (!intents.length) return;
+
+  setTimeout(() => {
+    intents.forEach(intent => {
+      const { type, email } = intent;
+      let msg = '', proposalFn = null;
+
+      const today = todayStr();
+      // Default to tomorrow for suggestions
+      const tomorrow = (() => { const d = new Date(); d.setDate(d.getDate()+1); return d.toISOString().split('T')[0]; })();
+      // Next free morning — simple heuristic: 09:00 tomorrow
+      const nextSlot = { date: tomorrow, time: '09:00' };
+
+      if (type === 'meeting') {
+        msg = `📅 <b>${email.from}</b> is asking to meet ("${email.subject}"). Want me to create a calendar event and suggest a slot?`;
+        proposalFn = () => proposeEvent(
+          `Catch-up with ${email.from.split(' ')[0]}`,
+          nextSlot.date, nextSlot.time, 30,
+          `Suggested from email: "${email.subject}"`
+        );
+      } else if (type === 'approval') {
+        msg = `🏖️ Looks like you have an approved leave or holiday in this email from <b>${email.from}</b>. Want me to block it on your calendar?`;
+        proposalFn = () => proposeEvent(
+          'Annual Leave',
+          today, '', 480,
+          `Detected from: "${email.subject}"`
+        );
+      } else if (type === 'training') {
+        msg = `📚 <b>${email.from}</b> has sent what looks like a mandatory training or compliance deadline. Want me to block time to complete it?`;
+        proposalFn = () => proposeEvent(
+          'Complete: ' + email.subject.substring(0, 45),
+          nextSlot.date, '14:00', 60,
+          `Detected from: "${email.subject}"`
+        );
+      } else if (type === 'deadline') {
+        msg = `⏰ <b>${email.from}</b> has sent a deadline or submission request. Want me to create a calendar reminder?`;
+        proposalFn = () => proposeEvent(
+          'DEADLINE: ' + email.subject.substring(0, 40),
+          nextSlot.date, '09:00', 30,
+          `Detected from: "${email.subject}"`
+        );
+      }
+
+      if (!msg) return;
+      const msgs = document.getElementById('chatMsgs');
+      const d = document.createElement('div');
+      d.className = 'msg';
+      const btnId = 'calSuggest-' + email.id;
+      d.innerHTML = `<div class="m-av kai">KAI</div><div class="m-bub kai">${msg}<div style="margin-top:8px"><button class="kai-action-btn" id="${btnId}">📅 Yes, propose event →</button></div></div>`;
+      msgs.appendChild(d);
+      msgs.scrollTop = msgs.scrollHeight;
+      // Attach click after render
+      setTimeout(() => {
+        const btn = document.getElementById(btnId);
+        if (btn) btn.onclick = () => { btn.style.display = 'none'; proposalFn(); };
+      }, 50);
+    });
+  }, 5000); // delay 5s so it doesn't fire before the welcome message settles
+}
+
+// ── CHAT COMMAND — REMIND ME / ADD TO CALENDAR ──
+
+function parseCalendarCommand(text) {
+  const t = text.toLowerCase().trim();
+
+  // "remind me in X days about Y" / "remind me in X days to Y"
+  const inDays = text.match(/remind me in (\d+) days? (?:about|to) (.+)/i);
+  if (inDays) {
+    const days = parseInt(inDays[1]);
+    const title = inDays[2].trim();
+    const d = new Date(); d.setDate(d.getDate() + days);
+    return { title: 'Reminder: ' + title, dateStr: d.toISOString().split('T')[0], timeStr: '09:00', duration: 15 };
+  }
+
+  // "remind me tomorrow at HH:MM to Y"
+  const tomorrowAt = text.match(/remind me tomorrow at (\d{1,2}(?::\d{2})?) (?:to |about )?(.+)/i);
+  if (tomorrowAt) {
+    const d = new Date(); d.setDate(d.getDate() + 1);
+    const time = tomorrowAt[1].includes(':') ? tomorrowAt[1] : tomorrowAt[1] + ':00';
+    return { title: 'Reminder: ' + tomorrowAt[2].trim(), dateStr: d.toISOString().split('T')[0], timeStr: time.padStart(5,'0'), duration: 15 };
+  }
+
+  // "add [something] to my calendar [day] at [time]"
+  const addCal = text.match(/add (.+?) to my calendar(?: on)?(?: (?:monday|tuesday|wednesday|thursday|friday|tomorrow|today))?(?: at (\d{1,2}(?::\d{2})?))?/i);
+  if (addCal) {
+    const title = addCal[1].trim();
+    const timeRaw = addCal[2];
+    const timeStr = timeRaw ? (timeRaw.includes(':') ? timeRaw : timeRaw + ':00').padStart(5,'0') : '09:00';
+    const dateStr = extractDueDate(t) || todayStr();
+    return { title, dateStr, timeStr, duration: 30 };
+  }
+
+  // "block [day] [at time] for [title]"
+  const blockFor = text.match(/block (.+?) for (.+)/i);
+  if (blockFor) {
+    const dayPart = blockFor[1].trim();
+    const title = blockFor[2].trim();
+    const dateStr = extractDueDate(dayPart) || todayStr();
+    return { title, dateStr, timeStr: '09:00', duration: 60 };
+  }
+
+  // "create a meeting with [name] on [day] at [time]"
+  const createWith = text.match(/create (?:a )?meeting with (.+?) on (.+?)(?:\s+at (\d{1,2}(?::\d{2})?))?$/i);
+  if (createWith) {
+    const name = createWith[1].trim();
+    const dayPart = createWith[2].trim();
+    const timeRaw = createWith[3];
+    const timeStr = timeRaw ? (timeRaw.includes(':') ? timeRaw : timeRaw + ':00').padStart(5,'0') : '10:00';
+    const dateStr = extractDueDate(dayPart) || todayStr();
+    return { title: 'Meeting with ' + name, dateStr, timeStr, duration: 30 };
+  }
+
+  return null;
+}
+
+
 </script>
 </body>
 </html>
