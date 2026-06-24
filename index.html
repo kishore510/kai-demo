@@ -871,9 +871,9 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
             <div class="help-features">
               <div class="help-feature"><span class="help-loc">🌅 Briefing</span><span class="help-feat-desc">Today's meetings, open actions, wellbeing nudges, timecode suggestions</span></div>
               <div class="help-feature"><span class="help-loc">📬 Inbox</span><span class="help-feat-desc">All emails ranked by priority · tap to read · KAI Draft Reply button</span></div>
-              <div class="help-feature"><span class="help-loc">📅 Calendar</span><span class="help-feat-desc">Full week view · tap any event to open Meeting Prep sheet</span></div>
+              <div class="help-feature"><span class="help-loc">📅 Calendar</span><span class="help-feat-desc">Full week view · tap any event to open Meeting Prep sheet · clash rows highlighted coral</span></div>
               <div class="help-feature"><span class="help-loc">💬 Ask KAI</span><span class="help-feat-desc">Chat with full inbox and calendar context · action buttons appear in responses</span></div>
-              <div class="help-feature"><span class="help-loc">🕐 Timecodes</span><span class="help-feat-desc">Hours matched to PRJ-042, GOV-011, BAU-001 · copy for timesheet</span></div>
+              <div class="help-feature"><span class="help-loc">🕐 Timecodes</span><span class="help-feat-desc">Hours matched to PRJ-042, GOV-011, BAU-001 · this week vs last week · copy for timesheet</span></div>
               <div class="help-feature"><span class="help-loc">🗄️ Archive</span><span class="help-feat-desc">Compliance emails saved to Google Drive · open any email → Archive to Drive</span></div>
             </div>
           </div>
@@ -882,8 +882,9 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
             <div class="help-section-title">✨ Tips</div>
             <div class="help-commands">
               <div class="help-cmd"><span class="help-note">Tap any meeting in the Calendar or Briefing to open the Meeting Prep sheet</span></div>
-              <div class="help-cmd"><span class="help-note">KAI detects meeting requests in emails — look for "Yes, propose event →" buttons in chat</span></div>
-              <div class="help-cmd"><span class="help-note">Clash tile on briefing — tap to highlight the clashing meetings</span></div>
+              <div class="help-cmd"><span class="help-note">Clash tile → tap to go to Calendar panel · tap ✨ Resolve to get AI-powered clash recommendations</span></div>
+              <div class="help-cmd"><span class="help-note">KAI detects meeting requests in emails — look for "Yes, propose event →" buttons in chat after loading</span></div>
+              <div class="help-cmd"><span class="help-note">Timecodes toggle between this week and last week — copy button generates a paste-ready timesheet block</span></div>
               <div class="help-cmd"><span class="help-note">KAI reads your last 10 emails and 7 days of calendar on every session</span></div>
             </div>
           </div>
@@ -2782,20 +2783,23 @@ function getMeetingPriority(ev) {
   const s = (ev.summary || '').toLowerCase();
   const d = (ev.description || '').toLowerCase();
   const combined = s + ' ' + d;
-  // Highest — never decline
-  if (combined.includes('director') || combined.includes('exco') || combined.includes('board') ||
-      combined.includes('governance') || combined.includes('minister') || combined.includes('cto') ||
-      combined.includes('1:1 with') || s.includes('gov-011')) return 'critical';
+  // Own reminders and focus blocks — always low, easy to move
+  if (s.startsWith('reminder:') || s.includes('focus:') || s.includes('prep:') || s.includes('focus block') || s.includes('transit') || s.includes('kai timecode')) return 'low';
+  // Critical — never decline
+  if (combined.includes('director') || combined.includes('exco') || combined.includes('1:1 with') ||
+      combined.includes('board') || combined.includes('governance') || combined.includes('minister') ||
+      combined.includes('cto') || s.includes('gov-011')) return 'critical';
   // High — keep unless clashing with critical
   if (combined.includes('programme') || combined.includes('milestone') || combined.includes('prj-042') ||
-      combined.includes('risk') || combined.includes('compliance') || combined.includes('stakeholder')) return 'high';
-  // Medium — reschedule or decline if clashing with high+
+      combined.includes('risk') || combined.includes('compliance') || combined.includes('stakeholder') ||
+      combined.includes('mandatory') || combined.includes('required') || combined.includes('compulsory')) return 'high';
+  // Medium — reschedule if clashing with high+
   if (combined.includes('guild') || combined.includes('peer review') || combined.includes('vendor') ||
       combined.includes('briefing') || combined.includes('catch-up') || combined.includes('catch up')) return 'medium';
-  // Own reminders and focus blocks — easy to move
-  if (s.includes('reminder:') || s.includes('focus:') || s.includes('prep:') || s.includes('block')) return 'low';
   return 'medium';
 }
+
+const PRIORITY_SCORE = { critical: 4, high: 3, medium: 2, low: 1 };
 
 function getPriorityLabel(priority) {
   return { critical: '🔴 Critical', high: '🟠 High', medium: '🟡 Medium', low: '🟢 Low' }[priority] || '⚪ Unknown';
@@ -2878,7 +2882,9 @@ End with a one-line summary of total actions needed.`;
     const actionButtons = clashPairs.map((p, i) => {
       const priA = getMeetingPriority(p.a);
       const priB = getMeetingPriority(p.b);
-      const keepEv = priA >= priB || priA === 'critical' ? p.a : p.b;
+      const scoreA = PRIORITY_SCORE[priA] || 2;
+      const scoreB = PRIORITY_SCORE[priB] || 2;
+      const keepEv = scoreA >= scoreB ? p.a : p.b;
       const moveEv = keepEv === p.a ? p.b : p.a;
       const evIdx = calendarData.findIndex(e => e.id === moveEv.id);
       const dateLabel = new Date(p.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
