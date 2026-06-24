@@ -381,7 +381,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
       🔐 Connect with Google to Start
     </button>
     <div class="auth-note">
-      Sign in with your KAI demo Gmail account.<br>
+      Sign in with your KAI demo Gmail account (kai.demo.assistant@gmail.com).<br>
       If Google shows "app not verified" — click Advanced → Go to KAI Demo (unsafe).<br>
       This is safe — you own the app and the account.
     </div>
@@ -684,7 +684,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 </div>
 
 <script>
-const CLIENT_ID = '294776404978-p9p6q310nqisej0ohvt0kbsfd1hoqrkm.apps.googleusercontent.com';
+const CLIENT_ID = '61547713726-04f7c0c7i54l3rbiovf260gm2r7prml1.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/drive.file';
 const REDIRECT_URI = 'https://kishore510.github.io/kai-demo';
 const WORKER_URL = 'https://kai-demo-proxy.kishore510.workers.dev';
@@ -707,7 +707,7 @@ function startAuth() {
     response_type: 'token',
     scope: SCOPES,
     prompt: 'consent',
-    login_hint: 'kai.demo.2026@gmail.com'
+    login_hint: 'kai.demo.assistant@gmail.com'
   });
   window.location = 'https://accounts.google.com/o/oauth2/v2/auth?' + p;
 }
