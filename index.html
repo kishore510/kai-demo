@@ -604,7 +604,10 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
             <div class="stat-c stat-clickable" onclick="goToCalendar()" title="View calendar clashes">
               <div class="stat-n y" id="statClashes">–</div>
               <div class="stat-l">Calendar<br>clashes</div>
-              <div class="stat-arrow">→</div>
+              <div id="resolveBtn" style="display:none;margin-top:6px">
+                <button class="kai-action-btn" style="font-size:10px;padding:3px 9px" onclick="event.stopPropagation();resolveClashes()">✨ Resolve →</button>
+              </div>
+              <div class="stat-arrow" id="clashArrow">→</div>
             </div>
             <div class="stat-c stat-clickable" onclick="goToWellbeing()" title="View wellbeing nudges">
               <div class="stat-n c" id="statWellbeing">–</div>
@@ -1182,6 +1185,10 @@ function analyseBriefing(emails, events) {
     }
   });
   document.getElementById('statClashes').textContent = clashes;
+  const resolveBtn = document.getElementById('resolveBtn');
+  const clashArrow = document.getElementById('clashArrow');
+  if (resolveBtn) resolveBtn.style.display = clashes > 0 ? 'block' : 'none';
+  if (clashArrow) clashArrow.style.display = clashes > 0 ? 'none' : 'block';
 
   // Wellbeing
   let heavyDay = '';
@@ -1586,25 +1593,22 @@ function goToUnreplied() {
 }
 
 function goToCalendar() {
-  const briefNav = document.querySelector('.nav-item[data-panel="briefing"]:not([data-scroll])');
-  if (briefNav) switchPanel(briefNav);
+  // Switch to the dedicated Calendar panel
+  const calNav = document.querySelector('.nav-item[data-panel="calendar"]');
+  if (calNav) switchPanel(calNav);
+  const mobCal = document.querySelector('.mob-nav-item[data-panel="calendar"]');
+  if (mobCal) { document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active')); mobCal.classList.add('active'); }
   setTimeout(() => {
-    // If we know which day has clashes, scroll to it and pulse the clashing rows
-    if (clashDayDate) {
-      const clashRows = document.querySelectorAll('[data-clash="true"]');
-      if (clashRows.length) {
-        clashRows[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-        clashRows.forEach(row => {
-          row.classList.add('pulsing');
-          setTimeout(() => row.classList.remove('pulsing'), 2200);
-        });
-        return;
-      }
+    // Pulse and scroll to clash rows in the calendar panel
+    const clashRows = document.querySelectorAll('.clash-event');
+    if (clashRows.length) {
+      clashRows[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      clashRows.forEach(row => {
+        row.classList.add('pulsing');
+        setTimeout(() => row.classList.remove('pulsing'), 2200);
+      });
     }
-    // Fallback — just scroll to week card
-    const weekCard = document.querySelector('.week-card');
-    if (weekCard) weekCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 150);
+  }, 200);
 }
 
 function goToWellbeing() {
@@ -2771,7 +2775,153 @@ function parseCalendarCommand(text) {
 }
 
 
-// ── TIMECODES ──
+// ── CLASH RESOLUTION ──
+
+// Determines meeting priority for clash resolution
+function getMeetingPriority(ev) {
+  const s = (ev.summary || '').toLowerCase();
+  const d = (ev.description || '').toLowerCase();
+  const combined = s + ' ' + d;
+  // Highest — never decline
+  if (combined.includes('director') || combined.includes('exco') || combined.includes('board') ||
+      combined.includes('governance') || combined.includes('minister') || combined.includes('cto') ||
+      combined.includes('1:1 with') || s.includes('gov-011')) return 'critical';
+  // High — keep unless clashing with critical
+  if (combined.includes('programme') || combined.includes('milestone') || combined.includes('prj-042') ||
+      combined.includes('risk') || combined.includes('compliance') || combined.includes('stakeholder')) return 'high';
+  // Medium — reschedule or decline if clashing with high+
+  if (combined.includes('guild') || combined.includes('peer review') || combined.includes('vendor') ||
+      combined.includes('briefing') || combined.includes('catch-up') || combined.includes('catch up')) return 'medium';
+  // Own reminders and focus blocks — easy to move
+  if (s.includes('reminder:') || s.includes('focus:') || s.includes('prep:') || s.includes('block')) return 'low';
+  return 'medium';
+}
+
+function getPriorityLabel(priority) {
+  return { critical: '🔴 Critical', high: '🟠 High', medium: '🟡 Medium', low: '🟢 Low' }[priority] || '⚪ Unknown';
+}
+
+async function resolveClashes() {
+  // Switch to Ask KAI and show resolution there
+  const chatNav = document.querySelector('.nav-item[data-panel="chat"]');
+  if (chatNav) switchPanel(chatNav);
+  const mobChat = document.querySelector('.mob-nav-item[data-panel="chat"]');
+  if (mobChat) { document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active')); mobChat.classList.add('active'); }
+
+  // Find all clashing event pairs
+  const byDay = {};
+  calendarData.forEach(ev => {
+    const d = ev.start?.dateTime?.split('T')[0];
+    if (d) { if (!byDay[d]) byDay[d] = []; byDay[d].push(ev); }
+  });
+
+  const clashPairs = [];
+  Object.entries(byDay).forEach(([date, evs]) => {
+    for (let i = 0; i < evs.length; i++) {
+      for (let j = i + 1; j < evs.length; j++) {
+        const e1 = new Date(evs[i].end?.dateTime);
+        const s2 = new Date(evs[j].start?.dateTime);
+        if (s2 < e1) clashPairs.push({ date, a: evs[i], b: evs[j] });
+      }
+    }
+  });
+
+  if (!clashPairs.length) {
+    addMsg('kai', 'No calendar clashes detected this week.');
+    return;
+  }
+
+  // Show typing
+  addTyping('chatMsgs', 'typing');
+
+  // Build clash description for Claude
+  const clashDesc = clashPairs.map((p, i) => {
+    const dateLabel = new Date(p.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' });
+    const priA = getMeetingPriority(p.a);
+    const priB = getMeetingPriority(p.b);
+    return `Clash ${i+1} on ${dateLabel}:
+  - "${p.a.summary}" at ${getTime(p.a)} [Priority: ${priA}]
+  - "${p.b.summary}" at ${getTime(p.b)} [Priority: ${priB}]`;
+  }).join('\n\n');
+
+  const system = `You are KAI — an intelligent assistant for a senior Enterprise Platform Architect at a UK financial services regulator.
+
+Analyse these calendar clashes and recommend what to do with each one. For each clash:
+1. Identify which meeting is higher priority (Director/board/governance = always keep)
+2. Recommend: KEEP, RESCHEDULE, or DECLINE for each meeting
+3. Give a one-line reason
+4. If rescheduling — suggest "find a new slot earlier this week" or "move to next week"
+
+Priority rules:
+- CRITICAL (never decline): Director 1:1s, board meetings, governance board, CTO meetings, ExCo
+- HIGH (keep unless clashing with critical): programme boards, milestone reviews, risk/compliance
+- MEDIUM (reschedule if clashing with high+): peer reviews, vendor briefings, guild sessions
+- LOW (easy to move): your own reminders, focus blocks, prep slots
+
+Be direct and specific. Format each clash as:
+**Clash [N] — [Day]**
+✓ Keep: [meeting name] — [reason]
+↻ Reschedule: [meeting name] — [reason] / suggest: [when]
+
+End with a one-line summary of total actions needed.`;
+
+  try {
+    const reply = await callClaude(clashDesc, false, system);
+    document.getElementById('typing')?.remove();
+
+    // Render the response with action buttons for each clash pair
+    const msgs = document.getElementById('chatMsgs');
+    const d = document.createElement('div');
+    d.className = 'msg';
+
+    // Build action buttons for each clash
+    const actionButtons = clashPairs.map((p, i) => {
+      const priA = getMeetingPriority(p.a);
+      const priB = getMeetingPriority(p.b);
+      const keepEv = priA >= priB || priA === 'critical' ? p.a : p.b;
+      const moveEv = keepEv === p.a ? p.b : p.a;
+      const evIdx = calendarData.findIndex(e => e.id === moveEv.id);
+      const dateLabel = new Date(p.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+
+      return `<div style="margin-top:8px;padding:10px 12px;background:#F8F8F5;border-radius:8px;border:0.5px solid #E0E0D8">
+        <div style="font-size:11px;font-weight:500;color:#1a1a1a;margin-bottom:6px">Clash on ${dateLabel}</div>
+        <div style="font-size:11px;color:#555;margin-bottom:8px">
+          <span style="color:var(--teal)">✓ Keep:</span> ${keepEv.summary?.substring(0,40)}<br>
+          <span style="color:var(--amber)">↻ Move:</span> ${moveEv.summary?.substring(0,40)}
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${evIdx >= 0 ? `<button class="kai-action-btn" style="font-size:10px" onclick="openMeetingPrep(${evIdx})">📋 Prep for kept meeting</button>` : ''}
+          <button class="kai-action-btn" style="font-size:10px" onclick="proposeReschedule('${moveEv.id}','${moveEv.summary?.replace(/'/g,'')}')">↻ Find new slot</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    d.innerHTML = `<div class="m-av kai">KAI</div><div class="m-bub kai" style="max-width:95%">${reply.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>')}${actionButtons}</div>`;
+    msgs.appendChild(d);
+    msgs.scrollTop = msgs.scrollHeight;
+
+  } catch(e) {
+    document.getElementById('typing')?.remove();
+    addMsg('kai', 'Unable to analyse clashes — check your Worker connection.');
+  }
+}
+
+// Propose a reschedule for a specific meeting
+function proposeReschedule(evId, evTitle) {
+  const ev = calendarData.find(e => e.id === evId);
+  if (!ev) return;
+  // Find next free slot — simple heuristic: same duration, next available morning
+  const dur = ev.start?.dateTime && ev.end?.dateTime
+    ? Math.round((new Date(ev.end.dateTime) - new Date(ev.start.dateTime)) / 60000)
+    : 60;
+  // Propose tomorrow morning or next Monday
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+  const dateStr = tomorrow.toISOString().split('T')[0];
+  proposeEvent(evTitle || 'Rescheduled meeting', dateStr, '10:00', dur,
+    `Rescheduled to resolve calendar clash — edit date and time before confirming:`);
+}
+
+
 
 const TC_DEFINITIONS = [
   {
