@@ -293,9 +293,104 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .prep-send:hover { background: var(--teal-dk); }
 .prep-send:disabled { opacity: 0.4; cursor: not-allowed; }
 
+.cal-day { margin-bottom: 14px; border-radius: 12px; overflow: hidden; border: 0.5px solid #E0E0D8; background: white; }
+.cal-day-hdr {
+  display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+  border-bottom: 0.5px solid #E0E0D8; background: #F8F8F5;
+}
+.cal-day-hdr.today { background: var(--teal-lt); border-bottom-color: #9FE1CB; }
+.cal-day-name { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #888; width: 28px; }
+.cal-day-hdr.today .cal-day-name { color: var(--teal-dk); }
+.cal-day-date { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+.cal-day-hdr.today .cal-day-date { color: var(--teal-dk); }
+.cal-day-count { margin-left: auto; font-size: 10px; color: #bbb; }
+.cal-day-hdr.today .cal-day-count { color: var(--teal); }
+.cal-event {
+  display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+  border-bottom: 0.5px solid #F0F0EC; cursor: pointer; transition: background 0.1s;
+  position: relative;
+}
+.cal-event:last-child { border-bottom: none; }
+.cal-event:hover { background: #F8F8F5; }
+.cal-event.clash-event { background: var(--coral-lt); }
+.cal-event.clash-event:hover { background: #f5c4b8; }
+.cal-event-time { font-size: 11px; color: #888; font-family: monospace; width: 42px; flex-shrink: 0; }
+.cal-event-title { font-size: 13px; color: #1a1a1a; flex: 1; }
+.cal-event-tags { display: flex; gap: 4px; flex-shrink: 0; }
+.cal-event-arrow { font-size: 11px; color: #ccc; flex-shrink: 0; }
+.cal-empty { padding: 14px; font-size: 12px; color: var(--muted); text-align: center; }
+.cal-legend { display: flex; gap: 12px; flex-wrap: wrap; padding: 0 0 12px; }
+.cal-legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #888; }
+
 .clash-row { background: var(--coral-lt); border-radius: 6px; }
 @keyframes clashPulse { 0%,100%{background:var(--coral-lt)} 50%{background:#f5c4b8} }
 .clash-row.pulsing { animation: clashPulse 0.7s ease 3; }
+
+/* ── TIMECODES PANEL ── */
+.week-tabs-tc { display: flex; gap: 0; background: white; border: 0.5px solid #E0E0D8; border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+.week-tab-btn { flex: 1; padding: 9px 16px; font-size: 12px; font-weight: 500; color: #888; border: none; background: none; cursor: pointer; font-family: inherit; transition: all 0.15s; text-align: center; }
+.week-tab-btn.active { background: var(--teal-lt); color: var(--teal-dk); }
+.tc-warn { display: flex; align-items: flex-start; gap: 8px; background: var(--amber-lt); border: 0.5px solid #F5D38A; border-radius: 8px; padding: 10px 13px; margin-bottom: 12px; font-size: 12px; color: var(--amber); line-height: 1.5; }
+.tc-summary-bar { background: white; border: 0.5px solid #E0E0D8; border-radius: 10px; padding: 12px 16px; margin-bottom: 12px; display: flex; gap: 24px; flex-wrap: wrap; }
+.tc-sum-stat { display: flex; flex-direction: column; gap: 2px; }
+.tc-sum-n { font-size: 22px; font-weight: 500; color: var(--teal); font-family: monospace; }
+.tc-sum-l { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+.tc-card-wrap { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; overflow: hidden; margin-bottom: 10px; }
+.tc-card-hdr { padding: 14px 16px 10px; display: flex; align-items: flex-start; gap: 12px; }
+.tc-badge { font-family: monospace; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 5px; flex-shrink: 0; margin-top: 2px; }
+.tc-badge-prj { background: var(--teal-lt); color: var(--teal-dk); }
+.tc-badge-gov { background: var(--purple-lt); color: var(--purple); }
+.tc-badge-bau { background: var(--amber-lt); color: var(--amber); }
+.tc-card-info { flex: 1; }
+.tc-card-name { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+.tc-card-desc { font-size: 11px; color: #888; line-height: 1.5; }
+.tc-card-hrs { text-align: right; flex-shrink: 0; }
+.tc-hrs-n { font-size: 28px; font-weight: 500; line-height: 1; font-family: monospace; }
+.tc-hrs-l { font-size: 10px; color: #888; text-align: right; }
+.tc-bar-wrap { padding: 0 16px 6px; }
+.tc-bar-bg { height: 4px; background: #F0F0EC; border-radius: 2px; overflow: hidden; }
+.tc-bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+.tc-mtg-list { padding: 0 16px 10px; }
+.tc-mtg-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-top: 0.5px solid #F4F4F0; }
+.tc-mtg-day { font-size: 10px; font-weight: 500; color: #888; width: 28px; flex-shrink: 0; font-family: monospace; }
+.tc-mtg-time { font-size: 10px; color: #aaa; width: 36px; flex-shrink: 0; font-family: monospace; }
+.tc-mtg-name { font-size: 12px; color: #444; flex: 1; }
+.tc-mtg-dur { font-size: 11px; font-weight: 500; color: #666; font-family: monospace; }
+.tc-vs-row { padding: 8px 16px 12px; display: flex; align-items: center; gap: 10px; border-top: 0.5px solid #F4F4F0; }
+.tc-vs-lbl { font-size: 10px; color: #aaa; width: 72px; flex-shrink: 0; }
+.tc-vs-bars { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.tc-vs-bar-row { display: flex; align-items: center; gap: 7px; }
+.tc-vs-bar-lbl { font-size: 9px; color: #bbb; width: 24px; text-align: right; font-family: monospace; }
+.tc-vs-bar { height: 6px; border-radius: 3px; min-width: 4px; }
+.tc-vs-bar-val { font-size: 10px; font-weight: 500; font-family: monospace; }
+.tc-copy-section { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; overflow: hidden; margin-top: 4px; }
+.tc-copy-hdr { padding: 12px 16px; border-bottom: 0.5px solid #E0E0D8; display: flex; align-items: center; justify-content: space-between; }
+.tc-copy-btn { font-size: 11px; font-weight: 500; padding: 5px 12px; border-radius: 6px; background: var(--teal); color: white; border: none; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+.tc-copy-btn:hover { background: var(--teal-dk); }
+.tc-copy-text { padding: 12px 16px; font-family: monospace; font-size: 11px; line-height: 1.8; color: #444; white-space: pre; overflow-x: auto; background: #F8F8F5; }
+
+/* ── HELP OVERLAY ── */
+.t-help { font-size: 13px; font-weight: 600; color: #888; background: none; border: 0.5px solid #E0E0D8; cursor: pointer; padding: 2px 8px; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; font-family: inherit; }
+.t-help:hover { color: var(--teal); border-color: #9FE1CB; background: var(--teal-lt); }
+.help-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.35); backdrop-filter: blur(4px); align-items: flex-end; justify-content: center; }
+.help-overlay.open { display: flex; }
+.help-sheet { background: white; border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; max-height: 88vh; display: flex; flex-direction: column; animation: slideSheet 0.3s ease; box-shadow: 0 -4px 32px rgba(0,0,0,0.15); position: relative; }
+.help-handle { width: 36px; height: 4px; background: #E0E0D8; border-radius: 2px; margin: 10px auto 0; flex-shrink: 0; }
+.help-header { padding: 14px 20px 12px; border-bottom: 0.5px solid #E0E0D8; flex-shrink: 0; }
+.help-title { font-size: 17px; font-weight: 500; color: #1a1a1a; margin-bottom: 3px; }
+.help-sub { font-size: 12px; color: #888; }
+.help-body { flex: 1; overflow-y: auto; padding: 4px 0 20px; }
+.help-section { padding: 14px 20px 4px; border-bottom: 0.5px solid #F0F0EC; }
+.help-section:last-child { border-bottom: none; }
+.help-section-title { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 10px; }
+.help-commands { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.help-cmd { display: flex; align-items: flex-start; gap: 8px; }
+.help-eg { font-size: 12px; font-family: monospace; background: #F4F4F0; color: var(--teal-dk); padding: 5px 10px; border-radius: 6px; border: 0.5px solid #E0E0D8; line-height: 1.5; display: block; width: 100%; }
+.help-note { font-size: 12px; color: #888; padding: 3px 0; line-height: 1.55; display: block; }
+.help-features { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.help-feature { display: flex; align-items: flex-start; gap: 10px; }
+.help-loc { font-size: 12px; font-weight: 500; color: var(--ink); width: 100px; flex-shrink: 0; }
+.help-feat-desc { font-size: 12px; color: #666; line-height: 1.55; }
 
 .event-proposal { background: #F8FDF8; border: 0.5px solid #9FE1CB; border-radius: 10px; padding: 12px 14px; margin-top: 8px; }
 .event-proposal-title { font-size: 11px; font-weight: 500; color: var(--teal-dk); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
@@ -406,6 +501,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
       <div class="t-dot"></div>
       <span class="t-user" id="topbarEmail"></span>
       <button class="t-refresh" id="refreshBtn" onclick="refreshData()" title="Refresh inbox and calendar">↻</button>
+      <button class="t-help" onclick="openHelp()" title="Help">?</button>
       <button class="t-signout" onclick="signOut()">Sign out</button>
     </div>
   </header>
@@ -422,8 +518,8 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
     <button class="mob-nav-item" data-panel="chat" onclick="mobNav(this)">
       <span class="mob-icon">💬</span>Ask KAI
     </button>
-    <button class="mob-nav-item" data-panel="briefing" onclick="mobNav(this)">
-      <span class="mob-icon">💚</span>Wellbeing
+    <button class="mob-nav-item" data-panel="calendar" onclick="mobNav(this)">
+      <span class="mob-icon">📅</span>Calendar
     </button>
     <button class="mob-nav-item" data-panel="archive" onclick="mobNav(this)">
       <span class="mob-icon">🗄️</span>Archive
@@ -444,6 +540,10 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
         <span class="nav-icon">📬</span> Smart Inbox
         <span class="nav-badge" id="inboxBadge">–</span>
       </div>
+      <div class="nav-item" data-panel="calendar" onclick="switchPanel(this)">
+        <span class="nav-icon">📅</span> Calendar
+        <span class="nav-badge t" id="calBadge">–</span>
+      </div>
       <div class="nav-item" data-panel="chat" onclick="switchPanel(this)">
         <span class="nav-icon">💬</span> Ask KAI
         <span class="nav-badge t">AI</span>
@@ -451,7 +551,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
     </div>
     <div class="nav-sec">
       <div class="nav-lbl">Insights</div>
-      <div class="nav-item" data-panel="briefing" data-scroll="timecodesSection" onclick="switchPanel(this)">
+      <div class="nav-item" data-panel="timecodes" onclick="switchPanel(this)">
         <span class="nav-icon">🕐</span> Timecodes
       </div>
       <div class="nav-item" data-panel="briefing" data-scroll="wellbeingSection" onclick="switchPanel(this)">
@@ -567,6 +667,19 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
       </div>
     </div>
 
+    <!-- CALENDAR -->
+    <div class="panel" id="panel-calendar">
+      <div class="b-header">
+        <div class="b-title">Calendar</div>
+        <div class="b-sub" id="calendarSub">Your week at a glance · click any event to prep</div>
+      </div>
+      <div style="overflow-y:auto;flex:1;padding:14px 20px 80px">
+        <div id="calendarView">
+          <div style="padding:20px;font-size:12px;color:var(--muted);text-align:center">Loading calendar...</div>
+        </div>
+      </div>
+    </div>
+
     <!-- CHAT -->
     <div class="panel" id="panel-chat">
       <div class="chat-layout">
@@ -676,6 +789,102 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIMECODES -->
+    <div class="panel" id="panel-timecodes">
+      <div class="b-header">
+        <div class="b-title">Timecodes</div>
+        <div class="b-sub" id="timecodesSub">Hours matched from your calendar this week</div>
+      </div>
+      <div style="overflow-y:auto;flex:1;padding:14px 20px 80px">
+        <div class="week-tabs-tc">
+          <button class="week-tab-btn active" id="tcTabThis" onclick="switchTcWeek('this')">This week</button>
+          <button class="week-tab-btn" id="tcTabLast" onclick="switchTcWeek('last')">Last week</button>
+        </div>
+        <div id="tcUnmatched" style="display:none" class="tc-warn"></div>
+        <div id="tcSummaryBar" class="tc-summary-bar"></div>
+        <div id="tcCards"></div>
+        <div class="tc-copy-section" id="tcCopySection" style="display:none">
+          <div class="tc-copy-hdr">
+            <span style="font-size:12px;font-weight:500">📋 Ready to paste into timesheet</span>
+            <button class="tc-copy-btn" id="tcCopyBtn" onclick="copyTimecodes()">Copy</button>
+          </div>
+          <div class="tc-copy-text mono" id="tcCopyText"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HELP OVERLAY -->
+    <div class="help-overlay" id="helpOverlay" onclick="closeHelp(event)">
+      <div class="help-sheet" id="helpSheet">
+        <div class="help-handle"></div>
+        <button class="meeting-sheet-close" onclick="closeHelpSheet()">✕</button>
+        <div class="help-header">
+          <div class="help-title">How to use KAI</div>
+          <div class="help-sub">Your intelligent assistant — quick reference</div>
+        </div>
+        <div class="help-body">
+
+          <div class="help-section">
+            <div class="help-section-title">📅 Create calendar events</div>
+            <div class="help-commands">
+              <div class="help-cmd"><span class="help-eg">"Remind me on Friday to complete H&S training"</span></div>
+              <div class="help-cmd"><span class="help-eg">"Remind me in 2 days to follow up with Marcus"</span></div>
+              <div class="help-cmd"><span class="help-eg">"Block Monday morning for deep work"</span></div>
+              <div class="help-cmd"><span class="help-eg">"Add budget review to my calendar on Thursday at 3pm"</span></div>
+              <div class="help-cmd"><span class="help-eg">"Create a meeting with Priya on Wednesday at 10am"</span></div>
+              <div class="help-cmd"><span class="help-eg">"Look for some time on Friday for the strategy paper"</span></div>
+            </div>
+          </div>
+
+          <div class="help-section">
+            <div class="help-section-title">📝 Save actions and reminders</div>
+            <div class="help-commands">
+              <div class="help-cmd"><span class="help-eg">"Remember I need to send the strategy paper by Friday"</span></div>
+              <div class="help-cmd"><span class="help-eg">"Remind me to chase James about the Control Plane by Monday"</span></div>
+              <div class="help-cmd"><span class="help-eg">"Note down that I agreed to present at Tuesday's board"</span></div>
+              <div class="help-cmd"><span class="help-note">→ Saves to Open Actions in your briefing, synced to Drive</span></div>
+            </div>
+          </div>
+
+          <div class="help-section">
+            <div class="help-section-title">💬 Ask KAI anything</div>
+            <div class="help-commands">
+              <div class="help-cmd"><span class="help-eg">"What should I prioritise today?"</span></div>
+              <div class="help-cmd"><span class="help-eg">"Show me emails from Sarah Chen"</span></div>
+              <div class="help-cmd"><span class="help-eg">"Which emails haven't I replied to?"</span></div>
+              <div class="help-cmd"><span class="help-eg">"How does Wednesday look?"</span></div>
+              <div class="help-cmd"><span class="help-eg">"Draft a reply to Marcus about the governance board"</span></div>
+              <div class="help-cmd"><span class="help-eg">"What are my open actions?"</span></div>
+              <div class="help-cmd"><span class="help-eg">"Any urgent emails I've missed?"</span></div>
+            </div>
+          </div>
+
+          <div class="help-section">
+            <div class="help-section-title">🗺️ Where to find things</div>
+            <div class="help-features">
+              <div class="help-feature"><span class="help-loc">🌅 Briefing</span><span class="help-feat-desc">Today's meetings, open actions, wellbeing nudges, timecode suggestions</span></div>
+              <div class="help-feature"><span class="help-loc">📬 Inbox</span><span class="help-feat-desc">All emails ranked by priority · tap to read · KAI Draft Reply button</span></div>
+              <div class="help-feature"><span class="help-loc">📅 Calendar</span><span class="help-feat-desc">Full week view · tap any event to open Meeting Prep sheet</span></div>
+              <div class="help-feature"><span class="help-loc">💬 Ask KAI</span><span class="help-feat-desc">Chat with full inbox and calendar context · action buttons appear in responses</span></div>
+              <div class="help-feature"><span class="help-loc">🕐 Timecodes</span><span class="help-feat-desc">Hours matched to PRJ-042, GOV-011, BAU-001 · copy for timesheet</span></div>
+              <div class="help-feature"><span class="help-loc">🗄️ Archive</span><span class="help-feat-desc">Compliance emails saved to Google Drive · open any email → Archive to Drive</span></div>
+            </div>
+          </div>
+
+          <div class="help-section">
+            <div class="help-section-title">✨ Tips</div>
+            <div class="help-commands">
+              <div class="help-cmd"><span class="help-note">Tap any meeting in the Calendar or Briefing to open the Meeting Prep sheet</span></div>
+              <div class="help-cmd"><span class="help-note">KAI detects meeting requests in emails — look for "Yes, propose event →" buttons in chat</span></div>
+              <div class="help-cmd"><span class="help-note">Clash tile on briefing — tap to highlight the clashing meetings</span></div>
+              <div class="help-cmd"><span class="help-note">KAI reads your last 10 emails and 7 days of calendar on every session</span></div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -1170,6 +1379,7 @@ RULES:
 - Only reference emails and events that appear in the data above
 - When asked about "today", use TODAY'S CALENDAR section specifically
 - If open actions exist, proactively mention overdue ones when relevant
+- You CAN create calendar events directly — if someone asks you to block time, set a reminder, or create a meeting, tell them to use the chat command format e.g. "Remind me on Friday to X" or "Block Monday for Y" and KAI will show an editable event card. NEVER say you cannot create calendar entries or push notifications — you can, via the proposal card.
 - If the inbox is empty or shows only Google system emails, say so honestly
 - Be direct, concise and professional
 - Give specific actionable answers based on what you can actually see`;
@@ -1287,30 +1497,33 @@ async function sendChat() {
   inp.value = ''; inp.style.height = 'auto'; btn.disabled = true;
   addMsg('user', text);
 
-  // Check if this is a calendar command — handle locally
-  const calCmd = parseCalendarCommand(text);
-  if (calCmd) {
-    const dateLabel = new Date(calCmd.dateStr + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
-    proposeEvent(calCmd.title, calCmd.dateStr, calCmd.timeStr, calCmd.duration,
-      `Here's what I'll create — edit any details before confirming:`);
-    btn.disabled = false; inp.focus();
-    return;
-  }
-
   // Check if this is a "remember" command — handle locally without calling Claude
   const rememberText = parseRememberIntent(text);
   if (rememberText) {
     const due = extractDueDate(rememberText);
     await addKaiAction(rememberText, due);
-    const dueMsg = due ? ` I've flagged it as due ${new Date(due).toLocaleDateString('en-GB', { day:'numeric', month:'short' })}.` : '';
-    addMsg('kai', `Got it — I've added that to your open actions and saved it to Drive.${dueMsg} I'll remind you if it goes overdue.`);
+    const dueMsg = due ? ` Flagged as due ${new Date(due + 'T12:00:00').toLocaleDateString('en-GB', { day:'numeric', month:'short' })}.` : '';
+    addMsg('kai', `Got it — added to your open actions and saved to Drive.${dueMsg} I'll remind you if it goes overdue.`);
     btn.disabled = false; inp.focus();
     return;
   }
 
-  chatHistory.push({ role: 'user', content: text });
+  // Use Claude to detect calendar intent — handles any natural phrasing
   addTyping('chatMsgs', 'typing');
   try {
+    const calIntent = await detectCalendarIntent(text);
+    if (calIntent) {
+      document.getElementById('typing')?.remove();
+      proposeEvent(calIntent.title, calIntent.dateStr, calIntent.timeStr, calIntent.duration,
+        'Here\'s what I\'ll create — edit any details before confirming:');
+      btn.disabled = false; inp.focus();
+      return;
+    }
+  } catch(e) { /* non-fatal — fall through to normal chat */ }
+
+  // Normal KAI chat
+  try {
+    chatHistory.push({ role: 'user', content: text });
     const reply = await callClaude(text, true);
     document.getElementById('typing')?.remove();
     const action = parseKaiIntent(reply);
@@ -1319,6 +1532,7 @@ async function sendChat() {
   } catch(e) {
     document.getElementById('typing')?.remove();
     addMsg('kai', 'Having trouble connecting. Please check your Worker URL configuration.');
+    chatHistory.pop(); // remove the user message we pushed if call failed
   }
   btn.disabled = false; inp.focus();
 }
@@ -1439,6 +1653,8 @@ async function refreshData() {
     document.getElementById('weekAhead').innerHTML = renderWeekAhead(events);
     renderEmailList();
     analyseBriefing(emails, events);
+    renderCalendarPanel();
+    renderTimecodePanel();
     const urgentEmails = emails.filter(e => e.priority === 'urgent' || e.priority === 'high');
     const msgs = document.getElementById('chatMsgs');
     if (msgs) {
@@ -1469,6 +1685,8 @@ async function loadApp() {
     document.getElementById('weekAhead').innerHTML = renderWeekAhead(events);
     renderEmailList();
     analyseBriefing(emails, events);
+    renderCalendarPanel();
+    renderTimecodePanel();
     const urgentEmails = emails.filter(e => e.priority === 'urgent' || e.priority === 'high');
     chatHistory = [];
     document.getElementById('chatMsgs').innerHTML = `<div class="msg"><div class="m-av kai">KAI</div><div class="m-bub kai">Hi — I've read your inbox and calendar. You have <b>${urgentEmails.length} high-priority emails</b> and <b>${events.length} calendar events</b> this week. What would you like help with?</div></div>`;
@@ -1904,7 +2122,95 @@ function sendPrepQuick(text) {
   sendPrepChat();
 }
 
-// ── KAI NOTES / OPEN ACTIONS ──
+function renderCalendarPanel() {
+  const container = document.getElementById('calendarView');
+  if (!container) return;
+
+  const today = todayStr();
+
+  // Group events by date
+  const days = {};
+  calendarData.forEach(ev => {
+    const d = ev.start?.date || ev.start?.dateTime?.split('T')[0];
+    if (!d) return;
+    if (!days[d]) days[d] = [];
+    days[d].push(ev);
+  });
+
+  const sorted = Object.entries(days).sort(([a], [b]) => a.localeCompare(b));
+
+  if (!sorted.length) {
+    container.innerHTML = '<div class="cal-empty">No calendar events found. Make sure you ran the data seeder.</div>';
+    return;
+  }
+
+  // Update badge with total event count
+  const badge = document.getElementById('calBadge');
+  if (badge) badge.textContent = calendarData.length;
+
+  // Update sub heading
+  const sub = document.getElementById('calendarSub');
+  if (sub) {
+    const clashCount = clashedEventIds.size / 2;
+    sub.textContent = `${calendarData.length} events this week${clashCount > 0 ? ' · ' + Math.ceil(clashCount) + ' clash' + (Math.ceil(clashCount) > 1 ? 'es' : '') : ''} · click any event to prep`;
+  }
+
+  // Legend
+  const legend = `<div class="cal-legend">
+    <div class="cal-legend-item"><span class="tag focus" style="font-size:9px;padding:1px 6px">FOCUS</span> Focus block</div>
+    <div class="cal-legend-item"><span class="tag prep" style="font-size:9px;padding:1px 6px">PREP</span> Prep time</div>
+    <div class="cal-legend-item"><span class="tag clash" style="font-size:9px;padding:1px 6px">CLASH</span> Overlapping</div>
+    <div class="cal-legend-item"><span class="tag travel" style="font-size:9px;padding:1px 6px">TRAVEL</span> Travel day</div>
+  </div>`;
+
+  const html = sorted.map(([date, evs]) => {
+    const isToday = date === today;
+    const dayName = getDayName(date);
+    const dateLabel = new Date(date + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+    const todayLabel = isToday ? ' — Today' : '';
+
+    const eventRows = evs.map(ev => {
+      const isClashing = clashedEventIds.has(ev.id);
+      const s = ev.summary || '';
+      const t = getTime(ev);
+
+      // Determine tag
+      let tagClass = '', tagLabel = '';
+      if (s.includes('FOCUS'))  { tagClass = 'focus';  tagLabel = 'FOCUS'; }
+      else if (s.includes('PREP'))   { tagClass = 'prep';   tagLabel = 'PREP'; }
+      else if (isClashing)           { tagClass = 'clash';  tagLabel = 'CLASH'; }
+      else if (s.includes('TRAVEL') || s.includes('Transit')) { tagClass = 'travel'; tagLabel = 'TRAVEL'; }
+
+      const displayName = s.replace(/\s*\(.*?\)\s*/g, '').replace(/^(FOCUS|PREP|TRAVEL):\s*/, '').substring(0, 55);
+      const evIdx = calendarData.findIndex(e => e.id === ev.id);
+      const isSkip = s.includes('Transit') || s.includes('KAI Timecode');
+      const clickable = !isSkip;
+
+      return `<div class="cal-event ${isClashing ? 'clash-event' : ''}" 
+        ${clickable ? `onclick="openMeetingPrep(${evIdx})" title="Click to prep for this meeting"` : ''}>
+        <div class="cal-event-time">${t || '·'}</div>
+        <div class="cal-event-title">${displayName}</div>
+        <div class="cal-event-tags">
+          ${tagLabel ? `<span class="tag ${tagClass}">${tagLabel}</span>` : ''}
+        </div>
+        ${clickable ? '<div class="cal-event-arrow">›</div>' : ''}
+      </div>`;
+    }).join('');
+
+    return `<div class="cal-day">
+      <div class="cal-day-hdr ${isToday ? 'today' : ''}">
+        <div class="cal-day-name">${dayName}</div>
+        <div class="cal-day-date">${dateLabel}${todayLabel}</div>
+        <div class="cal-day-count">${evs.length} event${evs.length !== 1 ? 's' : ''}</div>
+      </div>
+      ${eventRows}
+    </div>`;
+  }).join('');
+
+  container.innerHTML = legend + html;
+}
+
+
 
 let clashedEventIds = new Set();
 let clashDayDate = null; // date string of the day with clashes, for scrolling
@@ -2103,7 +2409,63 @@ function buildNotesContext() {
 }
 
 
-// ── CALENDAR INTELLIGENCE ──
+// Uses Claude to detect calendar intent from any natural language phrasing
+// Returns {title, dateStr, timeStr, duration} or null if not a calendar request
+async function detectCalendarIntent(text) {
+  const today = todayStr();
+  const todayFormatted = new Date(today + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  const system = `You are a calendar intent detector. Today is ${todayFormatted}.
+
+Analyse the user message. If it contains a request to:
+- Create a calendar event, meeting, or appointment
+- Block time for something
+- Set a reminder on a specific date or in X days
+- Reserve time for a task or activity
+
+Respond with ONLY a JSON object, no other text, no markdown:
+{"isCalendar": true, "title": "event title", "dateStr": "YYYY-MM-DD", "timeStr": "HH:MM", "duration": 30}
+
+Rules for the JSON:
+- title: concise event name, prefix with "Reminder: " for reminders
+- dateStr: always a specific YYYY-MM-DD date resolved from today (${today})
+- timeStr: 24hr format HH:MM, use "09:00" if not specified
+- duration: minutes, use 30 for meetings, 15 for reminders, 60 for training/workshops
+
+If the message is NOT a calendar request, respond with ONLY:
+{"isCalendar": false}`;
+
+  const res = await fetch(WORKER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 100,
+      system,
+      messages: [{ role: 'user', content: text }]
+    })
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  const raw = data.content?.[0]?.text?.trim();
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed.isCalendar) return null;
+    if (!parsed.title || !parsed.dateStr) return null;
+    return {
+      title:   parsed.title,
+      dateStr: parsed.dateStr,
+      timeStr: parsed.timeStr || '09:00',
+      duration: parsed.duration || 30
+    };
+  } catch(e) {
+    return null;
+  }
+}
+
+
 
 // Proposal counter for unique IDs
 let proposalCounter = 0;
@@ -2348,8 +2710,18 @@ function scanEmailsForCalendarIntents(emails) {
 function parseCalendarCommand(text) {
   const t = text.toLowerCase().trim();
 
-  // "remind me in X days about Y" / "remind me in X days to Y"
-  const inDays = text.match(/remind me in (\d+) days? (?:about|to) (.+)/i);
+  // "remind me on [day] to/about Y" or "remind me on [day] at HH:MM to Y"
+  const onDay = text.match(/remind me (?:on )?(monday|tuesday|wednesday|thursday|friday|saturday|sunday|tomorrow|today)(?:\s+at (\d{1,2}(?::\d{2})?))?(?:\s+to\s+|\s+about\s+|\s+to\s+complete\s+|\s+re[:\s])(.+)/i);
+  if (onDay) {
+    const dateStr = extractDueDate(onDay[1]);
+    const timeRaw = onDay[2];
+    const timeStr = timeRaw ? (timeRaw.includes(':') ? timeRaw : timeRaw + ':00').padStart(5,'0') : '09:00';
+    const title = 'Reminder: ' + onDay[3].trim();
+    return { title, dateStr, timeStr, duration: 15 };
+  }
+
+  // "remind me in X days (time) about/to Y"
+  const inDays = text.match(/remind me in (\d+) days?(?:\s+time)?(?:\s+(?:about|to))\s+(.+)/i);
   if (inDays) {
     const days = parseInt(inDays[1]);
     const title = inDays[2].trim();
@@ -2396,6 +2768,259 @@ function parseCalendarCommand(text) {
   }
 
   return null;
+}
+
+
+// ── TIMECODES ──
+
+const TC_DEFINITIONS = [
+  {
+    code: 'PRJ-042', name: 'Digital Transformation',
+    desc: 'Architecture, delivery, AI programme, vendor briefings',
+    badgeClass: 'tc-badge-prj', hrsColor: 'var(--teal)',
+    barColor: 'var(--teal)', barColorLt: '#C8E6CA',
+    keywords: ['prj-042','digital transformation','architecture review','ai strategy','vendor briefing','control plane','peer review','milestone','architecture peer','architecture strategy'],
+  },
+  {
+    code: 'GOV-011', name: 'Governance and Oversight',
+    desc: 'Board meetings, risk reviews, compliance, policy',
+    badgeClass: 'tc-badge-gov', hrsColor: 'var(--purple)',
+    barColor: 'var(--purple)', barColorLt: '#D1C4E9',
+    keywords: ['gov-011','governance','board','risk','compliance','framework','oversight','committee','technology committee','architecture guild','guild'],
+  },
+  {
+    code: 'BAU-001', name: 'Business As Usual',
+    desc: 'Standups, 1:1s, team meetings, general ops',
+    badgeClass: 'tc-badge-bau', hrsColor: 'var(--amber)',
+    barColor: 'var(--amber)', barColorLt: '#FFE082',
+    keywords: ['bau-001','standup','stand-up','1:1','one to one','programme director','team meeting','catch up','catch-up'],
+  },
+];
+
+// Returns events for a date range
+function getEventsForRange(startDate, endDate) {
+  return calendarData.filter(ev => {
+    const d = ev.start?.dateTime?.split('T')[0] || ev.start?.date;
+    if (!d) return false;
+    return d >= startDate && d <= endDate;
+  });
+}
+
+// Match an event to a timecode
+function matchTimecode(ev) {
+  const s = (ev.summary || '').toLowerCase();
+  const d = (ev.description || '').toLowerCase();
+  const combined = s + ' ' + d;
+  // Skip non-meeting events
+  if (s.includes('focus:') || s.includes('transit') || s.includes('kai timecode') || s.includes('prep:') || s.includes('travel')) return null;
+  for (const tc of TC_DEFINITIONS) {
+    if (tc.keywords.some(kw => combined.includes(kw))) return tc.code;
+  }
+  return null; // unmatched
+}
+
+// Get duration in hours from a calendar event
+function getEventHours(ev) {
+  if (!ev.start?.dateTime || !ev.end?.dateTime) return 0;
+  return (new Date(ev.end.dateTime) - new Date(ev.start.dateTime)) / 3600000;
+}
+
+// Get week start (Monday) for a date
+function getWeekStart(date, offsetWeeks = 0) {
+  const d = new Date(date + 'T12:00:00');
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff + offsetWeeks * 7);
+  return d.toISOString().split('T')[0];
+}
+
+function getWeekEnd(weekStart) {
+  const d = new Date(weekStart + 'T12:00:00');
+  d.setDate(d.getDate() + 4); // Friday
+  return d.toISOString().split('T')[0];
+}
+
+let tcCurrentWeek = 'this';
+
+function switchTcWeek(week) {
+  tcCurrentWeek = week;
+  document.getElementById('tcTabThis').classList.toggle('active', week === 'this');
+  document.getElementById('tcTabLast').classList.toggle('active', week === 'last');
+  renderTimecodePanel();
+}
+
+function renderTimecodePanel() {
+  if (!calendarData.length) return;
+
+  const today = todayStr();
+  const thisWeekStart = getWeekStart(today, 0);
+  const thisWeekEnd   = getWeekEnd(thisWeekStart);
+  const lastWeekStart = getWeekStart(today, -1);
+  const lastWeekEnd   = getWeekEnd(lastWeekStart);
+
+  const isThis = tcCurrentWeek === 'this';
+  const weekStart = isThis ? thisWeekStart : lastWeekStart;
+  const weekEnd   = isThis ? thisWeekEnd   : lastWeekEnd;
+  const compStart = isThis ? lastWeekStart : getWeekStart(today, -2);
+  const compEnd   = isThis ? lastWeekEnd   : getWeekEnd(getWeekStart(today, -2));
+
+  const weekLabel = new Date(weekStart + 'T12:00:00').toLocaleDateString('en-GB', { day:'numeric', month:'short' }) +
+    ' – ' + new Date(weekEnd + 'T12:00:00').toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+
+  // Update sub
+  const sub = document.getElementById('timecodesSub');
+  if (sub) sub.textContent = `Hours matched from your calendar · Week of ${weekLabel}`;
+
+  const events     = getEventsForRange(weekStart, weekEnd);
+  const compEvents = getEventsForRange(compStart, compEnd);
+
+  // Classify events
+  const classified = {};
+  const unmatched = [];
+  TC_DEFINITIONS.forEach(tc => { classified[tc.code] = []; });
+
+  events.forEach(ev => {
+    const code = matchTimecode(ev);
+    if (code) classified[code].push(ev);
+    else if (ev.start?.dateTime && !((ev.summary||'').toLowerCase().includes('focus') || (ev.summary||'').toLowerCase().includes('transit') || (ev.summary||'').toLowerCase().includes('kai timecode') || (ev.summary||'').toLowerCase().includes('travel'))) {
+      unmatched.push(ev);
+    }
+  });
+
+  // Comp week hours
+  const compHours = {};
+  TC_DEFINITIONS.forEach(tc => { compHours[tc.code] = 0; });
+  compEvents.forEach(ev => {
+    const code = matchTimecode(ev);
+    if (code) compHours[code] += getEventHours(ev);
+  });
+
+  const totalLogged = TC_DEFINITIONS.reduce((sum, tc) =>
+    sum + classified[tc.code].reduce((s, ev) => s + getEventHours(ev), 0), 0);
+  const totalUnmatched = unmatched.reduce((s, ev) => s + getEventHours(ev), 0);
+  const totalMeetings = totalLogged + totalUnmatched;
+  const maxHrs = Math.max(...TC_DEFINITIONS.map(tc =>
+    classified[tc.code].reduce((s, ev) => s + getEventHours(ev), 0)), 0.1);
+
+  // Unmatched warning
+  const warnEl = document.getElementById('tcUnmatched');
+  if (unmatched.length > 0 && warnEl) {
+    warnEl.style.display = 'flex';
+    warnEl.innerHTML = `⚠️ <span><b>${totalUnmatched.toFixed(1)} hrs unmatched</b> — ${unmatched.length} meeting${unmatched.length>1?'s':''} couldn't be auto-assigned: ${unmatched.map(e=>e.summary||'').slice(0,2).join(', ')}${unmatched.length>2?' and others':''}</span>`;
+  } else if (warnEl) { warnEl.style.display = 'none'; }
+
+  // Summary bar
+  document.getElementById('tcSummaryBar').innerHTML = `
+    <div class="tc-sum-stat"><div class="tc-sum-n">${totalLogged.toFixed(1)}</div><div class="tc-sum-l">hrs logged</div></div>
+    <div class="tc-sum-stat"><div class="tc-sum-n" style="color:var(--amber)">${totalUnmatched.toFixed(1)}</div><div class="tc-sum-l">hrs unmatched</div></div>
+    <div class="tc-sum-stat"><div class="tc-sum-n" style="color:var(--purple)">${totalMeetings.toFixed(1)}</div><div class="tc-sum-l">hrs in meetings</div></div>
+  `;
+
+  // Cards
+  document.getElementById('tcCards').innerHTML = TC_DEFINITIONS.map(tc => {
+    const evs = classified[tc.code];
+    const hrs = evs.reduce((s, ev) => s + getEventHours(ev), 0);
+    const pct = Math.round((hrs / Math.max(totalMeetings, 0.1)) * 100);
+    const compHrs = compHours[tc.code];
+    const compPct = Math.round((compHrs / Math.max(totalMeetings, 0.1)) * 100);
+
+    const meetings = evs.map(ev => {
+      const d = ev.start?.dateTime?.split('T')[0];
+      const dayName = d ? getDayName(d) : '';
+      const t = getTime(ev);
+      const dur = getEventHours(ev);
+      const durStr = dur === Math.floor(dur) ? dur + '.0h' : dur.toFixed(2).replace('.00','') + 'h';
+      return `<div class="tc-mtg-row">
+        <div class="tc-mtg-day">${dayName}</div>
+        <div class="tc-mtg-time">${t}</div>
+        <div class="tc-mtg-name">${(ev.summary||'').replace(/\s*\(.*?\)\s*/g,'').substring(0,45)}</div>
+        <div class="tc-mtg-dur">${durStr}</div>
+      </div>`;
+    }).join('');
+
+    const noMeetings = evs.length === 0
+      ? `<div class="tc-mtg-row"><div class="tc-mtg-name" style="color:#bbb;font-style:italic">No meetings matched this week</div></div>`
+      : '';
+
+    return `<div class="tc-card-wrap">
+      <div class="tc-card-hdr">
+        <div class="tc-badge ${tc.badgeClass}">${tc.code}</div>
+        <div class="tc-card-info">
+          <div class="tc-card-name">${tc.name}</div>
+          <div class="tc-card-desc">${tc.desc}</div>
+        </div>
+        <div class="tc-card-hrs">
+          <div class="tc-hrs-n" style="color:${tc.hrsColor}">${hrs.toFixed(1)}</div>
+          <div class="tc-hrs-l">hrs this week</div>
+        </div>
+      </div>
+      <div class="tc-bar-wrap">
+        <div class="tc-bar-bg"><div class="tc-bar-fill" style="width:${pct}%;background:${tc.barColor}"></div></div>
+      </div>
+      <div class="tc-mtg-list">${meetings}${noMeetings}</div>
+      <div class="tc-vs-row">
+        <div class="tc-vs-lbl">vs ${isThis ? 'last' : 'prior'} week</div>
+        <div class="tc-vs-bars">
+          <div class="tc-vs-bar-row">
+            <div class="tc-vs-bar-lbl">${isThis ? 'This' : 'Last'}</div>
+            <div class="tc-vs-bar" style="width:${Math.max(pct,2)}%;background:${tc.barColor}"></div>
+            <div class="tc-vs-bar-val" style="color:${tc.hrsColor}">${hrs.toFixed(1)}h</div>
+          </div>
+          <div class="tc-vs-bar-row">
+            <div class="tc-vs-bar-lbl">${isThis ? 'Last' : 'Prior'}</div>
+            <div class="tc-vs-bar" style="width:${Math.max(compPct,2)}%;background:${tc.barColorLt}"></div>
+            <div class="tc-vs-bar-val" style="color:#aaa">${compHrs.toFixed(1)}h</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Copy text
+  const now = new Date().toLocaleString('en-GB', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  const lines = TC_DEFINITIONS.map(tc => {
+    const hrs = classified[tc.code].reduce((s, ev) => s + getEventHours(ev), 0);
+    return `${tc.code}  ${tc.name.padEnd(28)}${hrs.toFixed(1)} hrs`;
+  });
+  const copyText = `Week: ${weekLabel}
+${'━'.repeat(50)}
+${lines.join('\n')}
+${'━'.repeat(50)}
+TOTAL    Logged${' '.repeat(22)}${totalLogged.toFixed(1)} hrs
+         Unmatched${' '.repeat(19)}${totalUnmatched.toFixed(1)} hrs
+         In meetings${' '.repeat(17)}${totalMeetings.toFixed(1)} hrs
+${'━'.repeat(50)}
+Generated by KAI · ${now}`;
+
+  const copyEl = document.getElementById('tcCopyText');
+  const copySection = document.getElementById('tcCopySection');
+  if (copyEl) copyEl.textContent = copyText;
+  if (copySection) copySection.style.display = 'block';
+}
+
+function copyTimecodes() {
+  const text = document.getElementById('tcCopyText')?.textContent;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('tcCopyBtn');
+    if (btn) { btn.textContent = 'Copied!'; btn.style.background = 'var(--green)'; setTimeout(() => { btn.textContent = 'Copy'; btn.style.background = ''; }, 2000); }
+  });
+}
+
+// ── HELP ──
+
+function openHelp() {
+  document.getElementById('helpOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeHelpSheet() {
+  document.getElementById('helpOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeHelp(e) {
+  if (e.target === document.getElementById('helpOverlay')) closeHelpSheet();
 }
 
 
