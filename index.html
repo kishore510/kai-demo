@@ -416,6 +416,31 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .action-item-due { font-size: 10px; color: var(--muted); margin-top: 2px; }
 .action-item-done { font-size: 10px; color: var(--teal); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; margin-top: 2px; }
 
+
+/* ── WELLBEING PANEL ── */
+.wb-panel-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; overflow: hidden; margin-bottom: 4px; }
+.wb-panel-card-hdr { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 0.5px solid #F0F0EC; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; color: var(--teal); text-transform: uppercase; }
+.wb-read-text { font-size: 13px; color: #333; line-height: 1.72; padding: 13px 14px; }
+.wb-day-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 10px; overflow: hidden; }
+.wb-day-card-hdr { display: flex; align-items: center; gap: 10px; padding: 9px 13px; }
+.wb-day-badge { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; flex-shrink: 0; letter-spacing: 0.5px; }
+.wb-day-badge.green  { background: var(--green-lt);  color: var(--green); }
+.wb-day-badge.amber  { background: var(--amber-lt);  color: var(--amber); }
+.wb-day-badge.red    { background: var(--red-lt);    color: var(--red); }
+.wb-day-badge.travel { background: var(--purple-lt); color: var(--purple); }
+.wb-day-name { font-size: 12px; font-weight: 500; color: #1a1a1a; flex: 1; }
+.wb-day-meta { font-size: 10px; color: #888; }
+.wb-day-pills { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 13px 9px; }
+.wb-day-pill { font-size: 9px; font-weight: 500; padding: 2px 8px; border-radius: 100px; }
+.wb-day-pill.clash  { background: var(--coral-lt);  color: var(--coral-dk); }
+.wb-day-pill.heavy  { background: var(--red-lt);    color: var(--red); }
+.wb-day-pill.lunch  { background: var(--green-lt);  color: var(--green); }
+.wb-day-pill.nolunch{ background: var(--amber-lt);  color: var(--amber); }
+.wb-day-pill.travel { background: var(--purple-lt); color: var(--purple); }
+.wb-day-pill.light  { background: var(--teal-lt);   color: var(--teal-dk); }
+.wb-nudge { display: flex; align-items: flex-start; gap: 9px; background: white; border: 0.5px solid #E0E0D8; border-radius: 9px; padding: 10px 13px; font-size: 12px; color: #444; line-height: 1.55; }
+.wb-nudge-icon { font-size: 16px; flex-shrink: 0; line-height: 1.3; }
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
   .app { grid-template-columns: 1fr; grid-template-rows: 52px 1fr; height: 100dvh; }
@@ -526,6 +551,9 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
     <button class="mob-nav-item" data-panel="timecodes" onclick="mobNav(this)">
       <span class="mob-icon">🕐</span>Timecodes
     </button>
+    <button class="mob-nav-item" data-panel="wellbeing" onclick="mobNav(this)">
+      <span class="mob-icon">💚</span>Wellbeing
+    </button>
     <button class="mob-nav-item" data-panel="archive" onclick="mobNav(this)">
       <span class="mob-icon">🗄️</span>Archive
       <span class="mob-badge" id="mobArchiveBadge" style="display:none"></span>
@@ -559,7 +587,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
       <div class="nav-item" data-panel="timecodes" onclick="switchPanel(this)">
         <span class="nav-icon">🕐</span> Timecodes
       </div>
-      <div class="nav-item" data-panel="briefing" data-scroll="wellbeingSection" onclick="switchPanel(this)">
+      <div class="nav-item" data-panel="wellbeing" onclick="switchPanel(this)">
         <span class="nav-icon">💚</span> Wellbeing
       </div>
     </div>
@@ -614,7 +642,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
               </div>
               <div class="stat-arrow" id="clashArrow">→</div>
             </div>
-            <div class="stat-c stat-clickable" onclick="goToWellbeing()" title="View wellbeing nudges">
+            <div class="stat-c stat-clickable" onclick="goToWellbeing()" title="View KAI Wellbeing">
               <div class="stat-n c" id="statWellbeing">–</div>
               <div class="stat-l">Wellbeing<br>flag</div>
               <div class="stat-arrow">→</div>
@@ -716,6 +744,44 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
             oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
           <button class="send-btn" id="sendBtn" onclick="sendChat()">↑</button>
         </div>
+      </div>
+    </div>
+
+
+    <!-- WELLBEING -->
+    <div class="panel" id="panel-wellbeing">
+      <div class="b-header">
+        <div class="b-title">Wellbeing</div>
+        <div class="b-sub" id="wellbeingSub">KAI is analysing your week...</div>
+      </div>
+      <div style="overflow-y:auto;flex:1;padding:14px 20px 80px">
+
+        <!-- KAI read paragraph -->
+        <div class="wb-panel-card" id="wbReadCard">
+          <div class="wb-panel-card-hdr">
+            <span>💚</span>
+            <span>KAI&rsquo;s read on your week</span>
+          </div>
+          <div id="wbReadText" class="wb-read-text">Analysing your calendar and inbox...</div>
+        </div>
+
+        <!-- Day health cards -->
+        <div class="card-hdr" style="margin:16px 0 8px;background:none;border:none;padding:0;font-size:9px;font-weight:500;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Day by Day</div>
+        <div id="wbDayCards" style="display:flex;flex-direction:column;gap:8px"></div>
+
+        <!-- Nudge chips -->
+        <div class="card-hdr" style="margin:16px 0 8px;background:none;border:none;padding:0;font-size:9px;font-weight:500;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Nudges &amp; Reminders</div>
+        <div id="wbNudgeChips" style="display:flex;flex-direction:column;gap:6px"></div>
+
+        <!-- Weather card (travel days) -->
+        <div id="wbWeatherCard" style="display:none;margin-top:16px">
+          <div class="card-hdr" style="margin-bottom:8px;background:none;border:none;padding:0;font-size:9px;font-weight:500;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Travel Day</div>
+          <div class="wb-panel-card" id="wbWeatherInner">
+            <div class="wb-panel-card-hdr"><span>✈️</span><span id="wbWeatherTitle">Loading weather...</span></div>
+            <div id="wbWeatherBody" style="font-size:12px;color:#555;line-height:1.6;padding:0 2px 2px"></div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -879,6 +945,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
               <div class="help-feature"><span class="help-loc">📅 Calendar</span><span class="help-feat-desc">Full week view · tap any event to open Meeting Prep sheet · clash rows highlighted coral</span></div>
               <div class="help-feature"><span class="help-loc">💬 Ask KAI</span><span class="help-feat-desc">Chat with full inbox and calendar context · action buttons appear in responses</span></div>
               <div class="help-feature"><span class="help-loc">🕐 Timecodes</span><span class="help-feat-desc">Hours matched to PRJ-042, GOV-011, BAU-001 · this week vs last week · copy for timesheet</span></div>
+              <div class="help-feature"><span class="help-loc">💚 Wellbeing</span><span class="help-feat-desc">KAI's read on your week · day-by-day load · nudges · travel day weather · lunch alerts</span></div>
               <div class="help-feature"><span class="help-loc">🗄️ Archive</span><span class="help-feat-desc">Compliance emails saved to Google Drive · open any email → Archive to Drive</span></div>
             </div>
           </div>
@@ -1600,6 +1667,8 @@ function switchPanel(item) {
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
   }
+  // Lazy-render panels that need live data
+  if (panel === 'wellbeing') renderWellbeingPanel();
 }
 
 function mobNav(btn) {
@@ -1612,6 +1681,7 @@ function mobNav(btn) {
   document.querySelectorAll('.nav-item').forEach(i => {
     i.classList.toggle('active', i.dataset.panel === panel && !i.dataset.scroll);
   });
+  if (panel === 'wellbeing') renderWellbeingPanel();
 }
 
 function goToUnreplied() {
@@ -1644,18 +1714,251 @@ function goToCalendar() {
   }, 200);
 }
 
+// ── WELLBEING PANEL ──
+
 function goToWellbeing() {
-  // Switch to briefing panel
-  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-  // Activate the Wellbeing nav item
-  const wbNav = document.querySelector('.nav-item[data-scroll="wellbeingSection"]');
-  if (wbNav) wbNav.classList.add('active');
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-briefing').classList.add('active');
-  setTimeout(() => {
-    const wb = document.getElementById('wellbeingSection');
-    if (wb) wb.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 100);
+  const wbNav = document.querySelector('.nav-item[data-panel="wellbeing"]');
+  if (wbNav) switchPanel(wbNav);
+  const mobWb = document.querySelector('.mob-nav-item[data-panel="wellbeing"]');
+  if (mobWb) {
+    document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active'));
+    mobWb.classList.add('active');
+  }
+}
+
+async function renderWellbeingPanel() {
+  const today = todayStr();
+
+  // ── Build per-day stats ──
+  const byDay = {};
+  calendarData.forEach(ev => {
+    const d = ev.start?.date || ev.start?.dateTime?.split('T')[0];
+    if (d) { if (!byDay[d]) byDay[d] = []; byDay[d].push(ev); }
+  });
+
+  const dayStats = Object.entries(byDay).sort(([a],[b]) => a.localeCompare(b)).slice(0, 7).map(([date, evs]) => {
+    const timed = evs.filter(ev => ev.start?.dateTime && ev.end?.dateTime);
+    const meetingCount = timed.length;
+    const totalHrs = timed.reduce((s, ev) =>
+      s + (new Date(ev.end.dateTime) - new Date(ev.start.dateTime)) / 3600000, 0);
+
+    // Longest gap between meetings (potential break)
+    const sorted = [...timed].sort((a,b) => new Date(a.start.dateTime) - new Date(b.start.dateTime));
+    let maxGap = 0;
+    for (let i = 1; i < sorted.length; i++) {
+      const gap = (new Date(sorted[i].start.dateTime) - new Date(sorted[i-1].end.dateTime)) / 60000;
+      if (gap > maxGap) maxGap = gap;
+    }
+
+    // Lunch protected?
+    const lunchProtected = timed.some(ev => {
+      const t = (ev.summary || '').toLowerCase();
+      return t.includes('lunch') || t.includes('break');
+    });
+
+    // Clashes on this day
+    let dayClashes = 0;
+    for (let i = 0; i < timed.length; i++) {
+      for (let j = i+1; j < timed.length; j++) {
+        if (new Date(timed[j].start.dateTime) < new Date(timed[i].end.dateTime)) dayClashes++;
+      }
+    }
+
+    // Travel day?
+    const hasTravel = evs.some(ev => {
+      const s = (ev.summary || '').toLowerCase();
+      return s.includes('travel') || s.includes('transit') || s.includes('london') || s.includes('offsite');
+    });
+
+    // Score: red=heavy, amber=moderate, green=light, travel=travel
+    let score = 'green';
+    if (hasTravel) score = 'travel';
+    else if (meetingCount >= 6 || totalHrs >= 5) score = 'red';
+    else if (meetingCount >= 4 || totalHrs >= 3) score = 'amber';
+
+    return { date, meetingCount, totalHrs, maxGap, lunchProtected, dayClashes, hasTravel, score };
+  });
+
+  // ── Render day cards ──
+  const dayCardsEl = document.getElementById('wbDayCards');
+  if (dayCardsEl) {
+    dayCardsEl.innerHTML = dayStats.map(s => {
+      const dayName = getDayName(s.date);
+      const dateLabel = new Date(s.date + 'T12:00:00').toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+      const isToday = s.date === today;
+
+      const pills = [];
+      if (s.dayClashes > 0) pills.push('<span class="wb-day-pill clash">⚡ ' + s.dayClashes + ' clash' + (s.dayClashes > 1 ? 'es' : '') + '</span>');
+      if (s.score === 'red') pills.push('<span class="wb-day-pill heavy">🔴 Heavy day</span>');
+      if (s.hasTravel) pills.push('<span class="wb-day-pill travel">✈️ Travel</span>');
+      if (s.lunchProtected) pills.push('<span class="wb-day-pill lunch">✓ Lunch protected</span>');
+      else if (s.meetingCount >= 4) pills.push('<span class="wb-day-pill nolunch">⚠ No lunch break</span>');
+      if (s.score === 'green' && !s.hasTravel) pills.push('<span class="wb-day-pill light">✓ Manageable</span>');
+
+      const badgeLabel = s.hasTravel ? '✈' : (s.score === 'red' ? '!' : (s.score === 'amber' ? '~' : '✓'));
+
+      return '<div class="wb-day-card">' +
+        '<div class="wb-day-card-hdr">' +
+          '<div class="wb-day-badge ' + s.score + '">' + badgeLabel + '</div>' +
+          '<div>' +
+            '<div class="wb-day-name">' + dayName + (isToday ? ' <span style="font-size:9px;color:var(--teal);font-weight:500">TODAY</span>' : '') + '</div>' +
+            '<div class="wb-day-meta">' + dateLabel + ' · ' + s.meetingCount + ' meetings · ' + s.totalHrs.toFixed(1) + ' hrs</div>' +
+          '</div>' +
+          (s.maxGap >= 30 ? '<div style="font-size:10px;color:var(--green);margin-left:auto">' + Math.round(s.maxGap) + 'm gap</div>' : '') +
+        '</div>' +
+        (pills.length ? '<div class="wb-day-pills">' + pills.join('') + '</div>' : '') +
+      '</div>';
+    }).join('');
+  }
+
+  // ── Build nudge chips from real data ──
+  const nudges = [];
+
+  // Heavy days
+  dayStats.filter(s => s.score === 'red').forEach(s => {
+    nudges.push({ icon: '🔴', text: '<b>' + getDayName(s.date) + ' is your heaviest day</b> — ' + s.meetingCount + ' meetings totalling ' + s.totalHrs.toFixed(1) + ' hrs. Try to protect at least 15 minutes between sessions to reset.' });
+  });
+
+  // No lunch
+  dayStats.filter(s => !s.lunchProtected && s.meetingCount >= 4 && !s.hasTravel).forEach(s => {
+    nudges.push({ icon: '⚠️', text: '<b>No lunch break detected on ' + getDayName(s.date) + '.</b> Skipping meals affects focus and decision-making — consider blocking 30 minutes.' });
+  });
+
+  // Clashes
+  dayStats.filter(s => s.dayClashes > 0).forEach(s => {
+    nudges.push({ icon: '⚡', text: '<b>' + s.dayClashes + ' calendar clash' + (s.dayClashes > 1 ? 'es' : '') + ' on ' + getDayName(s.date) + '.</b> Use the Calendar panel to review and resolve these before the day arrives.' });
+  });
+
+  // Travel day
+  const travelDay = dayStats.find(s => s.hasTravel);
+  if (travelDay) {
+    nudges.push({ icon: '✈️', text: '<b>Travel day on ' + getDayName(travelDay.date) + '.</b> Factor in transit fatigue — avoid scheduling demanding work immediately after travel.' });
+  }
+
+  // Week load
+  const totalWeekHrs = dayStats.reduce((s, d) => s + d.totalHrs, 0);
+  if (totalWeekHrs >= 20) {
+    nudges.push({ icon: '📊', text: '<b>' + totalWeekHrs.toFixed(1) + ' hours in meetings this week</b> — that\'s ' + Math.round((totalWeekHrs / 37.5) * 100) + '% of a standard working week. Protect focused work time where you can.' });
+  }
+
+  // Urgent email overload
+  const urgentUnread = gmailData.filter(e => e.unread && (e.priority === 'urgent' || e.priority === 'high'));
+  if (urgentUnread.length > 0) {
+    nudges.push({ icon: '📬', text: '<b>' + urgentUnread.length + ' urgent email' + (urgentUnread.length > 1 ? 's' : '') + ' unread.</b> Consider clearing these before your first meeting to avoid carrying unresolved pressure into the day.' });
+  }
+
+  // General wellness reminders — always show a few
+  nudges.push({ icon: '💧', text: '<b>Stay hydrated.</b> Back-to-back meetings make it easy to forget. Keep water at your desk — even small regular sips help maintain focus across long days.' });
+  nudges.push({ icon: '🚶', text: '<b>Move between meetings.</b> Even a 2-minute walk to a different floor resets your nervous system and improves concentration for the next session.' });
+  nudges.push({ icon: '🧘', text: '<b>End-of-day wind-down.</b> Before you close your laptop, spend 5 minutes noting your top 3 priorities for tomorrow. It reduces cognitive load and improves sleep quality.' });
+
+  const nudgeEl = document.getElementById('wbNudgeChips');
+  if (nudgeEl) {
+    nudgeEl.innerHTML = nudges.slice(0, 8).map(n =>
+      '<div class="wb-nudge"><div class="wb-nudge-icon">' + n.icon + '</div><div>' + n.text + '</div></div>'
+    ).join('');
+  }
+
+  // ── KAI read paragraph — Claude generated ──
+  const readEl = document.getElementById('wbReadText');
+  const subEl  = document.getElementById('wellbeingSub');
+
+  // Build context for Claude
+  const daySummary = dayStats.map(s =>
+    getDayName(s.date) + ': ' + s.meetingCount + ' meetings, ' + s.totalHrs.toFixed(1) + 'hrs' +
+    (s.dayClashes > 0 ? ', ' + s.dayClashes + ' clash(es)' : '') +
+    (s.lunchProtected ? ', lunch protected' : (s.meetingCount >= 4 ? ', no lunch break' : '')) +
+    (s.hasTravel ? ', travel day' : '') +
+    (s.score === 'red' ? ' [HEAVY]' : s.score === 'amber' ? ' [MODERATE]' : ' [LIGHT]')
+  ).join('; ');
+
+  const urgentCount = gmailData.filter(e => e.priority === 'urgent' || e.priority === 'high').length;
+
+  const wbSystem = `You are KAI — an intelligent wellbeing assistant for a senior Enterprise Platform Architect at a UK financial services regulatory organisation.
+
+Write a warm, honest, specific 3-4 sentence wellbeing summary of their week. Use the calendar data provided. Be direct and personal — like a trusted colleague, not a wellness app. Reference specific days and patterns. Don't be generic. Don't use bullet points. Don't mention "wellbeing" as a word. End with one actionable suggestion.
+
+Calendar this week: ${daySummary}
+Urgent emails: ${urgentCount}
+Total meeting hours: ${totalWeekHrs.toFixed(1)}`;
+
+  try {
+    if (readEl) readEl.textContent = 'KAI is reading your week...';
+    const reply = await callClaude('Write the wellbeing summary now.', false, wbSystem);
+    if (readEl) readEl.textContent = reply;
+    if (subEl) subEl.textContent = 'KAI has analysed your week · Updated just now';
+  } catch(e) {
+    if (readEl) readEl.textContent = 'Unable to generate summary — check your Worker connection.';
+  }
+
+  // ── Weather for travel day ──
+  if (travelDay) {
+    const weatherCard = document.getElementById('wbWeatherCard');
+    const weatherTitle = document.getElementById('wbWeatherTitle');
+    const weatherBody = document.getElementById('wbWeatherBody');
+    if (weatherCard) weatherCard.style.display = 'block';
+    const travelDateLabel = new Date(travelDay.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' });
+    if (weatherTitle) weatherTitle.textContent = 'London · ' + travelDateLabel;
+    try {
+      // Open-Meteo — free, no API key, CORS-friendly
+      const lat = 51.5074, lon = -0.1278;
+      const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon +
+        '&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weathercode' +
+        '&timezone=Europe%2FLondon&forecast_days=7';
+      const wr = await fetch(url);
+      const wd = await wr.json();
+      // Find the forecast entry matching travel date
+      const idx = (wd.daily?.time || []).indexOf(travelDay.date);
+      if (idx >= 0) {
+        const code = wd.daily.weathercode[idx];
+        const tmax = Math.round(wd.daily.temperature_2m_max[idx]);
+        const tmin = Math.round(wd.daily.temperature_2m_min[idx]);
+        const rain = wd.daily.precipitation_sum[idx];
+        const desc = weatherCodeToDesc(code);
+        const rainNote = rain > 1 ? ' · ' + rain.toFixed(1) + 'mm rain expected — bring an umbrella.' : ' · Dry conditions expected.';
+        if (weatherBody) weatherBody.innerHTML =
+          '<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">' +
+            '<div style="font-size:28px">' + weatherCodeToEmoji(code) + '</div>' +
+            '<div>' +
+              '<div style="font-size:15px;font-weight:500;color:#1a1a1a">' + desc + '</div>' +
+              '<div style="font-size:12px;color:#666">' + tmin + '°C – ' + tmax + '°C' + rainNote + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div style="font-size:11.5px;color:#555">KAI detected a London travel day. Check rail or tube status before you leave — allow extra time during peak hours.</div>';
+      } else {
+        if (weatherBody) weatherBody.textContent = 'Forecast not available for that date yet.';
+      }
+    } catch(e) {
+      if (weatherBody) weatherBody.textContent = 'Weather data unavailable — check connection.';
+    }
+  }
+}
+
+function weatherCodeToDesc(code) {
+  if (code === 0) return 'Clear sky';
+  if (code <= 2) return 'Partly cloudy';
+  if (code === 3) return 'Overcast';
+  if (code <= 49) return 'Foggy';
+  if (code <= 59) return 'Light drizzle';
+  if (code <= 69) return 'Rain';
+  if (code <= 79) return 'Snow';
+  if (code <= 82) return 'Rain showers';
+  if (code <= 86) return 'Snow showers';
+  if (code <= 99) return 'Thunderstorms';
+  return 'Variable';
+}
+
+function weatherCodeToEmoji(code) {
+  if (code === 0) return '☀️';
+  if (code <= 2) return '⛅';
+  if (code === 3) return '☁️';
+  if (code <= 49) return '🌫️';
+  if (code <= 69) return '🌧️';
+  if (code <= 79) return '❄️';
+  if (code <= 82) return '🌦️';
+  if (code <= 86) return '🌨️';
+  if (code <= 99) return '⛈️';
+  return '🌥️';
 }
 
 function goToTimecodes() {
