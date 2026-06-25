@@ -443,6 +443,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .wb-nudge { display: flex; align-items: flex-start; gap: 9px; background: white; border: 0.5px solid #E0E0D8; border-radius: 9px; padding: 10px 13px; font-size: 12px; color: #444; line-height: 1.55; }
 .wb-nudge-icon { font-size: 16px; flex-shrink: 0; line-height: 1.3; }
 
+.silence-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; overflow: hidden; }
 /* RESPONSIVE */
 @media (max-width: 768px) {
   .app { grid-template-columns: 1fr; grid-template-rows: 52px 1fr; height: 100dvh; }
@@ -494,11 +495,12 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
     <div class="auth-title">Knowledge Action Intelligence</div>
     <div class="auth-sub">Organisational intelligence — built for us</div>
     <div class="auth-features">
-      <div class="auth-feat"><b>📬 Smart Inbox</b>Prioritised by your stakeholder map</div>
-      <div class="auth-feat"><b>📅 Calendar</b>Clashes, focus time, prep slots</div>
-      <div class="auth-feat"><b>🕐 Timecodes</b>Auto-mapped to our projects</div>
-      <div class="auth-feat"><b>💚 Wellbeing</b>Load detection and nudges</div>
-      <div class="auth-feat"><b>🗄️ Compliance Archive</b>Auto-saves regulatory emails to Drive</div>
+      <div class="auth-feat"><b>🌅 Briefing</b>Schedule, intelligence and admin — one view</div>
+      <div class="auth-feat"><b>🔇 Silence Detector</b>Flags unanswered emails by seniority and age</div>
+      <div class="auth-feat"><b>📬 Smart Inbox</b>Multi-filter triage · draft replies · compliance archive</div>
+      <div class="auth-feat"><b>📅 Calendar</b>Clash detection · meeting prep · AI clash resolution</div>
+      <div class="auth-feat"><b>🕐 Timecodes</b>Hours auto-mapped to PRJ-042, GOV-011, BAU-001</div>
+      <div class="auth-feat"><b>💚 Wellbeing</b>Day load · nudges · travel weather · lunch alerts</div>
       <div class="auth-feat"><b>✨ Ask KAI</b>Conversational AI across your whole week</div>
     </div>
     <button class="auth-btn" onclick="startAuth()">
@@ -634,6 +636,11 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
             <div class="stat-c stat-clickable" onclick="goToUnreplied()" title="View unread emails">
               <div class="stat-n" id="statEmails">–</div>
               <div class="stat-l">Unread / not<br>replied</div>
+              <div class="stat-arrow">→</div>
+            </div>
+            <div class="stat-c stat-clickable" onclick="goToSilence()" title="Emails awaiting your reply" id="silenceTile">
+              <div class="stat-n r" id="statSilence">–</div>
+              <div class="stat-l">Awaiting<br>your reply</div>
               <div class="stat-arrow">→</div>
             </div>
             <div class="stat-c stat-clickable" onclick="goToCalendar()" title="View calendar clashes">
@@ -1304,6 +1311,8 @@ function analyseBriefing(emails, events) {
 
   // Store lunch slot data keyed by date so protectLunchSlot() can look it up
   window._lunchSlots = {};
+  detectSilence(emails);
+
   document.getElementById('wellbeingNudges').innerHTML = nudges.slice(0, 3).map(n => {
     let btn = '';
     if (n.dateKey) {
@@ -2694,16 +2703,20 @@ async function ensureKaiNotesFile() {
 }
 
 async function saveKaiNotes() {
-  if (!kaiNotesFileId) return;
+  if (!kaiNotesFileId) { console.warn('saveKaiNotes: no fileId'); return; }
+  const status = document.getElementById('notesStatus');
+  if (status) status.textContent = 'Saving...';
   try {
     kaiNotes.lastUpdated = new Date().toISOString();
-    await fetch(`https://www.googleapis.com/upload/drive/v3/files/${kaiNotesFileId}?uploadType=media`, {
+    const r = await fetch('https://www.googleapis.com/upload/drive/v3/files/' + kaiNotesFileId + '?uploadType=media', {
       method: 'PATCH',
       headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
       body: JSON.stringify(kaiNotes)
     });
+    if (status) status.textContent = r.ok ? '✓ Synced to Drive' : '⚠ Save failed (' + r.status + ')';
   } catch(e) {
     console.warn('KAI Notes save failed:', e.message);
+    if (status) status.textContent = '⚠ Save failed';
   }
 }
 
@@ -2752,6 +2765,8 @@ async function addKaiAction(text, due = null) {
   };
   kaiNotes.actions.unshift(action);
   renderNotes();
+  // Ensure we have a file to save to before attempting save
+  if (!kaiNotesFileId) await ensureKaiNotesFile();
   await saveKaiNotes();
   return action;
 }
@@ -2761,6 +2776,7 @@ async function markActionDone(id) {
   if (action) {
     action.done = true;
     renderNotes();
+    if (!kaiNotesFileId) await ensureKaiNotesFile();
     await saveKaiNotes();
   }
 }
@@ -3011,6 +3027,87 @@ function protectLunchSlot(dateKey) {
   }
   proposeEvent('Lunch break', slot.date, slot.time, 30,
     'KAI suggests protecting a lunch slot on ' + slot.day + ' — heavy meeting day detected:');
+}
+
+
+// ── SILENCE DETECTOR ──
+
+function getSenderTier(from) {
+  const f = from.toLowerCase();
+  if (f.includes('director') || f.includes('chief') || f.includes('cto') || f.includes('ceo') || f.includes('coo') || f.includes('cfo')) return { label: 'Director', rank: 1 };
+  if (f.includes('head of') || f.includes('head,') || f.includes('vp ') || f.includes('vice president')) return { label: 'Head', rank: 2 };
+  if (f.includes('manager') || f.includes('lead') || f.includes('principal') || f.includes('senior')) return { label: 'Senior', rank: 3 };
+  return { label: 'Colleague', rank: 4 };
+}
+
+function getEmailAgeHours(timeStr) {
+  if (!timeStr) return 0;
+  if (timeStr.includes('h ago')) return parseInt(timeStr) || 0;
+  if (timeStr.includes('d ago')) return (parseInt(timeStr) || 0) * 24;
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const today = new Date().getDay();
+  for (let i = 0; i < days.length; i++) {
+    if (timeStr.startsWith(days[i])) {
+      let diff = today - i;
+      if (diff < 0) diff += 7;
+      return diff * 24;
+    }
+  }
+  return 0;
+}
+
+function detectSilence(emails) {
+  const THRESHOLD_HOURS = 4;
+  const ignored = ['fyi', 'normal'];
+  const silent = emails
+    .filter(e => !e.archived && !ignored.includes(e.priority) && (e.unread || e.unreplied))
+    .map(e => ({ ...e, tier: getSenderTier(e.from + ' ' + (e.fromEmail || '')), ageHours: getEmailAgeHours(e.time) }))
+    .filter(e => e.ageHours >= THRESHOLD_HOURS)
+    .sort((a, b) => a.tier.rank - b.tier.rank || b.ageHours - a.ageHours);
+
+  const stat = document.getElementById('statSilence');
+  if (stat) {
+    stat.textContent = silent.length;
+    stat.className = 'stat-n ' + (silent.length >= 3 ? 'r' : silent.length >= 1 ? 'y' : 'teal');
+  }
+
+  const card  = document.getElementById('silenceSection');
+  const list  = document.getElementById('silenceList');
+  const sub   = document.getElementById('silenceSubLabel');
+  if (!card || !list) return;
+
+  if (sub) sub.textContent = silent.length > 0 ? silent.length + ' email' + (silent.length > 1 ? 's' : '') + ' waiting' : 'All replied';
+
+  if (silent.length === 0) {
+    list.innerHTML = '<div style="padding:12px 13px;font-size:11px;color:var(--muted)">No emails awaiting reply.</div>';
+    return;
+  }
+
+  list.innerHTML = silent.slice(0, 5).map(e => {
+    const ageLabel = e.ageHours >= 48 ? Math.round(e.ageHours / 24) + 'd' : Math.round(e.ageHours) + 'h';
+    const ageClass = e.ageHours >= 24 ? 'critical' : e.ageHours >= 8 ? 'warning' : 'normal';
+    return '<div class="silence-item" onclick="goToEmailAndSelect(\'' + e.id + '\')">' +
+      '<span class="silence-age ' + ageClass + '">' + ageLabel + '</span>' +
+      '<span class="silence-tier">' + e.tier.label + '</span>' +
+      '<div class="silence-body">' +
+        '<div class="silence-from">' + e.from + '</div>' +
+        '<div class="silence-subj">' + e.subject + '</div>' +
+      '</div>' +
+      '<span class="silence-arrow">›</span>' +
+    '</div>';
+  }).join('');
+}
+
+function goToSilence() {
+  const inboxNav = document.querySelector('.nav-item[data-panel="inbox"]');
+  if (inboxNav) switchPanel(inboxNav);
+  setTimeout(() => filterEmails('unread', null), 100);
+}
+
+function goToEmailAndSelect(emailId) {
+  const inboxNav = document.querySelector('.nav-item[data-panel="inbox"]');
+  if (inboxNav) switchPanel(inboxNav);
+  setTimeout(() => selectEmail(emailId), 100);
 }
 
 // ── EMAIL INTENT DETECTION ──
