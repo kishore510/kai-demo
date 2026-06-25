@@ -554,7 +554,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
     <div class="t-logo">
       <div class="t-badge">KAI</div>
       <span class="t-name">KAI</span>
-      <span style="font-size:11px;color:#555">· Knowledge Action Intelligence</span>
+      <span style="font-size:11px;color:#555">· Knowledge Action Intelligence</span><span style="font-size:9px;color:#bbb;margin-left:6px;font-family:monospace">v3.1</span>
     </div>
     <div class="t-right">
       <div class="t-dot"></div>
@@ -666,6 +666,12 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
             <div class="stat-c stat-clickable" onclick="goToSilence()" id="silenceTile"><div class="stat-n r" id="statSilence">–</div><div class="stat-l">Awaiting<br>reply</div><div class="stat-arrow">→</div></div>
             <div class="stat-c stat-clickable" onclick="goToTimecodes()"><div class="stat-n p" id="statTimecodes">3</div><div class="stat-l">Timecodes<br>suggested</div><div class="stat-arrow">→</div></div>
             <div class="stat-c" id="statMeetingHrs"><div class="stat-n teal" id="statHrsNum">–</div><div class="stat-l">Meeting hrs<br>this week</div></div>
+          </div>
+          <div class="wb-card" id="wellbeingSection">
+            <div class="card-hdr">Wellbeing Nudges</div>
+            <div id="wellbeingNudges">
+              <div style="padding:14px;font-size:11px;color:var(--muted)">Analysing your week...</div>
+            </div>
           </div>
           <div class="silence-card" id="silenceSection">
             <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between"><span>🔇 Awaiting Reply</span><span id="silenceSubLabel" style="font-size:9px;color:var(--muted);letter-spacing:0;text-transform:none;font-weight:400"></span></div>
