@@ -2198,6 +2198,10 @@ async function archiveEmail(emailId) {
 
     email.archived = true;
     archivedItems.unshift({ email, folder, fileName, fileId: file.id, link: file.webViewLink, archivedAt: new Date() });
+    // Persist archived ID so it survives reload
+    if (!kaiNotes.archivedIds) kaiNotes.archivedIds = [];
+    if (!kaiNotes.archivedIds.includes(email.id)) kaiNotes.archivedIds.push(email.id);
+    saveKaiNotes();
     if (btn) { btn.textContent = '✅ Archived'; btn.style.background = 'rgba(34,197,94,0.2)'; }
     renderEmailList();
     updateArchivePanel();
@@ -2596,7 +2600,7 @@ function renderCalendarPanel() {
 
 let clashedEventIds = new Set();
 let clashDayDate = null; // date string of the day with clashes, for scrolling
-let kaiNotes = { actions: [], lastUpdated: null };
+let kaiNotes = { actions: [], archivedIds: [], lastUpdated: null };
 let kaiNotesFileId = null;
 
 // Notes file structure:
@@ -2638,6 +2642,13 @@ async function loadKaiNotes() {
     }
   } catch(e) {
     console.warn('KAI Notes load failed:', e.message);
+  }
+  // Restore archived state on emails from persisted IDs
+  if (kaiNotes.archivedIds && kaiNotes.archivedIds.length > 0) {
+    gmailData.forEach(e => {
+      if (kaiNotes.archivedIds.includes(e.id)) e.archived = true;
+    });
+    renderEmailList();
   }
   renderNotes();
 }
