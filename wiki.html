@@ -307,18 +307,53 @@ footer {
 .footer-text a { color: var(--teal); text-decoration: none; }
 
 /* ── RESPONSIVE ── */
+@media (prefers-reduced-motion: reduce) {
+  .pulse-ring, .pulse-ring-2, .hero-scroll { animation: none; }
+}
+
+/* ── HAMBURGER ── */
+.nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 6px; color: white; font-size: 22px; margin-left: auto; }
+.nav-mobile-menu { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(11,17,32,0.97); flex-direction: column; align-items: center; justify-content: center; gap: 28px; }
+.nav-mobile-menu.open { display: flex; }
+.nav-mobile-menu a { font-size: 20px; font-weight: 500; color: white; text-decoration: none; transition: color 0.15s; }
+.nav-mobile-menu a:hover { color: var(--teal); }
+.nav-mobile-close { position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 28px; cursor: pointer; }
+.nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 6px; color: white; font-size: 22px; margin-left: auto; }
+.nav-mobile-menu { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(11,17,32,0.97); flex-direction: column; align-items: center; justify-content: center; gap: 28px; }
+.nav-mobile-menu.open { display: flex; }
+.nav-mobile-menu a { font-size: 20px; font-weight: 500; color: white; text-decoration: none; transition: color 0.15s; }
+.nav-mobile-menu a:hover { color: var(--teal); }
+.nav-mobile-close { position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 28px; cursor: pointer; }
+
 @media (max-width: 768px) {
   nav { padding: 0 20px; }
   .nav-links { display: none; }
+  .nav-hamburger { display: block; }
   .section { padding: 60px 20px; }
   .hero { padding: 80px 24px 60px; }
-  .hero-stats { gap: 28px; }
+  .hero-h1 { font-size: 36px; letter-spacing: -1px; }
+  .hero-stats { gap: 20px; }
+  .hero-stat-n { font-size: 36px; }
   .benefits-grid { grid-template-columns: 1fr; }
   .vs-grid { grid-template-columns: 1fr; }
   .phases::before { display: none; }
+  .problem-grid { grid-template-columns: 1fr 1fr; }
+  .features-grid { grid-template-columns: 1fr; }
+  .stack-grid { grid-template-columns: 1fr 1fr; }
+  .arch-wrapper { padding: 20px 14px; }
+  .arch-wrapper svg { min-width: 600px; }
+  .section-h2 { font-size: 28px; }
+  .biz-table { font-size: 11px; }
+  .biz-table th, .biz-table td { padding: 8px 10px; }
+  .section-inner { overflow: hidden; }
+  .vs-col.generic { background: rgba(255,255,255,0.03); }
+  .hero-h1 { overflow-wrap: break-word; word-break: break-word; }
+  .hero-quote { font-size: 13px; }
+  .phase-h3 { font-size: 16px; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .pulse-ring, .pulse-ring-2, .hero-scroll { animation: none; }
+@media (max-width: 400px) {
+  .problem-grid { grid-template-columns: 1fr; }
+  .stack-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -339,7 +374,19 @@ footer {
     <a href="#business-case">Business Case</a>
     <a href="#why-now">Why KAI</a>
   </div>
+  <button class="nav-hamburger" onclick="openMobileMenu()" aria-label="Menu">☰</button>
 </nav>
+
+<!-- MOBILE MENU -->
+<div class="nav-mobile-menu" id="mobileMenu">
+  <button class="nav-mobile-close" onclick="closeMobileMenu()">✕</button>
+  <a href="#problem" onclick="closeMobileMenu()">The Problem</a>
+  <a href="#solution" onclick="closeMobileMenu()">What KAI Does</a>
+  <a href="#architecture" onclick="closeMobileMenu()">Architecture</a>
+  <a href="#roadmap" onclick="closeMobileMenu()">Roadmap</a>
+  <a href="#business-case" onclick="closeMobileMenu()">Business Case</a>
+  <a href="#why-now" onclick="closeMobileMenu()">Why KAI</a>
+</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -861,7 +908,8 @@ footer {
     <div class="divider"></div>
     <p class="section-lead">Based on 5,000 staff at a blended fully-loaded rate of £25/hr across 46 working weeks. Build cost estimated at £80k–£150k Year 1.</p>
 
-    <table class="biz-table">
+    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 32px; border-radius: 8px;">
+    <table class="biz-table" style="margin-top:0; min-width: 520px">
       <thead>
         <tr>
           <th>Scenario</th>
@@ -899,6 +947,7 @@ footer {
         </tr>
       </tbody>
     </table>
+    </div>
     <p style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:10px;font-family:'JetBrains Mono',monospace">These figures represent time value only. Compliance benefits, data quality improvements, and wellbeing outcomes are not included.</p>
   </div>
 </section>
@@ -956,6 +1005,10 @@ footer {
 </footer>
 
 <script>
+// Hamburger menu
+function openMobileMenu() { document.getElementById('mobileMenu').classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeMobileMenu() { document.getElementById('mobileMenu').classList.remove('open'); document.body.style.overflow = ''; }
+
 // Animated counter for hero stats
 function animateCounters() {
   document.querySelectorAll('[data-target]').forEach(el => {
