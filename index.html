@@ -1659,15 +1659,13 @@ function goToWellbeing() {
 }
 
 function goToTimecodes() {
-  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-  const tcNav = document.querySelector('.nav-item[data-scroll="timecodesSection"]');
-  if (tcNav) tcNav.classList.add('active');
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-briefing').classList.add('active');
-  setTimeout(() => {
-    const tc = document.getElementById('timecodesSection');
-    if (tc) tc.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 100);
+  const tcNav = document.querySelector('.nav-item[data-panel="timecodes"]');
+  if (tcNav) switchPanel(tcNav);
+  const mobTc = document.querySelector('.mob-nav-item[data-panel="timecodes"]');
+  if (mobTc) {
+    document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active'));
+    mobTc.classList.add('active');
+  }
 }
 
 function closeMobileEmail() {
@@ -1686,10 +1684,10 @@ async function refreshData() {
     // fetchEmails/fetchCalendar already handle 401 by showing the banner and returning []
     gmailData = emails;
     calendarData = events;
+    analyseBriefing(emails, events);
     document.getElementById('todayEvents').innerHTML = renderToday(events);
     document.getElementById('weekAhead').innerHTML = renderWeekAhead(events);
     renderEmailList();
-    analyseBriefing(emails, events);
     renderCalendarPanel();
     renderTimecodePanel();
     const urgentEmails = emails.filter(e => e.priority === 'urgent' || e.priority === 'high');
@@ -1718,10 +1716,10 @@ async function loadApp() {
     const [emails, events] = await Promise.all([fetchEmails(), fetchCalendar()]);
     gmailData = emails;
     calendarData = events;
+    analyseBriefing(emails, events);
     document.getElementById('todayEvents').innerHTML = renderToday(events);
     document.getElementById('weekAhead').innerHTML = renderWeekAhead(events);
     renderEmailList();
-    analyseBriefing(emails, events);
     renderCalendarPanel();
     renderTimecodePanel();
     const urgentEmails = emails.filter(e => e.priority === 'urgent' || e.priority === 'high');
