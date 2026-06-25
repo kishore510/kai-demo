@@ -1014,19 +1014,16 @@ async function handleCallback() {
   // Clear the token from the URL so it's not visible or re-processed
   window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
   accessToken = token;
-  // Validate token and fetch user email in one call
+  // Try to get user email — non-fatal if it fails
   try {
     const r = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: { Authorization: 'Bearer ' + token }
     });
-    if (!r.ok) {
-      // Token from URL is already invalid — don't store it
-      accessToken = null;
-      return false;
+    if (r.ok) {
+      const info = await r.json();
+      if (info.email) sessionStorage.setItem('userEmail', info.email);
     }
-    const info = await r.json();
-    if (info.email) sessionStorage.setItem('userEmail', info.email);
-  } catch(e) { /* network error — proceed anyway, token may still work */ }
+  } catch(e) { /* non-fatal */ }
   sessionStorage.setItem('token', token);
   return true;
 }
@@ -2069,20 +2066,14 @@ async function init() {
     await loadApp();
     return;
   }
-  // 2. Check for existing token in session — validate before using
+  // 2. Restore stored token and attempt load — let loadApp surface any auth errors
   const stored = sessionStorage.getItem('token');
   if (stored) {
     accessToken = stored;
-    const valid = await checkTokenValid();
-    if (valid) {
-      await loadApp();
-      return;
-    }
-    // Token stale — clear it and fall through to auth screen
-    accessToken = null;
-    sessionStorage.removeItem('token');
+    await loadApp();
+    return;
   }
-  // 3. No valid token — show auth screen
+  // 3. No token — show auth screen
   document.getElementById('authScreen').style.display = 'flex';
 }
 
