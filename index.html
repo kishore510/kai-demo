@@ -2098,29 +2098,20 @@ function getArchiveFolder(email) {
 }
 
 async function ensureDriveFolder(folderPath) {
+  // drive.file scope cannot search/list — always create folders directly.
+  // Duplicate folders are harmless for demo purposes.
   const parts = folderPath.split('/');
   let parentId = 'root';
   for (const part of parts) {
-    // Try to search for existing folder — may return empty under drive.file scope, that's OK
-    try {
-      const search = await fetch(
-        `https://www.googleapis.com/drive/v3/files?q=name='${encodeURIComponent(part)}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false&fields=files(id)`,
-        { headers: { Authorization: 'Bearer ' + accessToken } }
-      );
-      const result = await search.json();
-      if (result.files && result.files.length > 0) {
-        parentId = result.files[0].id;
-        continue;
-      }
-    } catch(e) { /* search failed — fall through to create */ }
-    // Create the folder
+    const body = { name: part, mimeType: 'application/vnd.google-apps.folder' };
+    if (parentId !== 'root') body.parents = [parentId];
     const create = await fetch('https://www.googleapis.com/drive/v3/files', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: part, mimeType: 'application/vnd.google-apps.folder', parents: [parentId] })
+      body: JSON.stringify(body)
     });
     const folder = await create.json();
-    if (!folder.id) throw new Error('Could not create Drive folder: ' + part);
+    if (!folder.id) throw new Error('Could not create Drive folder: ' + part + (folder.error ? ' — ' + folder.error.message : ''));
     parentId = folder.id;
   }
   return parentId;
