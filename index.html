@@ -82,14 +82,14 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .b-header { padding: 18px 20px 14px; background: white; border-bottom: 0.5px solid #E0E0D8; }
 .b-title { font-weight: 500; font-size: 19px; color: #1a1a1a; margin-bottom: 3px; }
 .b-sub { font-size: 12px; color: #888; }
-.b-grid { display: flex; flex-direction: column; flex: 1; overflow-y: auto; }
-.b-stat-strip { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; padding: 12px 20px 0; }
+.b-grid { display: flex; flex-direction: column; flex: 1; overflow-y: auto; min-height: 0; }
+.b-stat-strip { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; padding: 12px 20px 0; flex-shrink: 0; }
 .b-stat-strip .stat-c { padding: 10px 12px 10px 14px; display: flex; align-items: center; gap: 10px; }
 .b-stat-strip .stat-c .stat-n { font-size: 24px; flex-shrink: 0; }
 .b-stat-strip .stat-c .stat-l { font-size: 10px; color: #888; line-height: 1.35; flex: 1; }
-.b-body { display: grid; grid-template-columns: 1fr 300px; gap: 14px; padding: 12px 20px 14px; flex: 1; min-height: 0; }
-.b-left { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
-.b-right { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+.b-body { display: grid; grid-template-columns: 1fr 300px; gap: 14px; padding: 12px 20px 20px; }
+.b-left { display: flex; flex-direction: column; gap: 12px; }
+.b-right { display: flex; flex-direction: column; gap: 10px; }
 
 .week-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; overflow: hidden; }
 .card-hdr { padding: 9px 14px; border-bottom: 0.5px solid #E0E0D8; font-size: 10px; font-weight: 500; color: var(--teal); letter-spacing: 1.5px; text-transform: uppercase; }
@@ -119,14 +119,14 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .stat-arrow { position: absolute; bottom: 8px; right: 10px; font-size: 11px; color: #bbb; transition: color 0.15s; }
 .stat-clickable:hover .stat-arrow { color: var(--teal); }
 
-.wb-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; overflow: hidden; }
+.wb-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; }
 .wb-row { display: flex; align-items: flex-start; gap: 8px; padding: 9px 13px; border-bottom: 0.5px solid #F0F0EC; }
 .wb-row:last-child { border-bottom: none; }
 .wb-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
 .wb-txt { font-size: 11.5px; color: #444; line-height: 1.5; }
 .wb-txt b { color: #1a1a1a; font-weight: 500; }
 
-.tc-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; overflow: hidden; }
+.tc-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; }
 .tc-row { display: flex; align-items: center; gap: 9px; padding: 8px 13px; border-bottom: 0.5px solid #F0F0EC; }
 .tc-row:last-child { border-bottom: none; }
 .tc-code { font-family: monospace; font-size: 10px; font-weight: 500; background: #F4F4F0; color: #333; border: 0.5px solid #E0E0D8; padding: 2px 7px; border-radius: 4px; flex-shrink: 0; }
@@ -455,7 +455,6 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
   .b-stat-strip .stat-c { flex-direction: column; align-items: flex-start; gap: 2px; }
   .b-stat-strip .stat-c .stat-n { font-size: 20px; }
   .b-body { grid-template-columns: 1fr; padding: 10px 14px 80px; }
-  .b-right { overflow-y: visible; }
   .stat-c { padding: 10px; }
   .stat-n { font-size: 20px; }
   .inbox-layout { grid-template-columns: 1fr; height: calc(100dvh - 52px - 64px); }
@@ -526,7 +525,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
     <div class="t-logo">
       <div class="t-badge">KAI</div>
       <span class="t-name">KAI</span>
-      <span style="font-size:11px;color:#555">· Knowledge Action Intelligence</span><span style="font-size:9px;color:#bbb;margin-left:6px;font-family:monospace">v3.4</span>
+      <span style="font-size:11px;color:#555">· Knowledge Action Intelligence</span><span style="font-size:9px;color:#bbb;margin-left:6px;font-family:monospace">v3.5</span>
     </div>
     <div class="t-right">
       <div class="t-dot"></div>
@@ -1266,15 +1265,25 @@ function analyseBriefing(emails, events) {
   // Wellbeing nudges
   const nudges = [];
   Object.entries(byDay).forEach(([d, evs]) => {
-    if (evs.length >= 5) nudges.push({ level: '#dd3333', text: `<b>${getDayName(d)} looks intense</b> — ${evs.length} meetings detected. Want me to protect a 30 min lunch slot?` });
+    if (evs.length >= 5) {
+      const dayName = getDayName(d);
+      nudges.push({
+        level: '#dd3333',
+        text: `<b>${dayName} looks intense</b> — ${evs.length} meetings detected.`,
+        action: { label: '📅 Block lunch slot', date: d, time: '13:00', dur: 30, title: `LUNCH: Protected on ${dayName}` }
+      });
+    }
   });
   if (emails.filter(e => e.unread && (e.priority === 'urgent' || e.priority === 'high')).length > 2)
     nudges.push({ level: '#ddaa00', text: `<b>Multiple high-priority unread emails.</b> Recommend addressing these before your first meeting.` });
   nudges.push({ level: '#22aa55', text: `<b>Timecodes ready</b> — KAI has matched this week's meetings to PRJ-042, GOV-011 and BAU-001.` });
 
-  document.getElementById('wellbeingNudges').innerHTML = nudges.slice(0, 3).map(n =>
-    `<div class="wb-row"><div class="wb-dot" style="background:${n.level}"></div><div class="wb-txt">${n.text}</div></div>`
-  ).join('');
+  document.getElementById('wellbeingNudges').innerHTML = nudges.slice(0, 3).map(n => {
+    const btnHtml = n.action
+      ? `<button class="kai-action-btn" style="margin-top:6px;font-size:10px;display:block" onclick="blockLunchSlot('${n.action.title}','${n.action.date}','${n.action.time}',${n.action.dur})">📅 Block lunch slot</button>`
+      : '';
+    return `<div class="wb-row"><div class="wb-dot" style="background:${n.level}"></div><div class="wb-txt">${n.text}${btnHtml}</div></div>`;
+  }).join('');
 
   // Meeting hours this week
   const thisWeekStart = getWeekStart(todayStr(), 0);
@@ -1314,7 +1323,6 @@ function detectSilence(emails) {
   const silent = emails
     .filter(e => !e.archived && (e.priority === 'urgent' || e.priority === 'high') && e.unread)
     .map(e => ({ ...e, tier: getSenderTier(e.from + ' ' + (e.fromEmail || '')), ageHours: getEmailAgeHours(e.time) }))
-    .filter(e => e.ageHours >= 4)
     .sort((a, b) => a.tier.rank - b.tier.rank || b.ageHours - a.ageHours);
 
   const stat = document.getElementById('statSilence');
@@ -1776,6 +1784,15 @@ function goToTimecodes() {
 
 function closeMobileEmail() {
   document.getElementById('emailDetail').classList.remove('mob-open');
+}
+
+// Switches to Ask KAI and proposes a calendar event — used by wellbeing nudge buttons
+function blockLunchSlot(title, dateStr, timeStr, dur) {
+  const chatNav = document.querySelector('.nav-item[data-panel="chat"]');
+  if (chatNav) switchPanel(chatNav);
+  const mobChat = document.querySelector('.mob-nav-item[data-panel="chat"]');
+  if (mobChat) { document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active')); mobChat.classList.add('active'); }
+  setTimeout(() => proposeEvent(title, dateStr, timeStr, dur, 'KAI suggests protecting this time for lunch:'), 150);
 }
 
 // ── REFRESH ──
