@@ -126,8 +126,10 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .tc-desc { font-size: 11px; color: #666; }
 
 /* INBOX */
-.inbox-layout { display: grid; grid-template-columns: 300px 1fr; height: 100%; }
-.email-list { border-right: 0.5px solid #E0E0D8; overflow-y: auto; background: white; }
+.inbox-layout { display: grid; grid-template-columns: var(--inbox-split, 300px) 4px 1fr; height: 100%; }
+.email-list { overflow-y: auto; background: white; }
+.inbox-resizer { background: #E0E0D8; cursor: col-resize; transition: background 0.15s; position: relative; z-index: 5; }
+.inbox-resizer:hover, .inbox-resizer.dragging { background: var(--teal); }
 .email-list-hdr { padding: 13px 16px; border-bottom: 0.5px solid #E0E0D8; font-weight: 500; font-size: 14px; color: #1a1a1a; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: white; z-index: 10; }
 .fbtn { font-size: 10px; padding: 3px 9px; border-radius: 100px; border: 0.5px solid #E0E0D8; background: transparent; color: #888; cursor: pointer; transition: all 0.12s; font-family: inherit; }
 .fbtn.active { background: var(--teal-lt); border-color: #9FE1CB; color: var(--teal-dk); }
@@ -697,6 +699,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
           </div>
           <div id="emailList"><div style="padding:20px;font-size:12px;color:var(--muted);text-align:center">Loading inbox...</div></div>
         </div>
+        <div class="inbox-resizer" id="inboxResizer"></div>
         <div class="email-detail" id="emailDetail">
           <button class="mobile-back" onclick="closeMobileEmail()">← Back to inbox</button>
           <div class="empty-state"><div class="empty-icon">📭</div><div style="font-size:12px">Select an email to read</div></div>
@@ -3592,6 +3595,41 @@ function closeHelp(e) {
   if (e.target === document.getElementById('helpOverlay')) closeHelpSheet();
 }
 
+
+
+// ── INBOX RESIZER ──
+(function() {
+  const resizer = document.getElementById('inboxResizer');
+  if (!resizer) return;
+  let startX, startW;
+  const MIN = 180, MAX = 520;
+
+  function getLayout() { return document.querySelector('.inbox-layout'); }
+
+  resizer.addEventListener('mousedown', e => {
+    startX = e.clientX;
+    startW = document.querySelector('.email-list').getBoundingClientRect().width;
+    resizer.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    function onMove(e) {
+      const delta = e.clientX - startX;
+      const newW = Math.min(MAX, Math.max(MIN, startW + delta));
+      getLayout().style.gridTemplateColumns = newW + 'px 4px 1fr';
+    }
+    function onUp() {
+      resizer.classList.remove('dragging');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    e.preventDefault();
+  });
+})();
 
 </script>
 </body>
