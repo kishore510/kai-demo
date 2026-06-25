@@ -74,7 +74,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .kai-pill-sub { font-size: 10px; color: #666; }
 
 /* MAIN */
-.main { overflow-y: auto; display: flex; flex-direction: column; background: #F4F4F0; }
+.main { overflow-y: auto; display: flex; flex-direction: column; background: #F4F4F0; height: 100%; }
 .panel { display: none; flex-direction: column; height: 100%; }
 .panel.active { display: flex; }
 
@@ -126,10 +126,8 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .tc-desc { font-size: 11px; color: #666; }
 
 /* INBOX */
-.inbox-layout { display: grid; grid-template-columns: var(--inbox-split, 300px) 4px 1fr; height: 100%; }
-.email-list { overflow-y: auto; background: white; }
-.inbox-resizer { background: #E0E0D8; cursor: col-resize; transition: background 0.15s; position: relative; z-index: 5; }
-.inbox-resizer:hover, .inbox-resizer.dragging { background: var(--teal); }
+.inbox-layout { display: grid; grid-template-columns: 300px 4px 1fr; height: 100%; }
+.email-list { border-right: 0.5px solid #E0E0D8; overflow-y: auto; background: white; }
 .email-list-hdr { padding: 13px 16px; border-bottom: 0.5px solid #E0E0D8; font-weight: 500; font-size: 14px; color: #1a1a1a; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: white; z-index: 10; }
 .fbtn { font-size: 10px; padding: 3px 9px; border-radius: 100px; border: 0.5px solid #E0E0D8; background: transparent; color: #888; cursor: pointer; transition: all 0.12s; font-family: inherit; }
 .fbtn.active { background: var(--teal-lt); border-color: #9FE1CB; color: var(--teal-dk); }
@@ -406,8 +404,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .btn-create:hover { background: var(--teal-dk); }
 .btn-create:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-dismiss { background: white; color: #888; border: 0.5px solid #E0E0D8; padding: 7px 12px; border-radius: 7px; font-size: 12px; cursor: pointer; font-family: inherit; }
-.event-created { display: flex; align-items: center; gap: 8px; background: var(--green-lt); border: 0.5px solid #C0DD97; border-radius: 8px; padding: 9px 12px; margin-top: 8px; font-size: 12px; color: #3B6D11; }
-.kai-action-btn { font-size: 11px; padding: 5px 12px; border-radius: 100px; border: 0.5px solid #9FE1CB; background: var(--teal-lt); color: var(--teal-dk); cursor: pointer; font-family: inherit; font-weight: 500; transition: all 0.12s; }
+.event-created { display: flex; align-items: center; gap: 8px; background: var(--green-lt); border: 0.5px solid #C0DD97; border-radius: 8px; padding: 9px 12px; margin-top: 8px; font-size: 12px; color: #3B6D11; } font-size: 11px; padding: 5px 12px; border-radius: 100px; border: 0.5px solid #9FE1CB; background: var(--teal-lt); color: var(--teal-dk); cursor: pointer; font-family: inherit; font-weight: 500; transition: all 0.12s; }
 .kai-action-btn:hover { background: var(--teal); color: white; }
 .action-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 13px; border-bottom: 0.5px solid #F0F0EC; }
 .action-item:last-child { border-bottom: none; }
@@ -417,31 +414,6 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .action-item-text { font-size: 11.5px; color: #333; line-height: 1.45; flex: 1; }
 .action-item-due { font-size: 10px; color: var(--muted); margin-top: 2px; }
 .action-item-done { font-size: 10px; color: var(--teal); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; margin-top: 2px; }
-
-
-/* ── WELLBEING PANEL ── */
-.wb-panel-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; overflow: hidden; margin-bottom: 4px; }
-.wb-panel-card-hdr { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 0.5px solid #F0F0EC; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; color: var(--teal); text-transform: uppercase; }
-.wb-read-text { font-size: 13px; color: #333; line-height: 1.72; padding: 13px 14px; }
-.wb-day-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 10px; overflow: hidden; }
-.wb-day-card-hdr { display: flex; align-items: center; gap: 10px; padding: 9px 13px; }
-.wb-day-badge { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; flex-shrink: 0; letter-spacing: 0.5px; }
-.wb-day-badge.green  { background: var(--green-lt);  color: var(--green); }
-.wb-day-badge.amber  { background: var(--amber-lt);  color: var(--amber); }
-.wb-day-badge.red    { background: var(--red-lt);    color: var(--red); }
-.wb-day-badge.travel { background: var(--purple-lt); color: var(--purple); }
-.wb-day-name { font-size: 12px; font-weight: 500; color: #1a1a1a; flex: 1; }
-.wb-day-meta { font-size: 10px; color: #888; }
-.wb-day-pills { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 13px 9px; }
-.wb-day-pill { font-size: 9px; font-weight: 500; padding: 2px 8px; border-radius: 100px; }
-.wb-day-pill.clash  { background: var(--coral-lt);  color: var(--coral-dk); }
-.wb-day-pill.heavy  { background: var(--red-lt);    color: var(--red); }
-.wb-day-pill.lunch  { background: var(--green-lt);  color: var(--green); }
-.wb-day-pill.nolunch{ background: var(--amber-lt);  color: var(--amber); }
-.wb-day-pill.travel { background: var(--purple-lt); color: var(--purple); }
-.wb-day-pill.light  { background: var(--teal-lt);   color: var(--teal-dk); }
-.wb-nudge { display: flex; align-items: flex-start; gap: 9px; background: white; border: 0.5px solid #E0E0D8; border-radius: 9px; padding: 10px 13px; font-size: 12px; color: #444; line-height: 1.55; }
-.wb-nudge-icon { font-size: 16px; flex-shrink: 0; line-height: 1.3; }
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
@@ -483,6 +455,64 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
   .b-title { font-size: 14px; }
   .stats-2 { gap: 7px; }
 }
+.b-stat-strip { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 12px; }
+.b-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.b-col { display: flex; flex-direction: column; gap: 10px; }
+.b-col-label { font-size: 9px; font-weight: 500; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+.stat-n.teal { color: var(--teal); }
+.stat-n.r { color: var(--coral); }
+.silence-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; overflow: hidden; }
+.silence-item { display: flex; align-items: center; gap: 10px; padding: 9px 13px; border-bottom: 0.5px solid #F4F4F0; cursor: pointer; transition: background 0.12s; }
+.silence-item:last-child { border-bottom: none; }
+.silence-item:hover { background: #F9F9F6; }
+.silence-age { font-size: 9px; font-weight: 600; padding: 2px 7px; border-radius: 100px; white-space: nowrap; flex-shrink: 0; }
+.silence-age.critical { background: var(--red-lt); color: var(--red); }
+.silence-age.warning { background: var(--amber-lt); color: var(--amber); }
+.silence-age.normal { background: var(--teal-lt); color: var(--teal-dk); }
+.silence-tier { font-size: 9px; font-weight: 500; color: var(--muted); flex-shrink: 0; min-width: 52px; }
+.silence-body { flex: 1; min-width: 0; }
+.silence-from { font-size: 11px; font-weight: 500; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.silence-subj { font-size: 10px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.silence-arrow { font-size: 13px; color: #ccc; flex-shrink: 0; }
+.wb-panel-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; overflow: hidden; margin-bottom: 4px; }
+.wb-panel-card-hdr { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 0.5px solid #F0F0EC; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; color: var(--teal); text-transform: uppercase; }
+.wb-read-text { font-size: 13px; color: #333; line-height: 1.72; padding: 13px 14px; }
+.wb-day-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 10px; overflow: hidden; }
+.wb-day-card-hdr { display: flex; align-items: center; gap: 10px; padding: 9px 13px; }
+.wb-day-badge { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; flex-shrink: 0; }
+.wb-day-badge.green { background: var(--green-lt); color: var(--green); }
+.wb-day-badge.amber { background: var(--amber-lt); color: var(--amber); }
+.wb-day-badge.red { background: var(--red-lt); color: var(--red); }
+.wb-day-badge.travel { background: var(--purple-lt); color: var(--purple); }
+.wb-day-name { font-size: 12px; font-weight: 500; color: #1a1a1a; flex: 1; }
+.wb-day-meta { font-size: 10px; color: #888; }
+.wb-day-pills { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 13px 9px; }
+.wb-day-pill { font-size: 9px; font-weight: 500; padding: 2px 8px; border-radius: 100px; }
+.wb-day-pill.clash { background: var(--coral-lt); color: var(--coral-dk); }
+.wb-day-pill.heavy { background: var(--red-lt); color: var(--red); }
+.wb-day-pill.lunch { background: var(--green-lt); color: var(--green); }
+.wb-day-pill.nolunch { background: var(--amber-lt); color: var(--amber); }
+.wb-day-pill.travel { background: var(--purple-lt); color: var(--purple); }
+.wb-day-pill.light { background: var(--teal-lt); color: var(--teal-dk); }
+.wb-nudge { display: flex; align-items: flex-start; gap: 9px; background: white; border: 0.5px solid #E0E0D8; border-radius: 9px; padding: 10px 13px; font-size: 12px; color: #444; line-height: 1.55; }
+.wb-nudge-icon { font-size: 16px; flex-shrink: 0; line-height: 1.3; }
+.inbox-resizer { background: #E0E0D8; cursor: col-resize; transition: background 0.15s; position: relative; z-index: 5; }
+.inbox-resizer:hover, .inbox-resizer.dragging { background: var(--teal); }
+
+.silence-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; overflow: hidden; }
+.silence-item { display: flex; align-items: center; gap: 10px; padding: 9px 13px; border-bottom: 0.5px solid #F4F4F0; cursor: pointer; transition: background 0.12s; }
+.silence-item:last-child { border-bottom: none; }
+.silence-item:hover { background: #F9F9F6; }
+.silence-age { font-size: 9px; font-weight: 600; padding: 2px 7px; border-radius: 100px; white-space: nowrap; flex-shrink: 0; }
+.silence-age.critical { background: var(--red-lt); color: var(--red); }
+.silence-age.warning  { background: var(--amber-lt); color: var(--amber); }
+.silence-age.normal   { background: var(--teal-lt); color: var(--teal-dk); }
+.silence-tier { font-size: 9px; font-weight: 500; color: var(--muted); flex-shrink: 0; min-width: 52px; }
+.silence-body { flex: 1; min-width: 0; }
+.silence-from { font-size: 11px; font-weight: 500; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.silence-subj { font-size: 10px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.silence-arrow { font-size: 13px; color: #ccc; flex-shrink: 0; }
+.stat-n.r { color: var(--coral); }
 </style>
 </head>
 <body>
@@ -494,11 +524,12 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
     <div class="auth-title">Knowledge Action Intelligence</div>
     <div class="auth-sub">Organisational intelligence — built for us</div>
     <div class="auth-features">
-      <div class="auth-feat"><b>📬 Smart Inbox</b>Prioritised by your stakeholder map</div>
-      <div class="auth-feat"><b>📅 Calendar</b>Clashes, focus time, prep slots</div>
-      <div class="auth-feat"><b>🕐 Timecodes</b>Auto-mapped to our projects</div>
-      <div class="auth-feat"><b>💚 Wellbeing</b>Load detection and nudges</div>
-      <div class="auth-feat"><b>🗄️ Compliance Archive</b>Auto-saves regulatory emails to Drive</div>
+      <div class="auth-feat"><b>🌅 Briefing</b>Schedule, intelligence and admin — one view</div>
+      <div class="auth-feat"><b>🔇 Silence Detector</b>Flags unanswered emails by seniority and age</div>
+      <div class="auth-feat"><b>📬 Smart Inbox</b>Multi-filter triage · draft replies · compliance archive</div>
+      <div class="auth-feat"><b>📅 Calendar</b>Clash detection · meeting prep · AI clash resolution</div>
+      <div class="auth-feat"><b>🕐 Timecodes</b>Hours auto-mapped to PRJ-042, GOV-011, BAU-001</div>
+      <div class="auth-feat"><b>💚 Wellbeing</b>Day load · nudges · travel weather · lunch alerts</div>
       <div class="auth-feat"><b>✨ Ask KAI</b>Conversational AI across your whole week</div>
     </div>
     <button class="auth-btn" onclick="startAuth()">
@@ -553,9 +584,6 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
     <button class="mob-nav-item" data-panel="timecodes" onclick="mobNav(this)">
       <span class="mob-icon">🕐</span>Timecodes
     </button>
-    <button class="mob-nav-item" data-panel="wellbeing" onclick="mobNav(this)">
-      <span class="mob-icon">💚</span>Wellbeing
-    </button>
     <button class="mob-nav-item" data-panel="archive" onclick="mobNav(this)">
       <span class="mob-icon">🗄️</span>Archive
       <span class="mob-badge" id="mobArchiveBadge" style="display:none"></span>
@@ -586,12 +614,13 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
     </div>
     <div class="nav-sec">
       <div class="nav-lbl">Insights</div>
-      <div class="nav-item" data-panel="timecodes" onclick="switchPanel(this)">
-        <span class="nav-icon">🕐</span> Timecodes
-      </div>
       <div class="nav-item" data-panel="wellbeing" onclick="switchPanel(this)">
         <span class="nav-icon">💚</span> Wellbeing
       </div>
+      <div class="nav-item" data-panel="timecodes" onclick="switchPanel(this)">
+        <span class="nav-icon">🕐</span> Timecodes
+      </div>
+
     </div>
     <div class="nav-sec">
       <div class="nav-lbl">Compliance</div>
@@ -618,48 +647,29 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
         <div>
           <div class="week-card" id="todayCard" style="margin-bottom:12px">
             <div class="card-hdr" style="background:var(--teal-lt);color:var(--teal-dk)">Today — <span id="todayDateLabel"></span></div>
-            <div id="todayEvents">
-              <div style="padding:14px;font-size:12px;color:var(--muted);text-align:center">Loading today...</div>
-            </div>
+            <div id="todayEvents"><div style="padding:14px;font-size:12px;color:var(--muted);text-align:center">Loading today...</div></div>
           </div>
           <div class="week-card">
             <div class="card-hdr">Rest of Week</div>
-            <div id="weekAhead">
-              <div style="padding:20px;font-size:12px;color:var(--muted);text-align:center">Loading calendar...</div>
-            </div>
+            <div id="weekAhead"><div style="padding:20px;font-size:12px;color:var(--muted);text-align:center">Loading calendar...</div></div>
           </div>
         </div>
         <div class="right-col">
           <div class="stats-2">
-            <div class="stat-c stat-clickable" onclick="goToUnreplied()" title="View unread emails">
-              <div class="stat-n" id="statEmails">–</div>
-              <div class="stat-l">Unread / not<br>replied</div>
-              <div class="stat-arrow">→</div>
-            </div>
-            <div class="stat-c stat-clickable" onclick="goToCalendar()" title="View calendar clashes">
-              <div class="stat-n y" id="statClashes">–</div>
-              <div class="stat-l">Calendar<br>clashes</div>
-              <div id="resolveBtn" style="display:none;margin-top:6px">
-                <button class="kai-action-btn" style="font-size:10px;padding:3px 9px" onclick="event.stopPropagation();resolveClashes()">✨ Resolve →</button>
-              </div>
-              <div class="stat-arrow" id="clashArrow">→</div>
-            </div>
-            <div class="stat-c stat-clickable" onclick="goToWellbeing()" title="View KAI Wellbeing">
-              <div class="stat-n c" id="statWellbeing">–</div>
-              <div class="stat-l">Wellbeing<br>flag</div>
-              <div class="stat-arrow">→</div>
-            </div>
-            <div class="stat-c stat-clickable" onclick="goToTimecodes()" title="View timecode suggestions">
-              <div class="stat-n p" id="statTimecodes">3</div>
-              <div class="stat-l">Timecodes<br>suggested</div>
-              <div class="stat-arrow">→</div>
-            </div>
+            <div class="stat-c stat-clickable" onclick="goToUnreplied()"><div class="stat-n" id="statEmails">–</div><div class="stat-l">Unread<br>emails</div><div class="stat-arrow">→</div></div>
+            <div class="stat-c stat-clickable" onclick="goToSilence()" id="silenceTile"><div class="stat-n r" id="statSilence">–</div><div class="stat-l">Awaiting<br>reply</div><div class="stat-arrow">→</div></div>
+            <div class="stat-c stat-clickable" onclick="goToCalendar()"><div class="stat-n y" id="statClashes">–</div><div class="stat-l">Calendar<br>clashes</div><div id="resolveBtn" style="display:none;margin-top:6px"><button class="kai-action-btn" style="font-size:10px;padding:3px 9px" onclick="event.stopPropagation();resolveClashes()">✨ Resolve →</button></div><div class="stat-arrow" id="clashArrow">→</div></div>
+            <div class="stat-c stat-clickable" onclick="goToWellbeing()"><div class="stat-n c" id="statWellbeing">–</div><div class="stat-l">Wellbeing<br>flag</div><div class="stat-arrow">→</div></div>
+            <div class="stat-c stat-clickable" onclick="goToTimecodes()"><div class="stat-n p" id="statTimecodes">3</div><div class="stat-l">Timecodes<br>suggested</div><div class="stat-arrow">→</div></div>
+            <div class="stat-c" id="statMeetingHrs"><div class="stat-n teal" id="statHrsNum">–</div><div class="stat-l">Meeting hrs<br>this week</div></div>
+          </div>
+          <div class="silence-card" id="silenceSection">
+            <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between"><span>🔇 Awaiting Reply</span><span id="silenceSubLabel" style="font-size:9px;color:var(--muted);letter-spacing:0;text-transform:none;font-weight:400"></span></div>
+            <div id="silenceList"><div style="padding:14px;font-size:11px;color:var(--muted)">Analysing inbox...</div></div>
           </div>
           <div class="wb-card" id="wellbeingSection">
             <div class="card-hdr">Wellbeing Nudges</div>
-            <div id="wellbeingNudges">
-              <div style="padding:14px;font-size:11px;color:var(--muted)">Analysing your week...</div>
-            </div>
+            <div id="wellbeingNudges"><div style="padding:14px;font-size:11px;color:var(--muted)">Analysing your week...</div></div>
           </div>
           <div class="tc-card" id="timecodesSection">
             <div class="card-hdr">Timecode Suggestions</div>
@@ -668,13 +678,8 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
             <div class="tc-row"><span class="tc-code">BAU-001</span><span class="tc-desc">1:1s and standups</span></div>
           </div>
           <div class="wb-card" id="notesSection">
-            <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between">
-              <span>Open Actions</span>
-              <span id="notesStatus" style="font-size:9px;color:var(--muted);letter-spacing:0;text-transform:none;font-weight:400">Loading...</span>
-            </div>
-            <div id="notesList">
-              <div style="padding:14px;font-size:11px;color:var(--muted)">Loading actions...</div>
-            </div>
+            <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between"><span>Open Actions</span><span id="notesStatus" style="font-size:9px;color:var(--muted);letter-spacing:0;text-transform:none;font-weight:400">Loading...</span></div>
+            <div id="notesList"><div style="padding:14px;font-size:11px;color:var(--muted)">Loading actions...</div></div>
             <div style="padding:8px 13px;border-top:0.5px solid #F0F0EC">
               <div style="font-size:10px;color:var(--muted);margin-bottom:1px">Tell KAI to remember something:</div>
               <div style="font-size:10px;color:#aaa;font-style:italic">"Remember I need to send the strategy paper by Friday"</div>
@@ -682,7 +687,6 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
           </div>
         </div>
       </div>
-    </div>
 
     <!-- INBOX -->
     <div class="panel" id="panel-inbox">
@@ -751,7 +755,6 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
       </div>
     </div>
 
-
     <!-- WELLBEING -->
     <div class="panel" id="panel-wellbeing">
       <div class="b-header">
@@ -759,33 +762,21 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
         <div class="b-sub" id="wellbeingSub">KAI is analysing your week...</div>
       </div>
       <div style="overflow-y:auto;flex:1;padding:14px 20px 80px">
-
-        <!-- KAI read paragraph -->
         <div class="wb-panel-card" id="wbReadCard">
-          <div class="wb-panel-card-hdr">
-            <span>💚</span>
-            <span>KAI&rsquo;s read on your week</span>
-          </div>
+          <div class="wb-panel-card-hdr"><span>💚</span><span>KAI&rsquo;s read on your week</span></div>
           <div id="wbReadText" class="wb-read-text">Analysing your calendar and inbox...</div>
         </div>
-
-        <!-- Nudge chips -->
-        <div class="card-hdr" style="margin:16px 0 8px;background:none;border:none;padding:0;font-size:9px;font-weight:500;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Nudges &amp; Reminders</div>
+        <div style="margin:16px 0 8px;font-size:9px;font-weight:500;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Nudges &amp; Reminders</div>
         <div id="wbNudgeChips" style="display:flex;flex-direction:column;gap:6px"></div>
-
-        <!-- Day health cards -->
-        <div class="card-hdr" style="margin:16px 0 8px;background:none;border:none;padding:0;font-size:9px;font-weight:500;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Day by Day</div>
+        <div style="margin:16px 0 8px;font-size:9px;font-weight:500;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Day by Day</div>
         <div id="wbDayCards" style="display:flex;flex-direction:column;gap:8px"></div>
-
-        <!-- Weather card (travel days) -->
         <div id="wbWeatherCard" style="display:none;margin-top:16px">
-          <div class="card-hdr" style="margin-bottom:8px;background:none;border:none;padding:0;font-size:9px;font-weight:500;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Travel Day</div>
+          <div style="margin-bottom:8px;font-size:9px;font-weight:500;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Travel Day</div>
           <div class="wb-panel-card" id="wbWeatherInner">
             <div class="wb-panel-card-hdr"><span>✈️</span><span id="wbWeatherTitle">Loading weather...</span></div>
             <div id="wbWeatherBody" style="font-size:12px;color:#555;line-height:1.6;padding:0 2px 2px"></div>
           </div>
         </div>
-
       </div>
     </div>
 
@@ -949,7 +940,6 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
               <div class="help-feature"><span class="help-loc">📅 Calendar</span><span class="help-feat-desc">Full week view · tap any event to open Meeting Prep sheet · clash rows highlighted coral</span></div>
               <div class="help-feature"><span class="help-loc">💬 Ask KAI</span><span class="help-feat-desc">Chat with full inbox and calendar context · action buttons appear in responses</span></div>
               <div class="help-feature"><span class="help-loc">🕐 Timecodes</span><span class="help-feat-desc">Hours matched to PRJ-042, GOV-011, BAU-001 · this week vs last week · copy for timesheet</span></div>
-              <div class="help-feature"><span class="help-loc">💚 Wellbeing</span><span class="help-feat-desc">KAI's read on your week · day-by-day load · nudges · travel day weather · lunch alerts</span></div>
               <div class="help-feature"><span class="help-loc">🗄️ Archive</span><span class="help-feat-desc">Compliance emails saved to Google Drive · open any email → Archive to Drive</span></div>
             </div>
           </div>
@@ -983,7 +973,7 @@ let gmailData = [];
 let calendarData = [];
 let chatHistory = [];
 let selectedEmailId = null;
-let activeFilters = new Set(['all']); // multi-select filter set
+let currentFilter = 'all';
 let currentMeeting = null;
 let prepChatHistory = [];
 
@@ -1017,15 +1007,13 @@ async function handleCallback() {
   // Clear the token from the URL so it's not visible or re-processed
   window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
   accessToken = token;
-  // Try to get user email — non-fatal if it fails
+  // Try to get the user's email to display
   try {
     const r = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: { Authorization: 'Bearer ' + token }
     });
-    if (r.ok) {
-      const info = await r.json();
-      if (info.email) sessionStorage.setItem('userEmail', info.email);
-    }
+    const info = await r.json();
+    if (info.email) sessionStorage.setItem('userEmail', info.email);
   } catch(e) { /* non-fatal */ }
   sessionStorage.setItem('token', token);
   return true;
@@ -1279,43 +1267,15 @@ function analyseBriefing(emails, events) {
   // Wellbeing nudges
   const nudges = [];
   Object.entries(byDay).forEach(([d, evs]) => {
-    if (evs.length >= 5) {
-      // Find a free lunch slot — check 12:30 first, fall back to 13:00
-      const dayEvTimes = evs.map(ev => ({
-        start: ev.start?.dateTime ? new Date(ev.start.dateTime) : null,
-        end:   ev.end?.dateTime   ? new Date(ev.end.dateTime)   : null,
-      })).filter(t => t.start && t.end);
-      const slotTime = (() => {
-        for (const [h, m] of [[12, 30], [13, 0]]) {
-          const slotStart = new Date(d + 'T' + String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':00');
-          const slotEnd   = new Date(slotStart.getTime() + 30 * 60000);
-          const busy = dayEvTimes.some(t => t.start < slotEnd && t.end > slotStart);
-          if (!busy) return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
-        }
-        return null; // no free slot found
-      })();
-      nudges.push({ level: '#dd3333', dateKey: d, slotTime, text: `<b>${getDayName(d)} looks intense</b> — ${evs.length} meetings detected. Want me to protect a 30 min lunch slot?` });
-    }
+    if (evs.length >= 5) nudges.push({ level: '#dd3333', text: `<b>${getDayName(d)} looks intense</b> — ${evs.length} meetings detected. Want me to protect a 30 min lunch slot?` });
   });
-  const urgentHighUnread = emails.filter(e => e.unread && (e.priority === 'urgent' || e.priority === 'high'));
-  if (urgentHighUnread.length > 0)
-    nudges.push({ level: '#ddaa00', text: `<b>${urgentHighUnread.length} urgent or high-priority email${urgentHighUnread.length > 1 ? 's' : ''} unread.</b> Recommend addressing ${urgentHighUnread.length > 1 ? 'these' : 'this'} before your first meeting.` });
+  if (emails.filter(e => e.unread && (e.priority === 'urgent' || e.priority === 'high')).length > 2)
+    nudges.push({ level: '#ddaa00', text: `<b>Multiple high-priority unread emails.</b> Recommend addressing these before your first meeting.` });
   nudges.push({ level: '#22aa55', text: `<b>Timecodes ready</b> — KAI has matched this week's meetings to PRJ-042, GOV-011 and BAU-001.` });
 
-  // Store lunch slot data keyed by date so protectLunchSlot() can look it up
-  window._lunchSlots = {};
-  document.getElementById('wellbeingNudges').innerHTML = nudges.slice(0, 3).map(n => {
-    let btn = '';
-    if (n.dateKey) {
-      window._lunchSlots[n.dateKey] = { date: n.dateKey, time: n.slotTime, day: getDayName(n.dateKey) };
-      if (n.slotTime) {
-        btn = '<button onclick="protectLunchSlot(\'' + n.dateKey + '\')" style="margin-top:6px;display:inline-block;font-size:10.5px;font-family:inherit;font-weight:500;color:var(--teal-dk);background:var(--teal-lt);border:0.5px solid var(--teal);border-radius:6px;padding:3px 10px;cursor:pointer;transition:all 0.12s">+ Protect lunch slot (' + n.slotTime + ')</button>';
-      } else {
-        btn = '<span style="display:inline-block;margin-top:5px;font-size:10.5px;color:var(--muted);font-style:italic">No free lunch slot found — calendar looks fully packed.</span>';
-      }
-    }
-    return '<div class="wb-row"><div class="wb-dot" style="background:' + n.level + '"></div><div class="wb-txt">' + n.text + btn + '</div></div>';
-  }).join('');
+  document.getElementById('wellbeingNudges').innerHTML = nudges.slice(0, 3).map(n =>
+    `<div class="wb-row"><div class="wb-dot" style="background:${n.level}"></div><div class="wb-txt">${n.text}</div></div>`
+  ).join('');
 
   document.getElementById('briefingSub').textContent = `KAI analysed ${emails.length} emails and ${events.length} calendar events · Updated just now`;
   document.getElementById('pillStatus').textContent = `${urgentCount} urgent items need attention`;
@@ -1327,16 +1287,15 @@ function renderEmailList(customList = null) {
   let filtered;
   if (customList) {
     filtered = customList;
-  } else if (activeFilters.has('all')) {
+  } else if (currentFilter === 'all') {
     filtered = gmailData;
-  } else if (activeFilters.has('unread')) {
+  } else if (currentFilter === 'unread') {
     filtered = gmailData.filter(e => e.unread);
-  } else if ([...activeFilters].some(x => x.startsWith('sender:'))) {
-    const name = [...activeFilters].find(x => x.startsWith('sender:')).slice(7).toLowerCase();
+  } else if (currentFilter.startsWith('sender:')) {
+    const name = currentFilter.slice(7).toLowerCase();
     filtered = gmailData.filter(e => e.from.toLowerCase().includes(name) || e.fromEmail.toLowerCase().includes(name));
   } else {
-    // Multi-priority filter — show emails matching any active priority
-    filtered = gmailData.filter(e => activeFilters.has(e.priority));
+    filtered = gmailData.filter(e => e.priority === currentFilter);
   }
   const priorityOrder = { urgent: 0, high: 1, normal: 2, fyi: 3 };
   const sorted = [...filtered].sort((a, b) => (priorityOrder[a.priority] || 2) - (priorityOrder[b.priority] || 2));
@@ -1361,38 +1320,17 @@ function renderEmailList(customList = null) {
 }
 
 function filterEmails(f, btn) {
-  // 'all' and 'unread' are exclusive — they clear everything else
-  // Priority filters (urgent, high, normal, fyi) are multi-selectable
-  // sender: filters are exclusive
-  if (f === 'all') {
-    activeFilters = new Set(['all']);
-  } else if (f === 'unread' || f.startsWith('sender:')) {
-    activeFilters = new Set([f]);
-  } else {
-    // Priority toggle — remove 'all', toggle this priority
-    activeFilters.delete('all');
-    activeFilters.delete('unread');
-    // Remove any sender filters
-    [...activeFilters].filter(x => x.startsWith('sender:')).forEach(x => activeFilters.delete(x));
-    if (activeFilters.has(f)) {
-      activeFilters.delete(f);
-      if (activeFilters.size === 0) activeFilters.add('all'); // nothing left — revert to all
-    } else {
-      activeFilters.add(f);
-    }
-  }
-  // Sync button active states
-  document.querySelectorAll('.fbtn').forEach(b => {
-    const bFilter = b.getAttribute('onclick')?.match(/filterEmails\('([^']+)'/)?.[1] || '';
-    b.classList.toggle('active', activeFilters.has(bFilter));
-  });
-  // Update label
+  currentFilter = f;
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  // Update inbox header label to show active filter context
   const lbl = document.getElementById('inboxFilterLabel');
   if (lbl) {
-    if (activeFilters.has('all')) lbl.textContent = 'All emails';
-    else if (activeFilters.has('unread')) lbl.textContent = 'Unread emails';
-    else if ([...activeFilters].some(x => x.startsWith('sender:'))) lbl.textContent = 'From: ' + [...activeFilters].find(x => x.startsWith('sender:')).slice(7);
-    else lbl.textContent = [...activeFilters].map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' + ') + ' emails';
+    if (f === 'all') lbl.textContent = 'All emails';
+    else if (f === 'urgent') lbl.textContent = 'Urgent emails';
+    else if (f === 'unread') lbl.textContent = 'Unread emails';
+    else if (f.startsWith('sender:')) lbl.textContent = 'From: ' + f.slice(7);
+    else lbl.textContent = f.charAt(0).toUpperCase() + f.slice(1) + ' emails';
   }
   renderEmailList();
 }
@@ -1577,7 +1515,7 @@ function parseKaiIntent(text) {
 
   // Urgent
   if ((t.includes('urgent') || t.includes('high priority') || t.includes('needs your attention') || t.includes('need your attention')) && !t.includes('no urgent')) {
-    return { label: 'Show urgent & high priority →', filter: 'urgent' };
+    return { label: 'Show urgent emails →', filter: 'urgent' };
   }
 
   // FYI / noise
@@ -1610,7 +1548,10 @@ function filterInboxBy(filter, label) {
   const mobInbox = document.querySelector('.mob-nav-item[data-panel="inbox"]');
   if (mobInbox) { document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active')); mobInbox.classList.add('active'); }
   // Apply filter — no matching fbtn for custom filters so pass null
-  filterEmails(filter, null);
+  const urgentBtn = filter === 'urgent' ? document.querySelector('.fbtn[onclick*="urgent"]') : null;
+  const unreadBtn = filter === 'unread' ? document.getElementById('fbtnUnread') : null;
+  const allBtn = filter === 'all' ? document.querySelector('.fbtn:first-child') : null;
+  filterEmails(filter, urgentBtn || unreadBtn || allBtn || null);
 }
 
 function addTyping(containerId = 'chatMsgs', typingId = 'typing') {
@@ -1693,8 +1634,6 @@ function switchPanel(item) {
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
   }
-  // Lazy-render panels that need live data
-  if (panel === 'wellbeing') renderWellbeingPanel();
 }
 
 function mobNav(btn) {
@@ -1707,7 +1646,6 @@ function mobNav(btn) {
   document.querySelectorAll('.nav-item').forEach(i => {
     i.classList.toggle('active', i.dataset.panel === panel && !i.dataset.scroll);
   });
-  if (panel === 'wellbeing') renderWellbeingPanel();
 }
 
 function goToUnreplied() {
@@ -1715,7 +1653,10 @@ function goToUnreplied() {
   if (inboxNav) switchPanel(inboxNav);
   const mobInbox = document.querySelector('.mob-nav-item[data-panel="inbox"]');
   if (mobInbox) { document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active')); mobInbox.classList.add('active'); }
-  setTimeout(() => { filterEmails('unread', null); }, 100);
+  setTimeout(() => {
+    const unreadBtn = document.getElementById('fbtnUnread');
+    if (unreadBtn) filterEmails('unread', unreadBtn);
+  }, 100);
 }
 
 function goToCalendar() {
@@ -1737,261 +1678,30 @@ function goToCalendar() {
   }, 200);
 }
 
-// ── WELLBEING PANEL ──
-
 function goToWellbeing() {
-  const wbNav = document.querySelector('.nav-item[data-panel="wellbeing"]');
-  if (wbNav) switchPanel(wbNav);
-  const mobWb = document.querySelector('.mob-nav-item[data-panel="wellbeing"]');
-  if (mobWb) {
-    document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active'));
-    mobWb.classList.add('active');
-  }
-}
-
-async function renderWellbeingPanel() {
-  const today = todayStr();
-
-  // ── Build per-day stats ──
-  const byDay = {};
-  calendarData.forEach(ev => {
-    const d = ev.start?.date || ev.start?.dateTime?.split('T')[0];
-    if (d) { if (!byDay[d]) byDay[d] = []; byDay[d].push(ev); }
-  });
-
-  const dayStats = Object.entries(byDay).sort(([a],[b]) => a.localeCompare(b)).slice(0, 7).map(([date, evs]) => {
-    const timed = evs.filter(ev => ev.start?.dateTime && ev.end?.dateTime);
-    const meetingCount = timed.length;
-    const totalHrs = timed.reduce((s, ev) =>
-      s + (new Date(ev.end.dateTime) - new Date(ev.start.dateTime)) / 3600000, 0);
-
-    // Longest gap between meetings (potential break)
-    const sorted = [...timed].sort((a,b) => new Date(a.start.dateTime) - new Date(b.start.dateTime));
-    let maxGap = 0;
-    for (let i = 1; i < sorted.length; i++) {
-      const gap = (new Date(sorted[i].start.dateTime) - new Date(sorted[i-1].end.dateTime)) / 60000;
-      if (gap > maxGap) maxGap = gap;
-    }
-
-    // Lunch protected?
-    const lunchProtected = timed.some(ev => {
-      const t = (ev.summary || '').toLowerCase();
-      return t.includes('lunch') || t.includes('break');
-    });
-
-    // Clashes on this day
-    let dayClashes = 0;
-    for (let i = 0; i < timed.length; i++) {
-      for (let j = i+1; j < timed.length; j++) {
-        if (new Date(timed[j].start.dateTime) < new Date(timed[i].end.dateTime)) dayClashes++;
-      }
-    }
-
-    // Travel day?
-    const hasTravel = evs.some(ev => {
-      const s = (ev.summary || '').toLowerCase();
-      return s.includes('travel') || s.includes('transit') || s.includes('london') || s.includes('offsite');
-    });
-
-    // Score: red=heavy, amber=moderate, green=light, travel=travel
-    let score = 'green';
-    if (hasTravel) score = 'travel';
-    else if (meetingCount >= 6 || totalHrs >= 5) score = 'red';
-    else if (meetingCount >= 4 || totalHrs >= 3) score = 'amber';
-
-    return { date, meetingCount, totalHrs, maxGap, lunchProtected, dayClashes, hasTravel, score };
-  });
-
-  // ── Render day cards ──
-  const dayCardsEl = document.getElementById('wbDayCards');
-  if (dayCardsEl) {
-    dayCardsEl.innerHTML = dayStats.map(s => {
-      const dayName = getDayName(s.date);
-      const dateLabel = new Date(s.date + 'T12:00:00').toLocaleDateString('en-GB', { day:'numeric', month:'short' });
-      const isToday = s.date === today;
-
-      const pills = [];
-      if (s.dayClashes > 0) pills.push('<span class="wb-day-pill clash">⚡ ' + s.dayClashes + ' clash' + (s.dayClashes > 1 ? 'es' : '') + '</span>');
-      if (s.score === 'red') pills.push('<span class="wb-day-pill heavy">🔴 Heavy day</span>');
-      if (s.hasTravel) pills.push('<span class="wb-day-pill travel">✈️ Travel</span>');
-      if (s.lunchProtected) pills.push('<span class="wb-day-pill lunch">✓ Lunch protected</span>');
-      else if (s.meetingCount >= 4) pills.push('<span class="wb-day-pill nolunch">⚠ No lunch break</span>');
-      if (s.score === 'green' && !s.hasTravel) pills.push('<span class="wb-day-pill light">✓ Manageable</span>');
-
-      const badgeLabel = s.hasTravel ? '✈' : (s.score === 'red' ? '!' : (s.score === 'amber' ? '~' : '✓'));
-
-      return '<div class="wb-day-card">' +
-        '<div class="wb-day-card-hdr">' +
-          '<div class="wb-day-badge ' + s.score + '">' + badgeLabel + '</div>' +
-          '<div>' +
-            '<div class="wb-day-name">' + dayName + (isToday ? ' <span style="font-size:9px;color:var(--teal);font-weight:500">TODAY</span>' : '') + '</div>' +
-            '<div class="wb-day-meta">' + dateLabel + ' · ' + s.meetingCount + ' meetings · ' + s.totalHrs.toFixed(1) + ' hrs</div>' +
-          '</div>' +
-          (s.maxGap >= 30 ? '<div style="font-size:10px;color:var(--green);margin-left:auto">' + Math.round(s.maxGap) + 'm gap</div>' : '') +
-        '</div>' +
-        (pills.length ? '<div class="wb-day-pills">' + pills.join('') + '</div>' : '') +
-      '</div>';
-    }).join('');
-  }
-
-  // ── Build nudge chips from real data ──
-  const nudges = [];
-
-  // Heavy days
-  dayStats.filter(s => s.score === 'red').forEach(s => {
-    nudges.push({ icon: '🔴', text: '<b>' + getDayName(s.date) + ' is your heaviest day</b> — ' + s.meetingCount + ' meetings totalling ' + s.totalHrs.toFixed(1) + ' hrs. Try to protect at least 15 minutes between sessions to reset.' });
-  });
-
-  // No lunch
-  dayStats.filter(s => !s.lunchProtected && s.meetingCount >= 4 && !s.hasTravel).forEach(s => {
-    nudges.push({ icon: '⚠️', text: '<b>No lunch break detected on ' + getDayName(s.date) + '.</b> Skipping meals affects focus and decision-making — consider blocking 30 minutes.' });
-  });
-
-  // Clashes
-  dayStats.filter(s => s.dayClashes > 0).forEach(s => {
-    nudges.push({ icon: '⚡', text: '<b>' + s.dayClashes + ' calendar clash' + (s.dayClashes > 1 ? 'es' : '') + ' on ' + getDayName(s.date) + '.</b> Use the Calendar panel to review and resolve these before the day arrives.' });
-  });
-
-  // Travel day
-  const travelDay = dayStats.find(s => s.hasTravel);
-  if (travelDay) {
-    nudges.push({ icon: '✈️', text: '<b>Travel day on ' + getDayName(travelDay.date) + '.</b> Factor in transit fatigue — avoid scheduling demanding work immediately after travel.' });
-  }
-
-  // Week load
-  const totalWeekHrs = dayStats.reduce((s, d) => s + d.totalHrs, 0);
-  if (totalWeekHrs >= 20) {
-    nudges.push({ icon: '📊', text: '<b>' + totalWeekHrs.toFixed(1) + ' hours in meetings this week</b> — that\'s ' + Math.round((totalWeekHrs / 37.5) * 100) + '% of a standard working week. Protect focused work time where you can.' });
-  }
-
-  // Urgent email overload
-  const urgentUnread = gmailData.filter(e => e.unread && (e.priority === 'urgent' || e.priority === 'high'));
-  if (urgentUnread.length > 0) {
-    nudges.push({ icon: '📬', text: '<b>' + urgentUnread.length + ' urgent or high-priority email' + (urgentUnread.length > 1 ? 's' : '') + ' unread.</b> Consider clearing ' + (urgentUnread.length > 1 ? 'these' : 'this') + ' before your first meeting to avoid carrying unresolved pressure into the day.' });
-  }
-
-  // General wellness reminders — always show a few
-  nudges.push({ icon: '💧', text: '<b>Stay hydrated.</b> Back-to-back meetings make it easy to forget. Keep water at your desk — even small regular sips help maintain focus across long days.' });
-  nudges.push({ icon: '🚶', text: '<b>Move between meetings.</b> Even a 2-minute walk to a different floor resets your nervous system and improves concentration for the next session.' });
-  nudges.push({ icon: '🧘', text: '<b>End-of-day wind-down.</b> Before you close your laptop, spend 5 minutes noting your top 3 priorities for tomorrow. It reduces cognitive load and improves sleep quality.' });
-
-  const nudgeEl = document.getElementById('wbNudgeChips');
-  if (nudgeEl) {
-    nudgeEl.innerHTML = nudges.slice(0, 8).map(n =>
-      '<div class="wb-nudge"><div class="wb-nudge-icon">' + n.icon + '</div><div>' + n.text + '</div></div>'
-    ).join('');
-  }
-
-  // ── KAI read paragraph — Claude generated ──
-  const readEl = document.getElementById('wbReadText');
-  const subEl  = document.getElementById('wellbeingSub');
-
-  // Build context for Claude
-  const daySummary = dayStats.map(s =>
-    getDayName(s.date) + ': ' + s.meetingCount + ' meetings, ' + s.totalHrs.toFixed(1) + 'hrs' +
-    (s.dayClashes > 0 ? ', ' + s.dayClashes + ' clash(es)' : '') +
-    (s.lunchProtected ? ', lunch protected' : (s.meetingCount >= 4 ? ', no lunch break' : '')) +
-    (s.hasTravel ? ', travel day' : '') +
-    (s.score === 'red' ? ' [HEAVY]' : s.score === 'amber' ? ' [MODERATE]' : ' [LIGHT]')
-  ).join('; ');
-
-  const urgentCount = gmailData.filter(e => e.priority === 'urgent' || e.priority === 'high').length;
-
-  const wbSystem = `You are KAI — an intelligent wellbeing assistant for a senior Enterprise Platform Architect at a UK financial services regulatory organisation.
-
-Write a warm, honest, specific 3-4 sentence wellbeing summary of their week. Use the calendar data provided. Be direct and personal — like a trusted colleague, not a wellness app. Reference specific days and patterns. Don't be generic. Don't use bullet points. Don't mention "wellbeing" as a word. End with one actionable suggestion.
-
-Calendar this week: ${daySummary}
-Urgent emails: ${urgentCount}
-Total meeting hours: ${totalWeekHrs.toFixed(1)}`;
-
-  try {
-    if (readEl) readEl.textContent = 'KAI is reading your week...';
-    const reply = await callClaude('Write the wellbeing summary now.', false, wbSystem);
-    if (readEl) readEl.textContent = reply;
-    if (subEl) subEl.textContent = 'KAI has analysed your week · Updated just now';
-  } catch(e) {
-    if (readEl) readEl.textContent = 'Unable to generate summary — check your Worker connection.';
-  }
-
-  // ── Weather for travel day ──
-  if (travelDay) {
-    const weatherCard = document.getElementById('wbWeatherCard');
-    const weatherTitle = document.getElementById('wbWeatherTitle');
-    const weatherBody = document.getElementById('wbWeatherBody');
-    if (weatherCard) weatherCard.style.display = 'block';
-    const travelDateLabel = new Date(travelDay.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' });
-    if (weatherTitle) weatherTitle.textContent = 'London · ' + travelDateLabel;
-    try {
-      // Open-Meteo — free, no API key, CORS-friendly
-      const lat = 51.5074, lon = -0.1278;
-      const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon +
-        '&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weathercode' +
-        '&timezone=Europe%2FLondon&forecast_days=7';
-      const wr = await fetch(url);
-      const wd = await wr.json();
-      // Find the forecast entry matching travel date
-      const idx = (wd.daily?.time || []).indexOf(travelDay.date);
-      if (idx >= 0) {
-        const code = wd.daily.weathercode[idx];
-        const tmax = Math.round(wd.daily.temperature_2m_max[idx]);
-        const tmin = Math.round(wd.daily.temperature_2m_min[idx]);
-        const rain = wd.daily.precipitation_sum[idx];
-        const desc = weatherCodeToDesc(code);
-        const rainNote = rain > 1 ? ' · ' + rain.toFixed(1) + 'mm rain expected — bring an umbrella.' : ' · Dry conditions expected.';
-        if (weatherBody) weatherBody.innerHTML =
-          '<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">' +
-            '<div style="font-size:28px">' + weatherCodeToEmoji(code) + '</div>' +
-            '<div>' +
-              '<div style="font-size:15px;font-weight:500;color:#1a1a1a">' + desc + '</div>' +
-              '<div style="font-size:12px;color:#666">' + tmin + '°C – ' + tmax + '°C' + rainNote + '</div>' +
-            '</div>' +
-          '</div>' +
-          '<div style="font-size:11.5px;color:#555">KAI detected a London travel day. Check rail or tube status before you leave — allow extra time during peak hours.</div>';
-      } else {
-        if (weatherBody) weatherBody.textContent = 'Forecast not available for that date yet.';
-      }
-    } catch(e) {
-      if (weatherBody) weatherBody.textContent = 'Weather data unavailable — check connection.';
-    }
-  }
-}
-
-function weatherCodeToDesc(code) {
-  if (code === 0) return 'Clear sky';
-  if (code <= 2) return 'Partly cloudy';
-  if (code === 3) return 'Overcast';
-  if (code <= 49) return 'Foggy';
-  if (code <= 59) return 'Light drizzle';
-  if (code <= 69) return 'Rain';
-  if (code <= 79) return 'Snow';
-  if (code <= 82) return 'Rain showers';
-  if (code <= 86) return 'Snow showers';
-  if (code <= 99) return 'Thunderstorms';
-  return 'Variable';
-}
-
-function weatherCodeToEmoji(code) {
-  if (code === 0) return '☀️';
-  if (code <= 2) return '⛅';
-  if (code === 3) return '☁️';
-  if (code <= 49) return '🌫️';
-  if (code <= 69) return '🌧️';
-  if (code <= 79) return '❄️';
-  if (code <= 82) return '🌦️';
-  if (code <= 86) return '🌨️';
-  if (code <= 99) return '⛈️';
-  return '🌥️';
+  // Switch to briefing panel
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  // Activate the Wellbeing nav item
+  const wbNav = document.querySelector('.nav-item[data-scroll="wellbeingSection"]');
+  if (wbNav) wbNav.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-briefing').classList.add('active');
+  setTimeout(() => {
+    const wb = document.getElementById('wellbeingSection');
+    if (wb) wb.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
 }
 
 function goToTimecodes() {
-  const tcNav = document.querySelector('.nav-item[data-panel="timecodes"]');
-  if (tcNav) switchPanel(tcNav);
-  const mobTc = document.querySelector('.mob-nav-item[data-panel="timecodes"]');
-  if (mobTc) {
-    document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active'));
-    mobTc.classList.add('active');
-  }
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  const tcNav = document.querySelector('.nav-item[data-scroll="timecodesSection"]');
+  if (tcNav) tcNav.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-briefing').classList.add('active');
+  setTimeout(() => {
+    const tc = document.getElementById('timecodesSection');
+    if (tc) tc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
 }
 
 function closeMobileEmail() {
@@ -2010,10 +1720,10 @@ async function refreshData() {
     // fetchEmails/fetchCalendar already handle 401 by showing the banner and returning []
     gmailData = emails;
     calendarData = events;
-    analyseBriefing(emails, events);
     document.getElementById('todayEvents').innerHTML = renderToday(events);
     document.getElementById('weekAhead').innerHTML = renderWeekAhead(events);
     renderEmailList();
+    analyseBriefing(emails, events);
     renderCalendarPanel();
     renderTimecodePanel();
     const urgentEmails = emails.filter(e => e.priority === 'urgent' || e.priority === 'high');
@@ -2042,10 +1752,10 @@ async function loadApp() {
     const [emails, events] = await Promise.all([fetchEmails(), fetchCalendar()]);
     gmailData = emails;
     calendarData = events;
-    analyseBriefing(emails, events);
     document.getElementById('todayEvents').innerHTML = renderToday(events);
     document.getElementById('weekAhead').innerHTML = renderWeekAhead(events);
     renderEmailList();
+    analyseBriefing(emails, events);
     renderCalendarPanel();
     renderTimecodePanel();
     const urgentEmails = emails.filter(e => e.priority === 'urgent' || e.priority === 'high');
@@ -2063,16 +1773,16 @@ async function loadApp() {
 }
 
 async function init() {
-  // 1. Check if we're returning from OAuth (token in URL hash) — takes priority
-  const fromCallback = await handleCallback();
-  if (fromCallback) {
-    await loadApp();
-    return;
-  }
-  // 2. Restore stored token and attempt load — let loadApp surface any auth errors
+  // 1. Check for existing valid token in session
   const stored = sessionStorage.getItem('token');
   if (stored) {
     accessToken = stored;
+    await loadApp();
+    return;
+  }
+  // 2. Check if we're returning from OAuth (token in URL hash)
+  const fromCallback = await handleCallback();
+  if (fromCallback) {
     await loadApp();
     return;
   }
@@ -2103,9 +1813,32 @@ function getArchiveFolder(email) {
 }
 
 async function ensureDriveFolder(folderPath) {
-  // drive.file scope does not permit creating or parenting folders.
-  // Folder path is encoded into the filename instead.
-  return null;
+  const parts = folderPath.split('/');
+  let parentId = 'root';
+  for (const part of parts) {
+    // Try to search for existing folder — may return empty under drive.file scope, that's OK
+    try {
+      const search = await fetch(
+        `https://www.googleapis.com/drive/v3/files?q=name='${encodeURIComponent(part)}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false&fields=files(id)`,
+        { headers: { Authorization: 'Bearer ' + accessToken } }
+      );
+      const result = await search.json();
+      if (result.files && result.files.length > 0) {
+        parentId = result.files[0].id;
+        continue;
+      }
+    } catch(e) { /* search failed — fall through to create */ }
+    // Create the folder
+    const create = await fetch('https://www.googleapis.com/drive/v3/files', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: part, mimeType: 'application/vnd.google-apps.folder', parents: [parentId] })
+    });
+    const folder = await create.json();
+    if (!folder.id) throw new Error('Could not create Drive folder: ' + part);
+    parentId = folder.id;
+  }
+  return parentId;
 }
 
 async function archiveEmail(emailId) {
@@ -2113,88 +1846,45 @@ async function archiveEmail(emailId) {
   if (!email) return;
   const btn = document.getElementById('archiveBtn-' + emailId);
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Archiving...'; }
-
-  // Guard: token must exist
-  if (!accessToken) {
-    if (btn) { btn.disabled = false; btn.textContent = '🗄️ Archive to Drive'; }
-    showArchiveToast(null, null, null, 'Not signed in — please reconnect Google.');
-    return;
-  }
-
   try {
     const folder = getArchiveFolder(email);
+    const folderId = await ensureDriveFolder(folder);
     const dateStr = new Date().toISOString().split('T')[0];
-    // Encode folder path into filename — drive.file scope does not support parents
-    const safeFolder = folder.replace(/[^a-zA-Z0-9 _\-]/g, ' ').trim();
-    const safeSubject = email.subject.substring(0, 50).replace(/[^a-zA-Z0-9 _\-]/g, '').trim();
-    const fileName = 'KAI - ' + safeFolder + ' - ' + dateStr + ' - ' + safeSubject + '.txt';
-
+    const fileName = `${dateStr} — ${email.subject.substring(0, 60).replace(/[/\?%*:|"<>]/g, '')}.txt`;
     const fileContent = [
       'KAI ARCHIVED EMAIL',
       '==================',
-      'Date Archived: ' + new Date().toLocaleString('en-GB'),
-      'Archive Location: ' + folder,
-      'Auto-Archive Triggered: ' + (shouldAutoArchive(email) ? 'Yes' : 'No - Manual'),
+      `Date Archived: ${new Date().toLocaleString('en-GB')}`,
+      `Archive Location: ${folder}`,
+      `Auto-Archive Triggered: ${shouldAutoArchive(email) ? 'Yes' : 'No — Manual'}`,
       '',
       'EMAIL DETAILS',
       '=============',
-      'From: ' + email.from + ' <' + email.fromEmail + '>',
-      'Subject: ' + email.subject,
-      'Received: ' + email.time,
-      'Priority: ' + email.priority.toUpperCase(),
+      `From: ${email.from} <${email.fromEmail}>`,
+      `Subject: ${email.subject}`,
+      `Received: ${email.time}`,
+      `Priority: ${email.priority.toUpperCase()}`,
       '',
       'MESSAGE',
       '=======',
       email.body || email.snippet,
       '',
       '---',
-      'Archived by KAI - Knowledge Action Intelligence',
+      'Archived by KAI — Knowledge Action Intelligence',
     ].join('\n');
 
-    // No parents — drive.file scope only allows app root placement
-    const metadata = JSON.stringify({ name: fileName });
-    const boundary = 'kai_boundary_' + Date.now();
-    const body = '--' + boundary + '\r\n' +
-      'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
-      metadata + '\r\n' +
-      '--' + boundary + '\r\n' +
-      'Content-Type: text/plain; charset=UTF-8\r\n\r\n' +
-      fileContent + '\r\n' +
-      '--' + boundary + '--';
+    const metadata = { name: fileName, parents: [folderId] };
+    const form = new FormData();
+    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+    form.append('file', new Blob([fileContent], { type: 'text/plain' }));
 
-    let upload, uploadStatus;
-    try {
-      upload = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + accessToken,
-          'Content-Type': 'multipart/related; boundary=' + boundary
-        },
-        body: body
-      });
-      uploadStatus = upload.status;
-    } catch(networkErr) {
-      // fetch() itself threw — network blocked (office proxy, CORS, no connectivity)
-      throw new Error('Network blocked — check office proxy or VPN. Detail: ' + networkErr.message);
-    }
-
-    if (!upload.ok) {
-      let errDetail = '';
-      try {
-        const errJson = await upload.json();
-        errDetail = errJson?.error?.message || errJson?.error?.status || '';
-      } catch(e) {
-        try { errDetail = await upload.text(); } catch(e2) {}
-      }
-      // Translate common status codes into plain English
-      if (uploadStatus === 401) throw new Error('Google session expired (401) — click Reconnect Google.');
-      if (uploadStatus === 403) throw new Error('Drive permission denied (403) — scope may be insufficient.');
-      if (uploadStatus === 429) throw new Error('Google rate limit hit (429) — wait a moment and retry.');
-      throw new Error('Drive API ' + uploadStatus + (errDetail ? ': ' + errDetail.substring(0, 150) : ''));
-    }
-
+    const upload = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + accessToken },
+      body: form
+    });
     const file = await upload.json();
-    if (!file.id) throw new Error('Upload returned no file ID');
+    if (!file.id) throw new Error('Upload failed');
 
     email.archived = true;
     archivedItems.unshift({ email, folder, fileName, fileId: file.id, link: file.webViewLink, archivedAt: new Date() });
@@ -2205,10 +1895,9 @@ async function archiveEmail(emailId) {
     document.getElementById('archiveBadge').textContent = archivedItems.length;
     const mab = document.getElementById('mobArchiveBadge');
     if (mab) { mab.textContent = archivedItems.length; mab.style.display = 'block'; }
-    chatHistory.push({ role: 'user', content: 'I just archived the email "' + email.subject + '" from ' + email.from });
-    chatHistory.push({ role: 'assistant', content: 'Done — I\'ve saved "' + email.subject + '" to ' + folder + ' in Google Drive. Do you want me to draft a response acknowledging receipt?' });
+    chatHistory.push({ role: 'user', content: `I just archived the email "${email.subject}" from ${email.from}` });
+    chatHistory.push({ role: 'assistant', content: `Done — I've saved "${email.subject}" to ${folder} in Google Drive. Do you want me to draft a response acknowledging receipt?` });
   } catch(err) {
-    console.error('Archive error:', err);
     if (btn) { btn.disabled = false; btn.textContent = '🗄️ Archive to Drive'; }
     showArchiveToast(null, null, null, err.message);
   }
@@ -2597,46 +2286,37 @@ function renderCalendarPanel() {
 let clashedEventIds = new Set();
 let clashDayDate = null; // date string of the day with clashes, for scrolling
 let kaiNotes = { actions: [], lastUpdated: null };
-let kaiNotesFileId = null;
 
 // Notes file structure:
 // { actions: [{ id, text, due, createdAt, done }], lastUpdated }
 
 async function loadKaiNotes() {
-  // Guard — skip Drive calls if no token or token already known-expired
-  if (!accessToken) { renderNotes(); return; }
-  // Quick expiry check — if userinfo fails, token is stale, skip silently
-  try {
-    const chk = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', { headers: { Authorization: 'Bearer ' + accessToken } });
-    if (!chk.ok) { renderNotes(); return; }
-  } catch(e) { renderNotes(); return; }
   try {
     // 1. Ask Worker for the stored file ID
     const r = await fetch(WORKER_URL + '/notes-id');
+    // Worker returns non-JSON for non-POST if old worker — handle gracefully
     if (!r.ok) { renderNotes(); return; }
     const { fileId } = await r.json();
 
     if (fileId) {
-      // 2. Fetch the file content from Drive
+      // 2. Fetch the file content from Drive directly
       kaiNotesFileId = fileId;
-      const dr = await fetch('https://www.googleapis.com/drive/v3/files/' + fileId + '?alt=media', {
+      const dr = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
         headers: { Authorization: 'Bearer ' + accessToken }
       });
       if (dr.ok) {
         kaiNotes = await dr.json();
-      } else if (dr.status === 401) {
-        // Token expired mid-session — don't create a new file, just skip notes
-        console.warn('KAI Notes: token expired');
-        renderNotes(); return;
       } else {
-        // File deleted — create a new one
+        // File was deleted — create a new one
         kaiNotesFileId = null;
         await ensureKaiNotesFile();
       }
     } else {
+      // No file ID stored yet — create the file
       await ensureKaiNotesFile();
     }
   } catch(e) {
+    // Non-fatal — notes just won't load
     console.warn('KAI Notes load failed:', e.message);
   }
   renderNotes();
@@ -2644,23 +2324,14 @@ async function loadKaiNotes() {
 
 async function ensureKaiNotesFile() {
   try {
-    const fileContent = JSON.stringify({ actions: [], lastUpdated: new Date().toISOString() });
-    const metadata = JSON.stringify({ name: 'kai-notes.json' });
-    const boundary = 'kai_notes_boundary';
-    const body = '--' + boundary + '\r\n' +
-      'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
-      metadata + '\r\n' +
-      '--' + boundary + '\r\n' +
-      'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
-      fileContent + '\r\n' +
-      '--' + boundary + '--';
+    const content = JSON.stringify({ actions: [], lastUpdated: new Date().toISOString() });
+    const form = new FormData();
+    form.append('metadata', new Blob([JSON.stringify({ name: 'kai-notes.json' })], { type: 'application/json' }));
+    form.append('file', new Blob([content], { type: 'application/json' }));
     const r = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
       method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + accessToken,
-        'Content-Type': 'multipart/related; boundary=' + boundary
-      },
-      body: body
+      headers: { Authorization: 'Bearer ' + accessToken },
+      body: form
     });
     const file = await r.json();
     if (file.id) {
@@ -2979,19 +2650,88 @@ function proposeEvent(title, dateStr, timeStr, durationMins, reason) {
   msgs.appendChild(d);
   msgs.scrollTop = msgs.scrollHeight;
 }
-// Handle "Protect lunch slot" button from wellbeing nudge
-function protectLunchSlot(dateKey) {
-  const slot = (window._lunchSlots || {})[dateKey];
-  if (!slot) return;
-  const chatNav = document.querySelector('.nav-item[data-panel="chat"]');
-  if (chatNav) switchPanel(chatNav);
-  const mobChat = document.querySelector('.mob-nav-item[data-panel="chat"]');
-  if (mobChat) {
-    document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active'));
-    mobChat.classList.add('active');
+
+
+// ── SILENCE DETECTOR ──
+
+function getSenderTier(from) {
+  const f = from.toLowerCase();
+  if (f.includes('director') || f.includes('chief') || f.includes('cto') || f.includes('ceo') || f.includes('coo') || f.includes('cfo')) return { label: 'Director', rank: 1 };
+  if (f.includes('head of') || f.includes('vp ') || f.includes('vice president')) return { label: 'Head', rank: 2 };
+  if (f.includes('manager') || f.includes('lead') || f.includes('principal') || f.includes('senior')) return { label: 'Senior', rank: 3 };
+  return { label: 'Colleague', rank: 4 };
+}
+
+function getEmailAgeHours(timeStr) {
+  if (!timeStr) return 0;
+  if (timeStr.includes('h ago')) return parseInt(timeStr) || 0;
+  if (timeStr.includes('d ago')) return (parseInt(timeStr) || 0) * 24;
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const today = new Date().getDay();
+  for (let i = 0; i < days.length; i++) {
+    if (timeStr.startsWith(days[i])) {
+      let diff = today - i;
+      if (diff < 0) diff += 7;
+      return diff * 24;
+    }
   }
-  proposeEvent('Lunch break', slot.date, slot.time, 30,
-    'KAI suggests protecting a lunch slot on ' + slot.day + ' — heavy meeting day detected:');
+  return 0;
+}
+
+function detectSilence(emails) {
+  const THRESHOLD_HOURS = 4;
+  const ignored = ['fyi', 'normal'];
+  const silent = emails
+    .filter(e => !e.archived && !ignored.includes(e.priority) && (e.unread || e.unreplied))
+    .map(e => ({ ...e, tier: getSenderTier(e.from + ' ' + (e.fromEmail || '')), ageHours: getEmailAgeHours(e.time) }))
+    .filter(e => e.ageHours >= THRESHOLD_HOURS)
+    .sort((a, b) => a.tier.rank - b.tier.rank || b.ageHours - a.ageHours);
+
+  const stat = document.getElementById('statSilence');
+  if (stat) {
+    stat.textContent = silent.length || '–';
+    stat.className = 'stat-n ' + (silent.length >= 3 ? 'r' : silent.length >= 1 ? 'y' : '');
+  }
+
+  const list = document.getElementById('silenceList');
+  const sub  = document.getElementById('silenceSubLabel');
+  if (!list) return;
+
+  if (sub) sub.textContent = silent.length > 0 ? silent.length + ' email' + (silent.length > 1 ? 's' : '') + ' waiting' : 'All replied';
+
+  if (silent.length === 0) {
+    list.innerHTML = '<div style="padding:12px 13px;font-size:11px;color:var(--muted)">No emails awaiting reply.</div>';
+    return;
+  }
+
+  list.innerHTML = silent.slice(0, 5).map(e => {
+    const ageLabel = e.ageHours >= 48 ? Math.round(e.ageHours / 24) + 'd' : Math.round(e.ageHours) + 'h';
+    const ageClass = e.ageHours >= 24 ? 'critical' : e.ageHours >= 8 ? 'warning' : 'normal';
+    return '<div class="silence-item" onclick="goToEmailAndSelect(\'' + e.id + '\')">' +
+      '<span class="silence-age ' + ageClass + '">' + ageLabel + '</span>' +
+      '<span class="silence-tier">' + e.tier.label + '</span>' +
+      '<div class="silence-body">' +
+        '<div class="silence-from">' + e.from + '</div>' +
+        '<div class="silence-subj">' + e.subject + '</div>' +
+      '</div>' +
+      '<span class="silence-arrow">›</span>' +
+    '</div>';
+  }).join('');
+}
+
+function goToSilence() {
+  const inboxNav = document.querySelector('.nav-item[data-panel="inbox"]');
+  if (inboxNav) switchPanel(inboxNav);
+  const mobInbox = document.querySelector('.mob-nav-item[data-panel="inbox"]');
+  if (mobInbox) { document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active')); mobInbox.classList.add('active'); }
+  setTimeout(() => filterEmails('unread', null), 100);
+}
+
+function goToEmailAndSelect(emailId) {
+  const inboxNav = document.querySelector('.nav-item[data-panel="inbox"]');
+  if (inboxNav) switchPanel(inboxNav);
+  filterEmails('all', null);
+  setTimeout(() => selectEmail(emailId), 150);
 }
 
 // ── EMAIL INTENT DETECTION ──
@@ -3595,41 +3335,6 @@ function closeHelp(e) {
   if (e.target === document.getElementById('helpOverlay')) closeHelpSheet();
 }
 
-
-
-// ── INBOX RESIZER ──
-(function() {
-  const resizer = document.getElementById('inboxResizer');
-  if (!resizer) return;
-  let startX, startW;
-  const MIN = 180, MAX = 520;
-
-  function getLayout() { return document.querySelector('.inbox-layout'); }
-
-  resizer.addEventListener('mousedown', e => {
-    startX = e.clientX;
-    startW = document.querySelector('.email-list').getBoundingClientRect().width;
-    resizer.classList.add('dragging');
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-
-    function onMove(e) {
-      const delta = e.clientX - startX;
-      const newW = Math.min(MAX, Math.max(MIN, startW + delta));
-      getLayout().style.gridTemplateColumns = newW + 'px 4px 1fr';
-    }
-    function onUp() {
-      resizer.classList.remove('dragging');
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
-    }
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
-    e.preventDefault();
-  });
-})();
 
 </script>
 </body>
