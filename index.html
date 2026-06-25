@@ -691,6 +691,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
             <div style="display:flex;gap:5px">
               <button class="fbtn active" onclick="filterEmails('all',this)">All</button>
               <button class="fbtn" onclick="filterEmails('urgent',this)">Urgent</button>
+              <button class="fbtn" onclick="filterEmails('high',this)">High</button>
               <button class="fbtn" id="fbtnUnread" onclick="filterEmails('unread',this)">Unread</button>
             </div>
           </div>
@@ -979,7 +980,7 @@ let gmailData = [];
 let calendarData = [];
 let chatHistory = [];
 let selectedEmailId = null;
-let currentFilter = 'all';
+let activeFilters = new Set(['all']); // multi-select filter set
 let currentMeeting = null;
 let prepChatHistory = [];
 
@@ -1291,8 +1292,9 @@ function analyseBriefing(emails, events) {
       nudges.push({ level: '#dd3333', dateKey: d, slotTime, text: `<b>${getDayName(d)} looks intense</b> — ${evs.length} meetings detected. Want me to protect a 30 min lunch slot?` });
     }
   });
-  if (emails.filter(e => e.unread && (e.priority === 'urgent' || e.priority === 'high')).length > 2)
-    nudges.push({ level: '#ddaa00', text: `<b>Multiple high-priority unread emails.</b> Recommend addressing these before your first meeting.` });
+  const urgentHighUnread = emails.filter(e => e.unread && (e.priority === 'urgent' || e.priority === 'high'));
+  if (urgentHighUnread.length > 0)
+    nudges.push({ level: '#ddaa00', text: `<b>${urgentHighUnread.length} urgent or high-priority email${urgentHighUnread.length > 1 ? 's' : ''} unread.</b> Recommend addressing ${urgentHighUnread.length > 1 ? 'these' : 'this'} before your first meeting.` });
   nudges.push({ level: '#22aa55', text: `<b>Timecodes ready</b> — KAI has matched this week's meetings to PRJ-042, GOV-011 and BAU-001.` });
 
   // Store lunch slot data keyed by date so protectLunchSlot() can look it up
@@ -1320,15 +1322,16 @@ function renderEmailList(customList = null) {
   let filtered;
   if (customList) {
     filtered = customList;
-  } else if (currentFilter === 'all') {
+  } else if (activeFilters.has('all')) {
     filtered = gmailData;
-  } else if (currentFilter === 'unread') {
+  } else if (activeFilters.has('unread')) {
     filtered = gmailData.filter(e => e.unread);
-  } else if (currentFilter.startsWith('sender:')) {
-    const name = currentFilter.slice(7).toLowerCase();
+  } else if ([...activeFilters].some(x => x.startsWith('sender:'))) {
+    const name = [...activeFilters].find(x => x.startsWith('sender:')).slice(7).toLowerCase();
     filtered = gmailData.filter(e => e.from.toLowerCase().includes(name) || e.fromEmail.toLowerCase().includes(name));
   } else {
-    filtered = gmailData.filter(e => e.priority === currentFilter);
+    // Multi-priority filter — show emails matching any active priority
+    filtered = gmailData.filter(e => activeFilters.has(e.priority));
   }
   const priorityOrder = { urgent: 0, high: 1, normal: 2, fyi: 3 };
   const sorted = [...filtered].sort((a, b) => (priorityOrder[a.priority] || 2) - (priorityOrder[b.priority] || 2));
@@ -1353,17 +1356,38 @@ function renderEmailList(customList = null) {
 }
 
 function filterEmails(f, btn) {
-  currentFilter = f;
-  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  // Update inbox header label to show active filter context
+  // 'all' and 'unread' are exclusive — they clear everything else
+  // Priority filters (urgent, high, normal, fyi) are multi-selectable
+  // sender: filters are exclusive
+  if (f === 'all') {
+    activeFilters = new Set(['all']);
+  } else if (f === 'unread' || f.startsWith('sender:')) {
+    activeFilters = new Set([f]);
+  } else {
+    // Priority toggle — remove 'all', toggle this priority
+    activeFilters.delete('all');
+    activeFilters.delete('unread');
+    // Remove any sender filters
+    [...activeFilters].filter(x => x.startsWith('sender:')).forEach(x => activeFilters.delete(x));
+    if (activeFilters.has(f)) {
+      activeFilters.delete(f);
+      if (activeFilters.size === 0) activeFilters.add('all'); // nothing left — revert to all
+    } else {
+      activeFilters.add(f);
+    }
+  }
+  // Sync button active states
+  document.querySelectorAll('.fbtn').forEach(b => {
+    const bFilter = b.getAttribute('onclick')?.match(/filterEmails\('([^']+)'/)?.[1] || '';
+    b.classList.toggle('active', activeFilters.has(bFilter));
+  });
+  // Update label
   const lbl = document.getElementById('inboxFilterLabel');
   if (lbl) {
-    if (f === 'all') lbl.textContent = 'All emails';
-    else if (f === 'urgent') lbl.textContent = 'Urgent emails';
-    else if (f === 'unread') lbl.textContent = 'Unread emails';
-    else if (f.startsWith('sender:')) lbl.textContent = 'From: ' + f.slice(7);
-    else lbl.textContent = f.charAt(0).toUpperCase() + f.slice(1) + ' emails';
+    if (activeFilters.has('all')) lbl.textContent = 'All emails';
+    else if (activeFilters.has('unread')) lbl.textContent = 'Unread emails';
+    else if ([...activeFilters].some(x => x.startsWith('sender:'))) lbl.textContent = 'From: ' + [...activeFilters].find(x => x.startsWith('sender:')).slice(7);
+    else lbl.textContent = [...activeFilters].map(x => x.charAt(0).toUpperCase() + x.slice(1)).join(' + ') + ' emails';
   }
   renderEmailList();
 }
@@ -1548,7 +1572,7 @@ function parseKaiIntent(text) {
 
   // Urgent
   if ((t.includes('urgent') || t.includes('high priority') || t.includes('needs your attention') || t.includes('need your attention')) && !t.includes('no urgent')) {
-    return { label: 'Show urgent emails →', filter: 'urgent' };
+    return { label: 'Show urgent & high priority →', filter: 'urgent' };
   }
 
   // FYI / noise
@@ -1581,10 +1605,7 @@ function filterInboxBy(filter, label) {
   const mobInbox = document.querySelector('.mob-nav-item[data-panel="inbox"]');
   if (mobInbox) { document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active')); mobInbox.classList.add('active'); }
   // Apply filter — no matching fbtn for custom filters so pass null
-  const urgentBtn = filter === 'urgent' ? document.querySelector('.fbtn[onclick*="urgent"]') : null;
-  const unreadBtn = filter === 'unread' ? document.getElementById('fbtnUnread') : null;
-  const allBtn = filter === 'all' ? document.querySelector('.fbtn:first-child') : null;
-  filterEmails(filter, urgentBtn || unreadBtn || allBtn || null);
+  filterEmails(filter, null);
 }
 
 function addTyping(containerId = 'chatMsgs', typingId = 'typing') {
@@ -1689,10 +1710,7 @@ function goToUnreplied() {
   if (inboxNav) switchPanel(inboxNav);
   const mobInbox = document.querySelector('.mob-nav-item[data-panel="inbox"]');
   if (mobInbox) { document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active')); mobInbox.classList.add('active'); }
-  setTimeout(() => {
-    const unreadBtn = document.getElementById('fbtnUnread');
-    if (unreadBtn) filterEmails('unread', unreadBtn);
-  }, 100);
+  setTimeout(() => { filterEmails('unread', null); }, 100);
 }
 
 function goToCalendar() {
@@ -1844,7 +1862,7 @@ async function renderWellbeingPanel() {
   // Urgent email overload
   const urgentUnread = gmailData.filter(e => e.unread && (e.priority === 'urgent' || e.priority === 'high'));
   if (urgentUnread.length > 0) {
-    nudges.push({ icon: '📬', text: '<b>' + urgentUnread.length + ' urgent email' + (urgentUnread.length > 1 ? 's' : '') + ' unread.</b> Consider clearing these before your first meeting to avoid carrying unresolved pressure into the day.' });
+    nudges.push({ icon: '📬', text: '<b>' + urgentUnread.length + ' urgent or high-priority email' + (urgentUnread.length > 1 ? 's' : '') + ' unread.</b> Consider clearing ' + (urgentUnread.length > 1 ? 'these' : 'this') + ' before your first meeting to avoid carrying unresolved pressure into the day.' });
   }
 
   // General wellness reminders — always show a few
