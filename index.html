@@ -439,6 +439,30 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .stat-n.r { color: var(--coral); }
 .stat-n.teal { color: var(--teal); }
 
+/* WELLBEING PANEL */
+.wb-panel-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; overflow: hidden; margin-bottom: 4px; }
+.wb-panel-card-hdr { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 0.5px solid #F0F0EC; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; color: var(--teal); text-transform: uppercase; }
+.wb-read-text { font-size: 13px; color: #333; line-height: 1.72; padding: 13px 14px; }
+.wb-day-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 10px; overflow: hidden; }
+.wb-day-card-hdr { display: flex; align-items: center; gap: 10px; padding: 9px 13px; }
+.wb-day-badge { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; flex-shrink: 0; }
+.wb-day-badge.green { background: var(--green-lt); color: var(--green); }
+.wb-day-badge.amber { background: var(--amber-lt); color: var(--amber); }
+.wb-day-badge.red { background: var(--red-lt); color: var(--red); }
+.wb-day-badge.travel { background: var(--purple-lt); color: var(--purple); }
+.wb-day-name { font-size: 12px; font-weight: 500; color: #1a1a1a; flex: 1; }
+.wb-day-meta { font-size: 10px; color: #888; }
+.wb-day-pills { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 13px 9px; }
+.wb-day-pill { font-size: 9px; font-weight: 500; padding: 2px 8px; border-radius: 100px; }
+.wb-day-pill.clash { background: var(--coral-lt); color: var(--coral-dk); }
+.wb-day-pill.heavy { background: var(--red-lt); color: var(--red); }
+.wb-day-pill.lunch { background: var(--green-lt); color: var(--green); }
+.wb-day-pill.nolunch { background: var(--amber-lt); color: var(--amber); }
+.wb-day-pill.travel { background: var(--purple-lt); color: var(--purple); }
+.wb-day-pill.light { background: var(--teal-lt); color: var(--teal-dk); }
+.wb-nudge { display: flex; align-items: flex-start; gap: 9px; background: white; border: 0.5px solid #E0E0D8; border-radius: 9px; padding: 10px 13px; font-size: 12px; color: #444; line-height: 1.55; }
+.wb-nudge-icon { font-size: 16px; flex-shrink: 0; line-height: 1.3; }
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
   .app { grid-template-columns: 1fr; grid-template-rows: 52px 1fr; height: 100dvh; }
@@ -525,7 +549,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
     <div class="t-logo">
       <div class="t-badge">KAI</div>
       <span class="t-name">KAI</span>
-      <span style="font-size:11px;color:#555">· Knowledge Action Intelligence</span><span style="font-size:9px;color:#bbb;margin-left:6px;font-family:monospace">v3.6</span>
+      <span style="font-size:11px;color:#555">· Knowledge Action Intelligence</span><span style="font-size:9px;color:#bbb;margin-left:6px;font-family:monospace">v3.7</span>
     </div>
     <div class="t-right">
       <div class="t-dot"></div>
@@ -798,6 +822,31 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
         <div id="archiveList" style="background:white;border:0.5px solid #E0E0D8;border-top:none;border-radius:0 0 8px 8px;padding:12px 14px">
           <div style="font-size:12px;color:var(--muted);text-align:center;padding:20px">
             No items archived yet. Open an email and click <b style="color:#3B6D11">Archive to Drive</b> to save it.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WELLBEING -->
+    <div class="panel" id="panel-wellbeing">
+      <div class="b-header">
+        <div class="b-title">Wellbeing</div>
+        <div class="b-sub" id="wellbeingSub">KAI is analysing your week...</div>
+      </div>
+      <div style="overflow-y:auto;flex:1;padding:14px 20px 80px">
+        <div class="wb-panel-card" id="wbReadCard">
+          <div class="wb-panel-card-hdr"><span>💚</span><span>KAI's read on your week</span></div>
+          <div id="wbReadText" class="wb-read-text">Analysing your calendar and inbox...</div>
+        </div>
+        <div style="margin:16px 0 8px;font-size:9px;font-weight:500;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Nudges &amp; Reminders</div>
+        <div id="wbNudgeChips" style="display:flex;flex-direction:column;gap:6px"></div>
+        <div style="margin:16px 0 8px;font-size:9px;font-weight:500;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Day by Day</div>
+        <div id="wbDayCards" style="display:flex;flex-direction:column;gap:8px"></div>
+        <div id="wbWeatherCard" style="display:none;margin-top:16px">
+          <div style="margin-bottom:8px;font-size:9px;font-weight:500;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Travel Day</div>
+          <div class="wb-panel-card" id="wbWeatherInner">
+            <div class="wb-panel-card-hdr"><span>✈️</span><span id="wbWeatherTitle">Loading weather...</span></div>
+            <div id="wbWeatherBody" style="font-size:12px;color:#555;line-height:1.6;padding:12px 14px"></div>
           </div>
         </div>
       </div>
@@ -1712,6 +1761,7 @@ function switchPanel(item) {
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
   }
+  if (panel === 'wellbeing') renderWellbeingPanel();
 }
 
 function mobNav(btn) {
@@ -1724,6 +1774,7 @@ function mobNav(btn) {
   document.querySelectorAll('.nav-item').forEach(i => {
     i.classList.toggle('active', i.dataset.panel === panel && !i.dataset.scroll);
   });
+  if (panel === 'wellbeing') renderWellbeingPanel();
 }
 
 function goToUnreplied() {
@@ -3145,6 +3196,161 @@ function getWeekEnd(weekStart) {
 }
 
 let tcCurrentWeek = 'this';
+
+// ── WELLBEING PANEL ──
+
+function weatherCodeToEmoji(code) {
+  if (code === 0) return '☀️';
+  if (code <= 2) return '⛅';
+  if (code <= 3) return '☁️';
+  if (code <= 49) return '🌫️';
+  if (code <= 67) return '🌧️';
+  if (code <= 77) return '❄️';
+  if (code <= 82) return '🌦️';
+  return '⛈️';
+}
+
+function weatherCodeToDesc(code) {
+  if (code === 0) return 'Clear sky';
+  if (code <= 2) return 'Partly cloudy';
+  if (code <= 3) return 'Overcast';
+  if (code <= 49) return 'Foggy';
+  if (code <= 55) return 'Drizzle';
+  if (code <= 67) return 'Rainy';
+  if (code <= 77) return 'Snowy';
+  if (code <= 82) return 'Rain showers';
+  return 'Thunderstorm';
+}
+
+async function renderWellbeingPanel() {
+  const today = todayStr();
+  const byDay = {};
+  calendarData.forEach(ev => {
+    const d = ev.start?.date || ev.start?.dateTime?.split('T')[0];
+    if (d) { if (!byDay[d]) byDay[d] = []; byDay[d].push(ev); }
+  });
+
+  const dayStats = Object.entries(byDay).sort(([a],[b]) => a.localeCompare(b)).slice(0, 7).map(([date, evs]) => {
+    const timed = evs.filter(ev => ev.start?.dateTime && ev.end?.dateTime);
+    const totalHrs = timed.reduce((s, ev) => s + (new Date(ev.end.dateTime) - new Date(ev.start.dateTime)) / 3600000, 0);
+    const sorted = [...timed].sort((a,b) => new Date(a.start.dateTime) - new Date(b.start.dateTime));
+    let maxGap = 0;
+    for (let i = 1; i < sorted.length; i++) {
+      const gap = (new Date(sorted[i].start.dateTime) - new Date(sorted[i-1].end.dateTime)) / 60000;
+      if (gap > maxGap) maxGap = gap;
+    }
+    const lunchProtected = timed.some(ev => { const t = (ev.summary||'').toLowerCase(); return t.includes('lunch') || t.includes('break'); });
+    let dayClashes = 0;
+    for (let i = 0; i < timed.length; i++)
+      for (let j = i+1; j < timed.length; j++)
+        if (new Date(timed[j].start.dateTime) < new Date(timed[i].end.dateTime)) dayClashes++;
+    const hasTravel = evs.some(ev => { const s = (ev.summary||'').toLowerCase(); return s.includes('travel') || s.includes('transit') || s.includes('london') || s.includes('offsite'); });
+    let score = 'green';
+    if (hasTravel) score = 'travel';
+    else if (timed.length >= 6 || totalHrs >= 5) score = 'red';
+    else if (timed.length >= 4 || totalHrs >= 3) score = 'amber';
+    return { date, meetingCount: timed.length, totalHrs, maxGap, lunchProtected, dayClashes, hasTravel, score };
+  });
+
+  // Day cards
+  const dayCardsEl = document.getElementById('wbDayCards');
+  if (dayCardsEl) {
+    dayCardsEl.innerHTML = dayStats.map(s => {
+      const dayName = getDayName(s.date);
+      const dateLabel = new Date(s.date + 'T12:00:00').toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+      const isToday = s.date === today;
+      const pills = [];
+      if (s.dayClashes > 0) pills.push('<span class="wb-day-pill clash">⚡ ' + s.dayClashes + ' clash' + (s.dayClashes > 1 ? 'es' : '') + '</span>');
+      if (s.score === 'red') pills.push('<span class="wb-day-pill heavy">🔴 Heavy day</span>');
+      if (s.hasTravel) pills.push('<span class="wb-day-pill travel">✈️ Travel</span>');
+      if (s.lunchProtected) pills.push('<span class="wb-day-pill lunch">✓ Lunch</span>');
+      else if (s.meetingCount >= 4) pills.push('<span class="wb-day-pill nolunch">⚠ No lunch</span>');
+      if (s.score === 'green' && !s.hasTravel) pills.push('<span class="wb-day-pill light">✓ Manageable</span>');
+      const badgeLabel = s.hasTravel ? '✈' : (s.score === 'red' ? '!' : (s.score === 'amber' ? '~' : '✓'));
+      return '<div class="wb-day-card">' +
+        '<div class="wb-day-card-hdr">' +
+          '<div class="wb-day-badge ' + s.score + '">' + badgeLabel + '</div>' +
+          '<div><div class="wb-day-name">' + dayName + (isToday ? ' <span style="font-size:9px;color:var(--teal)">TODAY</span>' : '') + '</div>' +
+          '<div class="wb-day-meta">' + dateLabel + ' · ' + s.meetingCount + ' meetings · ' + s.totalHrs.toFixed(1) + ' hrs</div></div>' +
+          (s.maxGap >= 30 ? '<div style="font-size:10px;color:var(--green);margin-left:auto">' + Math.round(s.maxGap) + 'm gap</div>' : '') +
+        '</div>' +
+        (pills.length ? '<div class="wb-day-pills">' + pills.join('') + '</div>' : '') +
+      '</div>';
+    }).join('');
+  }
+
+  // Nudge chips
+  const nudges = [];
+  const totalWeekHrs = dayStats.reduce((s, d) => s + d.totalHrs, 0);
+  dayStats.filter(s => s.score === 'red').forEach(s => nudges.push({ icon: '🔴', text: '<b>' + getDayName(s.date) + ' is your heaviest day</b> — ' + s.meetingCount + ' meetings, ' + s.totalHrs.toFixed(1) + ' hrs.' }));
+  dayStats.filter(s => !s.lunchProtected && s.meetingCount >= 4 && !s.hasTravel).forEach(s => nudges.push({ icon: '⚠️', text: '<b>No lunch break on ' + getDayName(s.date) + '.</b> Consider blocking 30 minutes.' }));
+  dayStats.filter(s => s.dayClashes > 0).forEach(s => nudges.push({ icon: '⚡', text: '<b>' + s.dayClashes + ' clash' + (s.dayClashes > 1 ? 'es' : '') + ' on ' + getDayName(s.date) + '.</b> Use Calendar panel to resolve.' }));
+  const travelDay = dayStats.find(s => s.hasTravel);
+  if (travelDay) nudges.push({ icon: '✈️', text: '<b>Travel day on ' + getDayName(travelDay.date) + '.</b> Factor in transit fatigue.' });
+  if (totalWeekHrs >= 20) nudges.push({ icon: '📊', text: '<b>' + totalWeekHrs.toFixed(1) + ' hrs in meetings this week</b> — ' + Math.round((totalWeekHrs/37.5)*100) + '% of a standard week.' });
+  nudges.push({ icon: '💧', text: '<b>Stay hydrated.</b> Back-to-back meetings make it easy to forget.' });
+  nudges.push({ icon: '🚶', text: '<b>Move between meetings.</b> Even 2 minutes resets your focus.' });
+
+  const nudgeEl = document.getElementById('wbNudgeChips');
+  if (nudgeEl) nudgeEl.innerHTML = nudges.slice(0, 6).map(n =>
+    '<div class="wb-nudge"><div class="wb-nudge-icon">' + n.icon + '</div><div>' + n.text + '</div></div>'
+  ).join('');
+
+  // KAI read paragraph — only generate once
+  const readEl = document.getElementById('wbReadText');
+  const subEl  = document.getElementById('wellbeingSub');
+  if (readEl && readEl.textContent === 'Analysing your calendar and inbox...') {
+    const daySummary = dayStats.map(s =>
+      getDayName(s.date) + ': ' + s.meetingCount + ' meetings, ' + s.totalHrs.toFixed(1) + 'hrs' +
+      (s.dayClashes > 0 ? ', ' + s.dayClashes + ' clash(es)' : '') +
+      (s.hasTravel ? ', travel day' : '') +
+      (s.score === 'red' ? ' [HEAVY]' : s.score === 'amber' ? ' [MODERATE]' : ' [LIGHT]')
+    ).join('; ');
+    const wbSystem = `You are KAI — an intelligent assistant for a senior Enterprise Platform Architect at a UK financial services regulatory organisation. Write a warm, honest, specific 3-4 sentence summary of their week. Reference specific days and patterns. Be direct — like a trusted colleague, not a wellness app. End with one actionable suggestion. Calendar: ${daySummary}. Total meeting hours: ${totalWeekHrs.toFixed(1)}.`;
+    try {
+      readEl.textContent = 'KAI is reading your week...';
+      const reply = await callClaude('Write the wellbeing summary now.', false, wbSystem);
+      readEl.textContent = reply;
+      if (subEl) subEl.textContent = 'KAI has analysed your week · Updated just now';
+    } catch(e) {
+      readEl.textContent = 'Unable to generate summary — check your Worker connection.';
+    }
+  }
+
+  // Travel day weather
+  if (travelDay) {
+    const weatherCard = document.getElementById('wbWeatherCard');
+    const weatherTitle = document.getElementById('wbWeatherTitle');
+    const weatherBody = document.getElementById('wbWeatherBody');
+    if (weatherCard) weatherCard.style.display = 'block';
+    const travelDateLabel = new Date(travelDay.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' });
+    if (weatherTitle) weatherTitle.textContent = 'London · ' + travelDateLabel;
+    try {
+      const url = 'https://api.open-meteo.com/v1/forecast?latitude=51.5074&longitude=-0.1278&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weathercode&timezone=Europe%2FLondon&forecast_days=7';
+      const wr = await fetch(url);
+      const wd = await wr.json();
+      const idx = (wd.daily?.time || []).indexOf(travelDay.date);
+      if (idx >= 0) {
+        const code = wd.daily.weathercode[idx];
+        const tmax = Math.round(wd.daily.temperature_2m_max[idx]);
+        const tmin = Math.round(wd.daily.temperature_2m_min[idx]);
+        const rain = wd.daily.precipitation_sum[idx];
+        const rainNote = rain > 1 ? ' · ' + rain.toFixed(1) + 'mm rain — bring an umbrella.' : ' · Dry conditions expected.';
+        if (weatherBody) weatherBody.innerHTML =
+          '<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">' +
+            '<div style="font-size:28px">' + weatherCodeToEmoji(code) + '</div>' +
+            '<div><div style="font-size:15px;font-weight:500">' + weatherCodeToDesc(code) + '</div>' +
+            '<div style="font-size:12px;color:#666">' + tmin + '°C – ' + tmax + '°C' + rainNote + '</div></div>' +
+          '</div>' +
+          '<div style="font-size:11.5px;color:#555">KAI detected a London travel day. Check rail or tube status before you leave.</div>';
+      }
+    } catch(e) {
+      if (weatherBody) weatherBody.textContent = 'Weather data unavailable.';
+    }
+  }
+}
+
+
 
 function switchTcWeek(week) {
   tcCurrentWeek = week;
