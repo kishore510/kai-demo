@@ -404,7 +404,8 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .btn-create:hover { background: var(--teal-dk); }
 .btn-create:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-dismiss { background: white; color: #888; border: 0.5px solid #E0E0D8; padding: 7px 12px; border-radius: 7px; font-size: 12px; cursor: pointer; font-family: inherit; }
-.event-created { display: flex; align-items: center; gap: 8px; background: var(--green-lt); border: 0.5px solid #C0DD97; border-radius: 8px; padding: 9px 12px; margin-top: 8px; font-size: 12px; color: #3B6D11; } font-size: 11px; padding: 5px 12px; border-radius: 100px; border: 0.5px solid #9FE1CB; background: var(--teal-lt); color: var(--teal-dk); cursor: pointer; font-family: inherit; font-weight: 500; transition: all 0.12s; }
+.event-created { display: flex; align-items: center; gap: 8px; background: var(--green-lt); border: 0.5px solid #C0DD97; border-radius: 8px; padding: 9px 12px; margin-top: 8px; font-size: 12px; color: #3B6D11; }
+.kai-action-btn { font-size: 11px; padding: 5px 12px; border-radius: 100px; border: 0.5px solid #9FE1CB; background: var(--teal-lt); color: var(--teal-dk); cursor: pointer; font-family: inherit; font-weight: 500; transition: all 0.12s; }
 .kai-action-btn:hover { background: var(--teal); color: white; }
 .action-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 13px; border-bottom: 0.5px solid #F0F0EC; }
 .action-item:last-child { border-bottom: none; }
@@ -686,6 +687,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
           </div>
         </div>
       </div>
+    </div><!-- /b-grid -->
 
     <!-- INBOX -->
     <div class="panel" id="panel-inbox">
@@ -1721,10 +1723,10 @@ async function refreshData() {
     // fetchEmails/fetchCalendar already handle 401 by showing the banner and returning []
     gmailData = emails;
     calendarData = events;
+    analyseBriefing(emails, events);
     document.getElementById('todayEvents').innerHTML = renderToday(events);
     document.getElementById('weekAhead').innerHTML = renderWeekAhead(events);
     renderEmailList();
-    analyseBriefing(emails, events);
     renderCalendarPanel();
     renderTimecodePanel();
     const urgentEmails = emails.filter(e => e.priority === 'urgent' || e.priority === 'high');
@@ -1753,10 +1755,10 @@ async function loadApp() {
     const [emails, events] = await Promise.all([fetchEmails(), fetchCalendar()]);
     gmailData = emails;
     calendarData = events;
+    analyseBriefing(emails, events);
     document.getElementById('todayEvents').innerHTML = renderToday(events);
     document.getElementById('weekAhead').innerHTML = renderWeekAhead(events);
     renderEmailList();
-    analyseBriefing(emails, events);
     renderCalendarPanel();
     renderTimecodePanel();
     const urgentEmails = emails.filter(e => e.priority === 'urgent' || e.priority === 'high');
@@ -1774,16 +1776,16 @@ async function loadApp() {
 }
 
 async function init() {
-  // 1. Check for existing valid token in session
-  const stored = sessionStorage.getItem('token');
-  if (stored) {
-    accessToken = stored;
+  // 1. Check if returning from OAuth — takes priority
+  const fromCallback = await handleCallback();
+  if (fromCallback) {
     await loadApp();
     return;
   }
-  // 2. Check if we're returning from OAuth (token in URL hash)
-  const fromCallback = await handleCallback();
-  if (fromCallback) {
+  // 2. Restore stored token
+  const stored = sessionStorage.getItem('token');
+  if (stored) {
+    accessToken = stored;
     await loadApp();
     return;
   }
