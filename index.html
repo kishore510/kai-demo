@@ -404,7 +404,8 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .btn-create:hover { background: var(--teal-dk); }
 .btn-create:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-dismiss { background: white; color: #888; border: 0.5px solid #E0E0D8; padding: 7px 12px; border-radius: 7px; font-size: 12px; cursor: pointer; font-family: inherit; }
-.event-created { display: flex; align-items: center; gap: 8px; background: var(--green-lt); border: 0.5px solid #C0DD97; border-radius: 8px; padding: 9px 12px; margin-top: 8px; font-size: 12px; color: #3B6D11; } font-size: 11px; padding: 5px 12px; border-radius: 100px; border: 0.5px solid #9FE1CB; background: var(--teal-lt); color: var(--teal-dk); cursor: pointer; font-family: inherit; font-weight: 500; transition: all 0.12s; }
+.event-created { display: flex; align-items: center; gap: 8px; background: var(--green-lt); border: 0.5px solid #C0DD97; border-radius: 8px; padding: 9px 12px; margin-top: 8px; font-size: 12px; color: #3B6D11; }
+.kai-action-btn { font-size: 11px; padding: 5px 12px; border-radius: 100px; border: 0.5px solid #9FE1CB; background: var(--teal-lt); color: var(--teal-dk); cursor: pointer; font-family: inherit; font-weight: 500; transition: all 0.12s; }
 .kai-action-btn:hover { background: var(--teal); color: white; }
 .action-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 13px; border-bottom: 0.5px solid #F0F0EC; }
 .action-item:last-child { border-bottom: none; }
@@ -1205,15 +1206,48 @@ function analyseBriefing(emails, events) {
   // Wellbeing nudges
   const nudges = [];
   Object.entries(byDay).forEach(([d, evs]) => {
-    if (evs.length >= 5) nudges.push({ level: '#dd3333', text: `<b>${getDayName(d)} looks intense</b> — ${evs.length} meetings detected. Want me to protect a 30 min lunch slot?` });
+    if (evs.length >= 5) {
+      // Find a free lunch slot — check 12:30 first, fall back to 13:00
+      const dayEvTimes = evs.map(ev => ({
+        start: ev.start?.dateTime ? new Date(ev.start.dateTime) : null,
+        end:   ev.end?.dateTime   ? new Date(ev.end.dateTime)   : null,
+      })).filter(t => t.start && t.end);
+      const slotTime = (() => {
+        for (const [h, m] of [[12, 30], [13, 0]]) {
+          const slotStart = new Date(d + 'T' + String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':00');
+          const slotEnd   = new Date(slotStart.getTime() + 30 * 60000);
+          const busy = dayEvTimes.some(t => t.start < slotEnd && t.end > slotStart);
+          if (!busy) return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+        }
+        return null; // no free slot found
+      })();
+      nudges.push({ level: '#dd3333', dateKey: d, slotTime, text: `<b>${getDayName(d)} looks intense</b> — ${evs.length} meetings detected. Want me to protect a 30 min lunch slot?` });
+    }
   });
   if (emails.filter(e => e.unread && (e.priority === 'urgent' || e.priority === 'high')).length > 2)
     nudges.push({ level: '#ddaa00', text: `<b>Multiple high-priority unread emails.</b> Recommend addressing these before your first meeting.` });
   nudges.push({ level: '#22aa55', text: `<b>Timecodes ready</b> — KAI has matched this week's meetings to PRJ-042, GOV-011 and BAU-001.` });
 
-  document.getElementById('wellbeingNudges').innerHTML = nudges.slice(0, 3).map(n =>
-    `<div class="wb-row"><div class="wb-dot" style="background:${n.level}"></div><div class="wb-txt">${n.text}</div></div>`
-  ).join('');
+  document.getElementById('wellbeingNudges').innerHTML = nudges.slice(0, 3).map(n => {
+    let btn = '';
+    if (n.dateKey) {
+      if (n.slotTime) {
+        const safeDate = n.dateKey;
+        const safeTime = n.slotTime;
+        const safeDay  = getDayName(n.dateKey);
+        btn = `<button onclick="
+          const chatNav = document.querySelector('.nav-item[data-panel=\\"chat\\"]');
+          if (chatNav) switchPanel(chatNav);
+          const mobChat = document.querySelector('.mob-nav-item[data-panel=\\"chat\\"]');
+          if (mobChat) { document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active')); mobChat.classList.add('active'); }
+          proposeEvent('Lunch break', '${safeDate}', '${safeTime}', 30, 'KAI suggests protecting a lunch slot on ${safeDay} — heavy day with ${n.text.match(/(\d+) meetings/)?.[1] || 'multiple'} meetings detected:');
+        " style="margin-top:6px;display:inline-block;font-size:10.5px;font-family:inherit;font-weight:500;color:var(--teal-dk);background:var(--teal-lt);border:0.5px solid var(--teal);border-radius:6px;padding:3px 10px;cursor:pointer;transition:all 0.12s">+ Protect lunch slot (${safeTime})</button>`;
+      } else {
+        btn = `<span style="display:inline-block;margin-top:5px;font-size:10.5px;color:var(--muted);font-style:italic">No free lunch slot found — calendar looks fully packed.</span>`;
+      }
+    }
+    return `<div class="wb-row"><div class="wb-dot" style="background:${n.level}"></div><div class="wb-txt">${n.text}${btn}</div></div>`;
+  }).join('');
 
   document.getElementById('briefingSub').textContent = `KAI analysed ${emails.length} emails and ${events.length} calendar events · Updated just now`;
   document.getElementById('pillStatus').textContent = `${urgentCount} urgent items need attention`;
@@ -2224,6 +2258,7 @@ function renderCalendarPanel() {
 let clashedEventIds = new Set();
 let clashDayDate = null; // date string of the day with clashes, for scrolling
 let kaiNotes = { actions: [], lastUpdated: null };
+let kaiNotesFileId = null;
 
 // Notes file structure:
 // { actions: [{ id, text, due, createdAt, done }], lastUpdated }
