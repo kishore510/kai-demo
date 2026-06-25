@@ -1014,14 +1014,19 @@ async function handleCallback() {
   // Clear the token from the URL so it's not visible or re-processed
   window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
   accessToken = token;
-  // Try to get the user's email to display
+  // Validate token and fetch user email in one call
   try {
     const r = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: { Authorization: 'Bearer ' + token }
     });
+    if (!r.ok) {
+      // Token from URL is already invalid — don't store it
+      accessToken = null;
+      return false;
+    }
     const info = await r.json();
     if (info.email) sessionStorage.setItem('userEmail', info.email);
-  } catch(e) { /* non-fatal */ }
+  } catch(e) { /* network error — proceed anyway, token may still work */ }
   sessionStorage.setItem('token', token);
   return true;
 }
@@ -2058,20 +2063,26 @@ async function loadApp() {
 }
 
 async function init() {
-  // 1. Check for existing valid token in session
-  const stored = sessionStorage.getItem('token');
-  if (stored) {
-    accessToken = stored;
-    await loadApp();
-    return;
-  }
-  // 2. Check if we're returning from OAuth (token in URL hash)
+  // 1. Check if we're returning from OAuth (token in URL hash) — takes priority
   const fromCallback = await handleCallback();
   if (fromCallback) {
     await loadApp();
     return;
   }
-  // 3. No token — show auth screen
+  // 2. Check for existing token in session — validate before using
+  const stored = sessionStorage.getItem('token');
+  if (stored) {
+    accessToken = stored;
+    const valid = await checkTokenValid();
+    if (valid) {
+      await loadApp();
+      return;
+    }
+    // Token stale — clear it and fall through to auth screen
+    accessToken = null;
+    sessionStorage.removeItem('token');
+  }
+  // 3. No valid token — show auth screen
   document.getElementById('authScreen').style.display = 'flex';
 }
 
@@ -2122,45 +2133,74 @@ async function archiveEmail(emailId) {
   if (!email) return;
   const btn = document.getElementById('archiveBtn-' + emailId);
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Archiving...'; }
+
+  // Guard: validate token before any Drive call — stale token causes CORS preflight failure
+  const tokenOk = await checkTokenValid();
+  if (!tokenOk) {
+    if (btn) { btn.disabled = false; btn.textContent = '🗄️ Archive to Drive'; }
+    showArchiveToast(null, null, null, 'Session expired — click Reconnect Google in the top bar then try again.');
+    // Show the expired banner so user knows what to do
+    const banner = document.getElementById('tokenExpiredBanner');
+    if (banner) banner.style.display = 'flex';
+    return;
+  }
+
   try {
     const folder = getArchiveFolder(email);
     const folderId = await ensureDriveFolder(folder);
     const dateStr = new Date().toISOString().split('T')[0];
-    const fileName = `${dateStr} — ${email.subject.substring(0, 60).replace(/[/\?%*:|"<>]/g, '')}.txt`;
+    // Safe filename — ASCII only, no special chars
+    const safeSubject = email.subject.substring(0, 60).replace(/[^a-zA-Z0-9 _\-]/g, '').trim();
+    const fileName = dateStr + ' - ' + safeSubject + '.txt';
+
     const fileContent = [
       'KAI ARCHIVED EMAIL',
       '==================',
-      `Date Archived: ${new Date().toLocaleString('en-GB')}`,
-      `Archive Location: ${folder}`,
-      `Auto-Archive Triggered: ${shouldAutoArchive(email) ? 'Yes' : 'No — Manual'}`,
+      'Date Archived: ' + new Date().toLocaleString('en-GB'),
+      'Archive Location: ' + folder,
+      'Auto-Archive Triggered: ' + (shouldAutoArchive(email) ? 'Yes' : 'No - Manual'),
       '',
       'EMAIL DETAILS',
       '=============',
-      `From: ${email.from} <${email.fromEmail}>`,
-      `Subject: ${email.subject}`,
-      `Received: ${email.time}`,
-      `Priority: ${email.priority.toUpperCase()}`,
+      'From: ' + email.from + ' <' + email.fromEmail + '>',
+      'Subject: ' + email.subject,
+      'Received: ' + email.time,
+      'Priority: ' + email.priority.toUpperCase(),
       '',
       'MESSAGE',
       '=======',
       email.body || email.snippet,
       '',
       '---',
-      'Archived by KAI — Knowledge Action Intelligence',
+      'Archived by KAI - Knowledge Action Intelligence',
     ].join('\n');
 
-    const metadata = { name: fileName, parents: [folderId] };
-    const form = new FormData();
-    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-    form.append('file', new Blob([fileContent], { type: 'text/plain' }));
+    const metadata = JSON.stringify({ name: fileName, parents: [folderId] });
+    const boundary = 'kai_boundary_' + Date.now();
+    const body = '--' + boundary + '\r\n' +
+      'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+      metadata + '\r\n' +
+      '--' + boundary + '\r\n' +
+      'Content-Type: text/plain; charset=UTF-8\r\n\r\n' +
+      fileContent + '\r\n' +
+      '--' + boundary + '--';
 
     const upload = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink', {
       method: 'POST',
-      headers: { Authorization: 'Bearer ' + accessToken },
-      body: form
+      headers: {
+        'Authorization': 'Bearer ' + accessToken,
+        'Content-Type': 'multipart/related; boundary=' + boundary
+      },
+      body: body
     });
+
+    if (!upload.ok) {
+      const errBody = await upload.text();
+      throw new Error('Drive API ' + upload.status + ': ' + errBody.substring(0, 120));
+    }
+
     const file = await upload.json();
-    if (!file.id) throw new Error('Upload failed');
+    if (!file.id) throw new Error('Upload returned no file ID');
 
     email.archived = true;
     archivedItems.unshift({ email, folder, fileName, fileId: file.id, link: file.webViewLink, archivedAt: new Date() });
@@ -2171,9 +2211,10 @@ async function archiveEmail(emailId) {
     document.getElementById('archiveBadge').textContent = archivedItems.length;
     const mab = document.getElementById('mobArchiveBadge');
     if (mab) { mab.textContent = archivedItems.length; mab.style.display = 'block'; }
-    chatHistory.push({ role: 'user', content: `I just archived the email "${email.subject}" from ${email.from}` });
-    chatHistory.push({ role: 'assistant', content: `Done — I've saved "${email.subject}" to ${folder} in Google Drive. Do you want me to draft a response acknowledging receipt?` });
+    chatHistory.push({ role: 'user', content: 'I just archived the email "' + email.subject + '" from ' + email.from });
+    chatHistory.push({ role: 'assistant', content: 'Done — I\'ve saved "' + email.subject + '" to ' + folder + ' in Google Drive. Do you want me to draft a response acknowledging receipt?' });
   } catch(err) {
+    console.error('Archive error:', err);
     if (btn) { btn.disabled = false; btn.textContent = '🗄️ Archive to Drive'; }
     showArchiveToast(null, null, null, err.message);
   }
@@ -2568,32 +2609,35 @@ let kaiNotesFileId = null;
 // { actions: [{ id, text, due, createdAt, done }], lastUpdated }
 
 async function loadKaiNotes() {
+  // Guard — don't attempt Drive calls with an invalid token
+  if (!accessToken) { renderNotes(); return; }
   try {
     // 1. Ask Worker for the stored file ID
     const r = await fetch(WORKER_URL + '/notes-id');
-    // Worker returns non-JSON for non-POST if old worker — handle gracefully
     if (!r.ok) { renderNotes(); return; }
     const { fileId } = await r.json();
 
     if (fileId) {
-      // 2. Fetch the file content from Drive directly
+      // 2. Fetch the file content from Drive
       kaiNotesFileId = fileId;
-      const dr = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+      const dr = await fetch('https://www.googleapis.com/drive/v3/files/' + fileId + '?alt=media', {
         headers: { Authorization: 'Bearer ' + accessToken }
       });
       if (dr.ok) {
         kaiNotes = await dr.json();
+      } else if (dr.status === 401) {
+        // Token expired mid-session — don't create a new file, just skip notes
+        console.warn('KAI Notes: token expired');
+        renderNotes(); return;
       } else {
-        // File was deleted — create a new one
+        // File deleted — create a new one
         kaiNotesFileId = null;
         await ensureKaiNotesFile();
       }
     } else {
-      // No file ID stored yet — create the file
       await ensureKaiNotesFile();
     }
   } catch(e) {
-    // Non-fatal — notes just won't load
     console.warn('KAI Notes load failed:', e.message);
   }
   renderNotes();
@@ -2601,14 +2645,23 @@ async function loadKaiNotes() {
 
 async function ensureKaiNotesFile() {
   try {
-    const content = JSON.stringify({ actions: [], lastUpdated: new Date().toISOString() });
-    const form = new FormData();
-    form.append('metadata', new Blob([JSON.stringify({ name: 'kai-notes.json' })], { type: 'application/json' }));
-    form.append('file', new Blob([content], { type: 'application/json' }));
+    const fileContent = JSON.stringify({ actions: [], lastUpdated: new Date().toISOString() });
+    const metadata = JSON.stringify({ name: 'kai-notes.json' });
+    const boundary = 'kai_notes_boundary';
+    const body = '--' + boundary + '\r\n' +
+      'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+      metadata + '\r\n' +
+      '--' + boundary + '\r\n' +
+      'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+      fileContent + '\r\n' +
+      '--' + boundary + '--';
     const r = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
       method: 'POST',
-      headers: { Authorization: 'Bearer ' + accessToken },
-      body: form
+      headers: {
+        'Authorization': 'Bearer ' + accessToken,
+        'Content-Type': 'multipart/related; boundary=' + boundary
+      },
+      body: body
     });
     const file = await r.json();
     if (file.id) {
