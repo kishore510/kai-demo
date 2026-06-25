@@ -345,9 +345,6 @@ footer {
   .section-h2 { font-size: 28px; }
   .biz-table { font-size: 11px; }
   .biz-table th, .biz-table td { padding: 8px 10px; }
-  .section-inner { overflow: hidden; }
-  .vs-col.generic { background: rgba(255,255,255,0.03); }
-  .hero-h1 { overflow-wrap: break-word; word-break: break-word; }
   .hero-quote { font-size: 13px; }
   .phase-h3 { font-size: 16px; }
 }
@@ -479,13 +476,19 @@ footer {
         <div class="feature-pill pill-live">✓ Live</div>
         <div class="feature-icon">🌅</div>
         <h3 class="feature-h3">Morning Briefing</h3>
-        <p class="feature-desc">Every morning KAI reads your inbox and calendar and delivers a concise brief — today's meetings, urgent emails, clashes, wellbeing nudges, and timecode suggestions. Like arriving at your desk to find it all laid out.</p>
+        <p class="feature-desc">A three-column dashboard: Schedule, Intelligence, Admin. Six stat tiles at the top surface unread emails, awaiting replies, clashes, timecodes, meeting hours, and wellbeing flags at a glance. KAI doesn't just show your diary — it shows what needs your attention right now.</p>
       </div>
       <div class="feature-card">
         <div class="feature-pill pill-live">✓ Live</div>
         <div class="feature-icon">📬</div>
         <h3 class="feature-h3">Smart Inbox Triage</h3>
         <p class="feature-desc">Emails ranked by stakeholder importance — not just arrival time. URGENT items from Director level and above surface immediately. FYI noise is separated automatically. Never miss what matters.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-pill pill-live">✓ Live</div>
+        <div class="feature-icon">🔇</div>
+        <h3 class="feature-h3">Silence Detector</h3>
+        <p class="feature-desc">KAI tracks every email that hasn't had a reply — sorted by seniority first (Director, Head, Senior, Colleague), then by age. A 26-hour silence from your CTO surfaces above a 3-hour wait from a vendor. Displayed in the briefing as an Awaiting Reply card. Click any row to jump directly to that email.</p>
       </div>
       <div class="feature-card">
         <div class="feature-pill pill-live">✓ Live</div>
@@ -521,14 +524,12 @@ footer {
         <div class="feature-pill pill-live">✓ Live</div>
         <div class="feature-icon">💚</div>
         <h3 class="feature-h3">Wellbeing Nudges</h3>
-        <p class="feature-desc">KAI detects overloaded days — back-to-back meetings, no lunch break, heavy late finishes — and surfaces a nudge before the day becomes a problem. Not patronising. Specific, actionable, and calibrated to your actual calendar. No generic product will ever have context this precise.</p>
+        <p class="feature-desc">A dedicated panel — not just a tile. KAI generates a warm, specific paragraph about your week from actual calendar data, then surfaces day-by-day load cards, actionable nudges (hydration, movement, breaks), and a London travel day weather forecast. Heavy days get a + Protect lunch slot button that proposes a calendar block directly in Ask KAI. No generic product will ever have context this precise.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-pill pill-deploy">⚙ Deploy</div>
+        <div class="feature-pill pill-live">✓ Live</div>
         <div class="feature-icon">📝</div>
         <h3 class="feature-h3">Open Actions Store</h3>
-        <p class="feature-desc">Persistent memory across sessions. "Remember I need to send the strategy paper by Friday" — KAI saves it to Google Drive, surfaces it in your briefing, and flags it as overdue if it passes without resolution.</p>
-      </div>
         <p class="feature-desc">Persistent memory across sessions. "Remember I need to send the strategy paper by Friday" — KAI saves it to Google Drive, surfaces it in your briefing, and flags it as overdue if it passes without resolution.</p>
       </div>
       <div class="feature-card">
@@ -554,8 +555,6 @@ footer {
         <div class="feature-icon">❓</div>
         <h3 class="feature-h3">Help Panel</h3>
         <p class="feature-desc">Floating ? button opens a quick reference sheet — exact command phrasings, where to find every feature, and tips for getting the most out of KAI. Designed so someone picking up the demo cold can be up to speed in 30 seconds.</p>
-      </div>
-        <p class="feature-desc">When KAI detects a meeting request in an email, it finds 3 free gaps in your calendar and drafts a reply with those slots — ready to send with one tap.</p>
       </div>
       <div class="feature-card">
         <div class="feature-pill pill-soon">Soon</div>
@@ -908,8 +907,7 @@ footer {
     <div class="divider"></div>
     <p class="section-lead">Based on 5,000 staff at a blended fully-loaded rate of £25/hr across 46 working weeks. Build cost estimated at £80k–£150k Year 1.</p>
 
-    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 32px; border-radius: 8px;">
-    <table class="biz-table" style="margin-top:0; min-width: 520px">
+    <table class="biz-table">
       <thead>
         <tr>
           <th>Scenario</th>
@@ -947,7 +945,6 @@ footer {
         </tr>
       </tbody>
     </table>
-    </div>
     <p style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:10px;font-family:'JetBrains Mono',monospace">These figures represent time value only. Compliance benefits, data quality improvements, and wellbeing outcomes are not included.</p>
   </div>
 </section>
