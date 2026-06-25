@@ -525,7 +525,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
     <div class="t-logo">
       <div class="t-badge">KAI</div>
       <span class="t-name">KAI</span>
-      <span style="font-size:11px;color:#555">· Knowledge Action Intelligence</span><span style="font-size:9px;color:#bbb;margin-left:6px;font-family:monospace">v3.5</span>
+      <span style="font-size:11px;color:#555">· Knowledge Action Intelligence</span><span style="font-size:9px;color:#bbb;margin-left:6px;font-family:monospace">v3.6</span>
     </div>
     <div class="t-right">
       <div class="t-dot"></div>
@@ -587,7 +587,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
       <div class="nav-item" data-panel="timecodes" onclick="switchPanel(this)">
         <span class="nav-icon">🕐</span> Timecodes
       </div>
-      <div class="nav-item" data-panel="briefing" data-scroll="wellbeingSection" onclick="switchPanel(this)">
+      <div class="nav-item" data-panel="wellbeing" onclick="switchPanel(this)">
         <span class="nav-icon">💚</span> Wellbeing
       </div>
     </div>
@@ -1757,29 +1757,17 @@ function goToCalendar() {
 }
 
 function goToWellbeing() {
-  // Switch to briefing panel
-  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-  // Activate the Wellbeing nav item
-  const wbNav = document.querySelector('.nav-item[data-scroll="wellbeingSection"]');
-  if (wbNav) wbNav.classList.add('active');
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-briefing').classList.add('active');
-  setTimeout(() => {
-    const wb = document.getElementById('wellbeingSection');
-    if (wb) wb.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 100);
+  const wbNav = document.querySelector('.nav-item[data-panel="wellbeing"]');
+  if (wbNav) switchPanel(wbNav);
+  const mobWb = document.querySelector('.mob-nav-item[data-panel="wellbeing"]');
+  if (mobWb) { document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active')); mobWb.classList.add('active'); }
 }
 
 function goToTimecodes() {
-  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-  const tcNav = document.querySelector('.nav-item[data-scroll="timecodesSection"]');
-  if (tcNav) tcNav.classList.add('active');
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-briefing').classList.add('active');
-  setTimeout(() => {
-    const tc = document.getElementById('timecodesSection');
-    if (tc) tc.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 100);
+  const tcNav = document.querySelector('.nav-item[data-panel="timecodes"]');
+  if (tcNav) switchPanel(tcNav);
+  const mobTc = document.querySelector('.mob-nav-item[data-panel="timecodes"]');
+  if (mobTc) { document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active')); mobTc.classList.add('active'); }
 }
 
 function closeMobileEmail() {
