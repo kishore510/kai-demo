@@ -2109,23 +2109,9 @@ function getArchiveFolder(email) {
 }
 
 async function ensureDriveFolder(folderPath) {
-  // drive.file scope cannot search/list — always create folders directly.
-  // Duplicate folders are harmless for demo purposes.
-  const parts = folderPath.split('/');
-  let parentId = 'root';
-  for (const part of parts) {
-    const body = { name: part, mimeType: 'application/vnd.google-apps.folder' };
-    if (parentId !== 'root') body.parents = [parentId];
-    const create = await fetch('https://www.googleapis.com/drive/v3/files', {
-      method: 'POST',
-      headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    const folder = await create.json();
-    if (!folder.id) throw new Error('Could not create Drive folder: ' + part + (folder.error ? ' — ' + folder.error.message : ''));
-    parentId = folder.id;
-  }
-  return parentId;
+  // drive.file scope does not permit creating or parenting folders.
+  // Folder path is encoded into the filename instead.
+  return null;
 }
 
 async function archiveEmail(emailId) {
@@ -2147,11 +2133,11 @@ async function archiveEmail(emailId) {
 
   try {
     const folder = getArchiveFolder(email);
-    const folderId = await ensureDriveFolder(folder);
     const dateStr = new Date().toISOString().split('T')[0];
-    // Safe filename — ASCII only, no special chars
-    const safeSubject = email.subject.substring(0, 60).replace(/[^a-zA-Z0-9 _\-]/g, '').trim();
-    const fileName = dateStr + ' - ' + safeSubject + '.txt';
+    // Encode folder path into filename — drive.file scope does not support parents
+    const safeFolder = folder.replace(/[^a-zA-Z0-9 _\-]/g, ' ').trim();
+    const safeSubject = email.subject.substring(0, 50).replace(/[^a-zA-Z0-9 _\-]/g, '').trim();
+    const fileName = 'KAI - ' + safeFolder + ' - ' + dateStr + ' - ' + safeSubject + '.txt';
 
     const fileContent = [
       'KAI ARCHIVED EMAIL',
@@ -2175,7 +2161,8 @@ async function archiveEmail(emailId) {
       'Archived by KAI - Knowledge Action Intelligence',
     ].join('\n');
 
-    const metadata = JSON.stringify({ name: fileName, parents: [folderId] });
+    // No parents — drive.file scope only allows app root placement
+    const metadata = JSON.stringify({ name: fileName });
     const boundary = 'kai_boundary_' + Date.now();
     const body = '--' + boundary + '\r\n' +
       'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
@@ -2196,7 +2183,7 @@ async function archiveEmail(emailId) {
 
     if (!upload.ok) {
       const errBody = await upload.text();
-      throw new Error('Drive API ' + upload.status + ': ' + errBody.substring(0, 120));
+      throw new Error('Drive API ' + upload.status + ': ' + errBody.substring(0, 200));
     }
 
     const file = await upload.json();
