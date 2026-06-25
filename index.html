@@ -74,15 +74,15 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .kai-pill-sub { font-size: 10px; color: #666; }
 
 /* MAIN */
-.main { overflow: hidden; display: flex; flex-direction: column; background: #F4F4F0; min-height: 0; }
-.panel { display: none; flex-direction: column; flex: 1; min-height: 0; }
+.main { overflow: hidden; display: flex; flex-direction: column; background: #F4F4F0; height: calc(100vh - 52px); }
+.panel { display: none; flex-direction: column; height: 100%; overflow: hidden; }
 .panel.active { display: flex; }
 
 /* BRIEFING */
 .b-header { padding: 18px 20px 14px; background: white; border-bottom: 0.5px solid #E0E0D8; }
 .b-title { font-weight: 500; font-size: 19px; color: #1a1a1a; margin-bottom: 3px; }
 .b-sub { font-size: 12px; color: #888; }
-.b-grid { display: flex; flex-direction: column; gap: 0; padding: 14px 20px 80px; flex: 1; overflow-y: auto; }
+.b-grid { display: flex; flex-direction: column; gap: 0; padding: 14px 20px 80px; flex: 1; overflow-y: auto; min-height: 0; }
 .b-stat-strip { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 12px; }
 .b-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 .b-col { display: flex; flex-direction: column; gap: 10px; }
@@ -469,7 +469,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
   .t-name { font-size: 15px; }
   .t-user { max-width: 130px; }
   .sidebar { display: none; }
-  .main { grid-column: 1; padding-bottom: 64px; }
+  .main { grid-column: 1; padding-bottom: 64px; height: calc(100dvh - 52px); }
   .mobile-nav { display: flex; }
   .b-header { padding: 14px 16px 12px; }
   .b-title { font-size: 16px; }
