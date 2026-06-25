@@ -45,7 +45,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .app { display: grid; grid-template-columns: var(--sidebar) 1fr; grid-template-rows: 52px 1fr; height: 100vh; }
 
 /* TOPBAR */
-.topbar { grid-column: 1/-1; background: white; border-bottom: 0.5px solid #E0E0D8; display: flex; align-items: center; padding: 0 18px; gap: 10px; z-index: 100; }
+.topbar { grid-column: 1/-1; background: white; border-bottom: 0.5px solid #E0E0D8; display: flex; align-items: center; padding: 0 18px; gap: 10px; position: sticky; top: 0; z-index: 100; }
 .t-logo { display: flex; align-items: center; gap: 9px; }
 .t-badge { width: 28px; height: 28px; border-radius: 8px; background: var(--teal); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 10px; color: white; }
 .t-name { font-weight: 500; font-size: 16px; color: #1a1a1a; }
@@ -82,11 +82,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .b-header { padding: 18px 20px 14px; background: white; border-bottom: 0.5px solid #E0E0D8; }
 .b-title { font-weight: 500; font-size: 19px; color: #1a1a1a; margin-bottom: 3px; }
 .b-sub { font-size: 12px; color: #888; }
-.b-grid { display: flex; flex-direction: column; gap: 0; padding: 14px 20px 80px; flex: 1; overflow-y: auto; min-height: 0; }
-.b-stat-strip { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 12px; }
-.b-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-.b-col { display: flex; flex-direction: column; gap: 10px; }
-.b-col-label { font-size: 9px; font-weight: 500; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+.b-grid { display: flex; flex-direction: column; gap: 0; padding: 14px 20px 80px; flex: 1; overflow-y: auto; }
 
 .week-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; overflow: hidden; }
 .card-hdr { padding: 9px 14px; border-bottom: 0.5px solid #E0E0D8; font-size: 10px; font-weight: 500; color: var(--teal); letter-spacing: 1.5px; text-transform: uppercase; }
@@ -109,8 +105,6 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .stats-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .stat-c { background: white; border: 0.5px solid #E0E0D8; border-radius: 10px; padding: 12px; }
 .stat-n { font-weight: 500; font-size: 22px; line-height: 1; color: var(--teal); }
-.stat-n.teal { color: var(--teal); }
-.stat-n.r { color: var(--coral); }
 .stat-n.y { color: var(--amber); } .stat-n.c { color: var(--coral); } .stat-n.p { color: var(--purple); }
 .stat-l { font-size: 10px; color: #888; margin-top: 4px; line-height: 1.4; }
 .stat-clickable { cursor: pointer; transition: all 0.15s; position: relative; }
@@ -132,10 +126,9 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .tc-desc { font-size: 11px; color: #666; }
 
 /* INBOX */
-.inbox-layout { display: grid; grid-template-columns: var(--inbox-split, 300px) 4px 1fr; height: 100%; }
+.inbox-layout { display: grid; grid-template-columns: 300px 4px 1fr; height: 100%; }
 .email-list { overflow-y: auto; background: white; }
-.inbox-resizer { background: #E0E0D8; cursor: col-resize; transition: background 0.15s; position: relative; z-index: 5; }
-.inbox-resizer:hover, .inbox-resizer.dragging { background: var(--teal); }
+.email-list { border-right: 0.5px solid #E0E0D8; overflow-y: auto; background: white; }
 .email-list-hdr { padding: 13px 16px; border-bottom: 0.5px solid #E0E0D8; font-weight: 500; font-size: 14px; color: #1a1a1a; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: white; z-index: 10; }
 .fbtn { font-size: 10px; padding: 3px 9px; border-radius: 100px; border: 0.5px solid #E0E0D8; background: transparent; color: #888; cursor: pointer; transition: all 0.12s; font-family: inherit; }
 .fbtn.active { background: var(--teal-lt); border-color: #9FE1CB; color: var(--teal-dk); }
@@ -412,8 +405,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .btn-create:hover { background: var(--teal-dk); }
 .btn-create:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-dismiss { background: white; color: #888; border: 0.5px solid #E0E0D8; padding: 7px 12px; border-radius: 7px; font-size: 12px; cursor: pointer; font-family: inherit; }
-.event-created { display: flex; align-items: center; gap: 8px; background: var(--green-lt); border: 0.5px solid #C0DD97; border-radius: 8px; padding: 9px 12px; margin-top: 8px; font-size: 12px; color: #3B6D11; }
-.kai-action-btn { font-size: 11px; padding: 5px 12px; border-radius: 100px; border: 0.5px solid #9FE1CB; background: var(--teal-lt); color: var(--teal-dk); cursor: pointer; font-family: inherit; font-weight: 500; transition: all 0.12s; }
+.event-created { display: flex; align-items: center; gap: 8px; background: var(--green-lt); border: 0.5px solid #C0DD97; border-radius: 8px; padding: 9px 12px; margin-top: 8px; font-size: 12px; color: #3B6D11; } font-size: 11px; padding: 5px 12px; border-radius: 100px; border: 0.5px solid #9FE1CB; background: var(--teal-lt); color: var(--teal-dk); cursor: pointer; font-family: inherit; font-weight: 500; transition: all 0.12s; }
 .kai-action-btn:hover { background: var(--teal); color: white; }
 .action-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 13px; border-bottom: 0.5px solid #F0F0EC; }
 .action-item:last-child { border-bottom: none; }
@@ -424,44 +416,6 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .action-item-due { font-size: 10px; color: var(--muted); margin-top: 2px; }
 .action-item-done { font-size: 10px; color: var(--teal); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; margin-top: 2px; }
 
-
-/* ── WELLBEING PANEL ── */
-.wb-panel-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; overflow: hidden; margin-bottom: 4px; }
-.wb-panel-card-hdr { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 0.5px solid #F0F0EC; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; color: var(--teal); text-transform: uppercase; }
-.wb-read-text { font-size: 13px; color: #333; line-height: 1.72; padding: 13px 14px; }
-.wb-day-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 10px; overflow: hidden; }
-.wb-day-card-hdr { display: flex; align-items: center; gap: 10px; padding: 9px 13px; }
-.wb-day-badge { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; flex-shrink: 0; letter-spacing: 0.5px; }
-.wb-day-badge.green  { background: var(--green-lt);  color: var(--green); }
-.wb-day-badge.amber  { background: var(--amber-lt);  color: var(--amber); }
-.wb-day-badge.red    { background: var(--red-lt);    color: var(--red); }
-.wb-day-badge.travel { background: var(--purple-lt); color: var(--purple); }
-.wb-day-name { font-size: 12px; font-weight: 500; color: #1a1a1a; flex: 1; }
-.wb-day-meta { font-size: 10px; color: #888; }
-.wb-day-pills { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 13px 9px; }
-.wb-day-pill { font-size: 9px; font-weight: 500; padding: 2px 8px; border-radius: 100px; }
-.wb-day-pill.clash  { background: var(--coral-lt);  color: var(--coral-dk); }
-.wb-day-pill.heavy  { background: var(--red-lt);    color: var(--red); }
-.wb-day-pill.lunch  { background: var(--green-lt);  color: var(--green); }
-.wb-day-pill.nolunch{ background: var(--amber-lt);  color: var(--amber); }
-.wb-day-pill.travel { background: var(--purple-lt); color: var(--purple); }
-.wb-day-pill.light  { background: var(--teal-lt);   color: var(--teal-dk); }
-.wb-nudge { display: flex; align-items: flex-start; gap: 9px; background: white; border: 0.5px solid #E0E0D8; border-radius: 9px; padding: 10px 13px; font-size: 12px; color: #444; line-height: 1.55; }
-.wb-nudge-icon { font-size: 16px; flex-shrink: 0; line-height: 1.3; }
-
-.silence-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; overflow: hidden; }
-.silence-item { display: flex; align-items: center; gap: 10px; padding: 9px 13px; border-bottom: 0.5px solid #F4F4F0; cursor: pointer; transition: background 0.12s; }
-.silence-item:last-child { border-bottom: none; }
-.silence-item:hover { background: #F9F9F6; }
-.silence-age { font-size: 9px; font-weight: 600; padding: 2px 7px; border-radius: 100px; white-space: nowrap; flex-shrink: 0; }
-.silence-age.critical { background: var(--red-lt); color: var(--red); }
-.silence-age.warning  { background: var(--amber-lt); color: var(--amber); }
-.silence-age.normal   { background: var(--teal-lt); color: var(--teal-dk); }
-.silence-tier { font-size: 9px; font-weight: 500; color: var(--muted); flex-shrink: 0; min-width: 52px; }
-.silence-body { flex: 1; min-width: 0; }
-.silence-from { font-size: 11px; font-weight: 500; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.silence-subj { font-size: 10px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.silence-arrow { font-size: 13px; color: #ccc; flex-shrink: 0; }
 /* RESPONSIVE */
 @media (max-width: 768px) {
   .app { grid-template-columns: 1fr; grid-template-rows: 52px 1fr; height: 100dvh; }
@@ -504,6 +458,49 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
   .b-title { font-size: 14px; }
   .stats-2 { gap: 7px; }
 }
+.b-stat-strip { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 12px; }
+.b-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.b-col { display: flex; flex-direction: column; gap: 10px; }
+.b-col-label { font-size: 9px; font-weight: 500; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+.stat-n.teal { color: var(--teal); }
+.stat-n.r { color: var(--coral); }
+.silence-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; overflow: hidden; }
+.silence-item { display: flex; align-items: center; gap: 10px; padding: 9px 13px; border-bottom: 0.5px solid #F4F4F0; cursor: pointer; transition: background 0.12s; }
+.silence-item:last-child { border-bottom: none; }
+.silence-item:hover { background: #F9F9F6; }
+.silence-age { font-size: 9px; font-weight: 600; padding: 2px 7px; border-radius: 100px; white-space: nowrap; flex-shrink: 0; }
+.silence-age.critical { background: var(--red-lt); color: var(--red); }
+.silence-age.warning { background: var(--amber-lt); color: var(--amber); }
+.silence-age.normal { background: var(--teal-lt); color: var(--teal-dk); }
+.silence-tier { font-size: 9px; font-weight: 500; color: var(--muted); flex-shrink: 0; min-width: 52px; }
+.silence-body { flex: 1; min-width: 0; }
+.silence-from { font-size: 11px; font-weight: 500; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.silence-subj { font-size: 10px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.silence-arrow { font-size: 13px; color: #ccc; flex-shrink: 0; }
+.wb-panel-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; overflow: hidden; margin-bottom: 4px; }
+.wb-panel-card-hdr { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 0.5px solid #F0F0EC; font-size: 10px; font-weight: 500; letter-spacing: 1.5px; color: var(--teal); text-transform: uppercase; }
+.wb-read-text { font-size: 13px; color: #333; line-height: 1.72; padding: 13px 14px; }
+.wb-day-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 10px; overflow: hidden; }
+.wb-day-card-hdr { display: flex; align-items: center; gap: 10px; padding: 9px 13px; }
+.wb-day-badge { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; flex-shrink: 0; }
+.wb-day-badge.green { background: var(--green-lt); color: var(--green); }
+.wb-day-badge.amber { background: var(--amber-lt); color: var(--amber); }
+.wb-day-badge.red { background: var(--red-lt); color: var(--red); }
+.wb-day-badge.travel { background: var(--purple-lt); color: var(--purple); }
+.wb-day-name { font-size: 12px; font-weight: 500; color: #1a1a1a; flex: 1; }
+.wb-day-meta { font-size: 10px; color: #888; }
+.wb-day-pills { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 13px 9px; }
+.wb-day-pill { font-size: 9px; font-weight: 500; padding: 2px 8px; border-radius: 100px; }
+.wb-day-pill.clash { background: var(--coral-lt); color: var(--coral-dk); }
+.wb-day-pill.heavy { background: var(--red-lt); color: var(--red); }
+.wb-day-pill.lunch { background: var(--green-lt); color: var(--green); }
+.wb-day-pill.nolunch { background: var(--amber-lt); color: var(--amber); }
+.wb-day-pill.travel { background: var(--purple-lt); color: var(--purple); }
+.wb-day-pill.light { background: var(--teal-lt); color: var(--teal-dk); }
+.wb-nudge { display: flex; align-items: flex-start; gap: 9px; background: white; border: 0.5px solid #E0E0D8; border-radius: 9px; padding: 10px 13px; font-size: 12px; color: #444; line-height: 1.55; }
+.wb-nudge-icon { font-size: 16px; flex-shrink: 0; line-height: 1.3; }
+.inbox-resizer { background: #E0E0D8; cursor: col-resize; transition: background 0.15s; position: relative; z-index: 5; }
+.inbox-resizer:hover, .inbox-resizer.dragging { background: var(--teal); }
 </style>
 </head>
 <body>
@@ -575,9 +572,6 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
     <button class="mob-nav-item" data-panel="timecodes" onclick="mobNav(this)">
       <span class="mob-icon">🕐</span>Timecodes
     </button>
-    <button class="mob-nav-item" data-panel="wellbeing" onclick="mobNav(this)">
-      <span class="mob-icon">💚</span>Wellbeing
-    </button>
     <button class="mob-nav-item" data-panel="archive" onclick="mobNav(this)">
       <span class="mob-icon">🗄️</span>Archive
       <span class="mob-badge" id="mobArchiveBadge" style="display:none"></span>
@@ -608,10 +602,13 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
     </div>
     <div class="nav-sec">
       <div class="nav-lbl">Insights</div>
+      <div class="nav-item" data-panel="wellbeing" onclick="switchPanel(this)">
+        <span class="nav-icon">💚</span> Wellbeing
+      </div>
       <div class="nav-item" data-panel="timecodes" onclick="switchPanel(this)">
         <span class="nav-icon">🕐</span> Timecodes
       </div>
-      <div class="nav-item" data-panel="wellbeing" onclick="switchPanel(this)">
+      <div class="nav-item" data-panel="briefing" data-scroll="wellbeingSection" onclick="switchPanel(this)">
         <span class="nav-icon">💚</span> Wellbeing
       </div>
     </div>
@@ -637,84 +634,37 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
         <div class="b-sub" id="briefingSub">Loading your briefing...</div>
       </div>
       <div class="b-grid">
-
-        <!-- STAT STRIP -->
         <div class="b-stat-strip">
-          <div class="stat-c stat-clickable" onclick="goToUnreplied()" title="View unread emails">
-            <div class="stat-n" id="statEmails">–</div>
-            <div class="stat-l">Unread<br>emails</div>
-            <div class="stat-arrow">→</div>
-          </div>
-          <div class="stat-c stat-clickable" onclick="goToSilence()" title="Emails awaiting your reply" id="silenceTile">
-            <div class="stat-n r" id="statSilence">–</div>
-            <div class="stat-l">Awaiting<br>your reply</div>
-            <div class="stat-arrow">→</div>
-          </div>
-          <div class="stat-c stat-clickable" onclick="goToCalendar()" title="View calendar clashes">
-            <div class="stat-n y" id="statClashes">–</div>
-            <div class="stat-l">Calendar<br>clashes</div>
-            <div id="resolveBtn" style="display:none;margin-top:4px">
-              <button class="kai-action-btn" style="font-size:10px;padding:3px 9px" onclick="event.stopPropagation();resolveClashes()">✨ Resolve →</button>
-            </div>
-            <div class="stat-arrow" id="clashArrow">→</div>
-          </div>
-          <div class="stat-c stat-clickable" onclick="goToTimecodes()" title="View timecode suggestions">
-            <div class="stat-n p" id="statTimecodes">3</div>
-            <div class="stat-l">Timecodes<br>matched</div>
-            <div class="stat-arrow">→</div>
-          </div>
-          <div class="stat-c" id="statMeetingHrs" title="Meeting hours this week">
-            <div class="stat-n teal" id="statHrsNum">–</div>
-            <div class="stat-l">Meeting hrs<br>this week</div>
-          </div>
-          <div class="stat-c stat-clickable" onclick="goToWellbeing()" title="View KAI Wellbeing">
-            <div class="stat-n c" id="statWellbeing">–</div>
-            <div class="stat-l">Wellbeing<br>flags</div>
-            <div class="stat-arrow">→</div>
-          </div>
+          <div class="stat-c stat-clickable" onclick="goToUnreplied()"><div class="stat-n" id="statEmails">–</div><div class="stat-l">Unread<br>emails</div><div class="stat-arrow">→</div></div>
+          <div class="stat-c stat-clickable" onclick="goToSilence()" id="silenceTile"><div class="stat-n r" id="statSilence">–</div><div class="stat-l">Awaiting<br>your reply</div><div class="stat-arrow">→</div></div>
+          <div class="stat-c stat-clickable" onclick="goToCalendar()"><div class="stat-n y" id="statClashes">–</div><div class="stat-l">Calendar<br>clashes</div><div id="resolveBtn" style="display:none;margin-top:4px"><button class="kai-action-btn" style="font-size:10px;padding:3px 9px" onclick="event.stopPropagation();resolveClashes()">✨ Resolve →</button></div><div class="stat-arrow" id="clashArrow">→</div></div>
+          <div class="stat-c stat-clickable" onclick="goToTimecodes()"><div class="stat-n p" id="statTimecodes">3</div><div class="stat-l">Timecodes<br>matched</div><div class="stat-arrow">→</div></div>
+          <div class="stat-c" id="statMeetingHrs"><div class="stat-n teal" id="statHrsNum">–</div><div class="stat-l">Meeting hrs<br>this week</div></div>
+          <div class="stat-c stat-clickable" onclick="goToWellbeing()"><div class="stat-n c" id="statWellbeing">–</div><div class="stat-l">Wellbeing<br>flags</div><div class="stat-arrow">→</div></div>
         </div>
-
-        <!-- THREE COLUMNS -->
         <div class="b-cols">
-
-          <!-- COL 1: SCHEDULE -->
           <div class="b-col">
             <div class="b-col-label">Schedule</div>
             <div class="week-card" id="todayCard">
               <div class="card-hdr" style="background:var(--teal-lt);color:var(--teal-dk)">Today — <span id="todayDateLabel"></span></div>
-              <div id="todayEvents">
-                <div style="padding:14px;font-size:12px;color:var(--muted);text-align:center">Loading today...</div>
-              </div>
+              <div id="todayEvents"><div style="padding:14px;font-size:12px;color:var(--muted);text-align:center">Loading today...</div></div>
             </div>
             <div class="week-card">
               <div class="card-hdr">Rest of Week</div>
-              <div id="weekAhead">
-                <div style="padding:20px;font-size:12px;color:var(--muted);text-align:center">Loading calendar...</div>
-              </div>
+              <div id="weekAhead"><div style="padding:20px;font-size:12px;color:var(--muted);text-align:center">Loading calendar...</div></div>
             </div>
           </div>
-
-          <!-- COL 2: INTELLIGENCE -->
           <div class="b-col">
             <div class="b-col-label">Intelligence</div>
             <div class="silence-card" id="silenceSection">
-              <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between">
-                <span>Awaiting Reply</span>
-                <span id="silenceSubLabel" style="font-size:9px;color:var(--muted);letter-spacing:0;text-transform:none;font-weight:400"></span>
-              </div>
-              <div id="silenceList">
-                <div style="padding:14px;font-size:11px;color:var(--muted)">Analysing inbox...</div>
-              </div>
+              <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between"><span>Awaiting Reply</span><span id="silenceSubLabel" style="font-size:9px;color:var(--muted);letter-spacing:0;text-transform:none;font-weight:400"></span></div>
+              <div id="silenceList"><div style="padding:14px;font-size:11px;color:var(--muted)">Analysing inbox...</div></div>
             </div>
             <div class="wb-card" id="wellbeingSection">
               <div class="card-hdr">Wellbeing Nudges</div>
-              <div id="wellbeingNudges">
-                <div style="padding:14px;font-size:11px;color:var(--muted)">Analysing your week...</div>
-              </div>
+              <div id="wellbeingNudges"><div style="padding:14px;font-size:11px;color:var(--muted)">Analysing your week...</div></div>
             </div>
           </div>
-
-          <!-- COL 3: ADMIN -->
           <div class="b-col">
             <div class="b-col-label">Admin</div>
             <div class="tc-card" id="timecodesSection">
@@ -724,20 +674,14 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
               <div class="tc-row"><span class="tc-code">BAU-001</span><span class="tc-desc">1:1s and standups</span></div>
             </div>
             <div class="wb-card" id="notesSection">
-              <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between">
-                <span>Open Actions</span>
-                <span id="notesStatus" style="font-size:9px;color:var(--muted);letter-spacing:0;text-transform:none;font-weight:400">Loading...</span>
-              </div>
-              <div id="notesList">
-                <div style="padding:14px;font-size:11px;color:var(--muted)">Loading actions...</div>
-              </div>
+              <div class="card-hdr" style="display:flex;align-items:center;justify-content:space-between"><span>Open Actions</span><span id="notesStatus" style="font-size:9px;color:var(--muted);letter-spacing:0;text-transform:none;font-weight:400">Loading...</span></div>
+              <div id="notesList"><div style="padding:14px;font-size:11px;color:var(--muted)">Loading actions...</div></div>
               <div style="padding:8px 13px;border-top:0.5px solid #F0F0EC">
                 <div style="font-size:10px;color:var(--muted);margin-bottom:1px">Tell KAI to remember something:</div>
                 <div style="font-size:10px;color:#aaa;font-style:italic">"Remember I need to send the strategy paper by Friday"</div>
               </div>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -750,7 +694,6 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
             <div style="display:flex;gap:5px">
               <button class="fbtn active" onclick="filterEmails('all',this)">All</button>
               <button class="fbtn" onclick="filterEmails('urgent',this)">Urgent</button>
-              <button class="fbtn" onclick="filterEmails('high',this)">High</button>
               <button class="fbtn" id="fbtnUnread" onclick="filterEmails('unread',this)">Unread</button>
             </div>
           </div>
@@ -808,7 +751,6 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
       </div>
     </div>
 
-
     <!-- WELLBEING -->
     <div class="panel" id="panel-wellbeing">
       <div class="b-header">
@@ -816,33 +758,21 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
         <div class="b-sub" id="wellbeingSub">KAI is analysing your week...</div>
       </div>
       <div style="overflow-y:auto;flex:1;padding:14px 20px 80px">
-
-        <!-- KAI read paragraph -->
         <div class="wb-panel-card" id="wbReadCard">
-          <div class="wb-panel-card-hdr">
-            <span>💚</span>
-            <span>KAI&rsquo;s read on your week</span>
-          </div>
+          <div class="wb-panel-card-hdr"><span>💚</span><span>KAI&rsquo;s read on your week</span></div>
           <div id="wbReadText" class="wb-read-text">Analysing your calendar and inbox...</div>
         </div>
-
-        <!-- Nudge chips -->
-        <div class="card-hdr" style="margin:16px 0 8px;background:none;border:none;padding:0;font-size:9px;font-weight:500;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Nudges &amp; Reminders</div>
+        <div style="margin:16px 0 8px;font-size:9px;font-weight:500;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Nudges &amp; Reminders</div>
         <div id="wbNudgeChips" style="display:flex;flex-direction:column;gap:6px"></div>
-
-        <!-- Day health cards -->
-        <div class="card-hdr" style="margin:16px 0 8px;background:none;border:none;padding:0;font-size:9px;font-weight:500;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Day by Day</div>
+        <div style="margin:16px 0 8px;font-size:9px;font-weight:500;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Day by Day</div>
         <div id="wbDayCards" style="display:flex;flex-direction:column;gap:8px"></div>
-
-        <!-- Weather card (travel days) -->
         <div id="wbWeatherCard" style="display:none;margin-top:16px">
-          <div class="card-hdr" style="margin-bottom:8px;background:none;border:none;padding:0;font-size:9px;font-weight:500;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Travel Day</div>
+          <div style="margin-bottom:8px;font-size:9px;font-weight:500;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase">Travel Day</div>
           <div class="wb-panel-card" id="wbWeatherInner">
             <div class="wb-panel-card-hdr"><span>✈️</span><span id="wbWeatherTitle">Loading weather...</span></div>
             <div id="wbWeatherBody" style="font-size:12px;color:#555;line-height:1.6;padding:0 2px 2px"></div>
           </div>
         </div>
-
       </div>
     </div>
 
@@ -1006,7 +936,6 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
               <div class="help-feature"><span class="help-loc">📅 Calendar</span><span class="help-feat-desc">Full week view · tap any event to open Meeting Prep sheet · clash rows highlighted coral</span></div>
               <div class="help-feature"><span class="help-loc">💬 Ask KAI</span><span class="help-feat-desc">Chat with full inbox and calendar context · action buttons appear in responses</span></div>
               <div class="help-feature"><span class="help-loc">🕐 Timecodes</span><span class="help-feat-desc">Hours matched to PRJ-042, GOV-011, BAU-001 · this week vs last week · copy for timesheet</span></div>
-              <div class="help-feature"><span class="help-loc">💚 Wellbeing</span><span class="help-feat-desc">KAI's read on your week · day-by-day load · nudges · travel day weather · lunch alerts</span></div>
               <div class="help-feature"><span class="help-loc">🗄️ Archive</span><span class="help-feat-desc">Compliance emails saved to Google Drive · open any email → Archive to Drive</span></div>
             </div>
           </div>
