@@ -45,7 +45,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .app { display: grid; grid-template-columns: var(--sidebar) 1fr; grid-template-rows: 52px 1fr; height: 100vh; }
 
 /* TOPBAR */
-.topbar { grid-column: 1/-1; background: white; border-bottom: 0.5px solid #E0E0D8; display: flex; align-items: center; padding: 0 18px; gap: 10px; position: sticky; top: 0; z-index: 100; }
+.topbar { grid-column: 1/-1; background: white; border-bottom: 0.5px solid #E0E0D8; display: flex; align-items: center; padding: 0 18px; gap: 10px; z-index: 100; }
 .t-logo { display: flex; align-items: center; gap: 9px; }
 .t-badge { width: 28px; height: 28px; border-radius: 8px; background: var(--teal); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 10px; color: white; }
 .t-name { font-weight: 500; font-size: 16px; color: #1a1a1a; }
@@ -74,9 +74,9 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .kai-pill-sub { font-size: 10px; color: #666; }
 
 /* MAIN */
-.main { overflow: hidden; display: flex; flex-direction: column; background: #F4F4F0; }
-.panel { display: none; flex-direction: column; }
-.panel.active { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+.main { overflow-y: auto; display: flex; flex-direction: column; background: #F4F4F0; }
+.panel { display: none; flex-direction: column; height: 100%; }
+.panel.active { display: flex; }
 
 /* BRIEFING */
 .b-header { padding: 18px 20px 14px; background: white; border-bottom: 0.5px solid #E0E0D8; }
@@ -469,7 +469,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
   .t-name { font-size: 15px; }
   .t-user { max-width: 130px; }
   .sidebar { display: none; }
-  .main { grid-column: 1; padding-bottom: 64px; overflow: hidden; }
+  .main { grid-column: 1; padding-bottom: 64px; }
   .mobile-nav { display: flex; }
   .b-header { padding: 14px 16px 12px; }
   .b-title { font-size: 16px; }
