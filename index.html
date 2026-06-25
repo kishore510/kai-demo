@@ -549,7 +549,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
     <div class="t-logo">
       <div class="t-badge">KAI</div>
       <span class="t-name">KAI</span>
-      <span style="font-size:11px;color:#555">· Knowledge Action Intelligence</span><span style="font-size:9px;color:#bbb;margin-left:6px;font-family:monospace">v3.7</span>
+      <span style="font-size:11px;color:#555">· Knowledge Action Intelligence</span><span style="font-size:9px;color:#bbb;margin-left:6px;font-family:monospace">v3.8</span>
     </div>
     <div class="t-right">
       <div class="t-dot"></div>
@@ -743,9 +743,10 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
         <div class="email-list">
           <div class="email-list-hdr">
             Inbox <span id="inboxFilterLabel" style="font-weight:400;font-size:11px;color:var(--muted);margin-left:4px"></span>
-            <div style="display:flex;gap:5px">
-              <button class="fbtn active" onclick="filterEmails('all',this)">All</button>
-              <button class="fbtn" onclick="filterEmails('urgent',this)">Urgent</button>
+            <div style="display:flex;gap:5px;flex-wrap:wrap">
+              <button class="fbtn active" id="fbtnAll" onclick="filterEmails('all',this)">All</button>
+              <button class="fbtn" id="fbtnUrgent" onclick="filterEmails('urgent',this)">Urgent</button>
+              <button class="fbtn" id="fbtnHigh" onclick="filterEmails('high',this)">High</button>
               <button class="fbtn" id="fbtnUnread" onclick="filterEmails('unread',this)">Unread</button>
             </div>
           </div>
@@ -1020,7 +1021,7 @@ let gmailData = [];
 let calendarData = [];
 let chatHistory = [];
 let selectedEmailId = null;
-let currentFilter = 'all';
+let activeFilters = new Set(); // empty = show all
 let currentMeeting = null;
 let prepChatHistory = [];
 
@@ -1414,15 +1415,25 @@ function renderEmailList(customList = null) {
   let filtered;
   if (customList) {
     filtered = customList;
-  } else if (currentFilter === 'all') {
+  } else if (activeFilters.size === 0) {
+    // No filters active — show all
     filtered = gmailData;
-  } else if (currentFilter === 'unread') {
-    filtered = gmailData.filter(e => e.unread);
-  } else if (currentFilter.startsWith('sender:')) {
-    const name = currentFilter.slice(7).toLowerCase();
+  } else if (activeFilters.has('sender:')) {
+    // Sender filter (set via KAI chat action) — find the sender value
+    const senderFilter = [...activeFilters].find(f => f.startsWith('sender:'));
+    const name = senderFilter ? senderFilter.slice(7).toLowerCase() : '';
     filtered = gmailData.filter(e => e.from.toLowerCase().includes(name) || e.fromEmail.toLowerCase().includes(name));
   } else {
-    filtered = gmailData.filter(e => e.priority === currentFilter);
+    // Multi-select: each active filter is an OR on priority/unread
+    // e.g. urgent+unread = emails that are urgent OR unread
+    filtered = gmailData.filter(e => {
+      if (activeFilters.has('unread') && e.unread) return true;
+      if (activeFilters.has('urgent') && e.priority === 'urgent') return true;
+      if (activeFilters.has('high') && e.priority === 'high') return true;
+      if (activeFilters.has('normal') && e.priority === 'normal') return true;
+      if (activeFilters.has('fyi') && e.priority === 'fyi') return true;
+      return false;
+    });
   }
   const priorityOrder = { urgent: 0, high: 1, normal: 2, fyi: 3 };
   const sorted = [...filtered].sort((a, b) => (priorityOrder[a.priority] || 2) - (priorityOrder[b.priority] || 2));
@@ -1447,17 +1458,40 @@ function renderEmailList(customList = null) {
 }
 
 function filterEmails(f, btn) {
-  currentFilter = f;
-  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  // Update inbox header label to show active filter context
+  if (f === 'all') {
+    // All clears every active filter
+    activeFilters.clear();
+  } else if (f.startsWith('sender:')) {
+    // Sender filter from KAI chat — exclusive, replaces everything
+    activeFilters.clear();
+    activeFilters.add(f);
+  } else {
+    // Toggle: clicking an active filter removes it; clicking All explicitly shows all
+    if (activeFilters.has(f)) {
+      activeFilters.delete(f);
+    } else {
+      activeFilters.add(f);
+    }
+  }
+
+  // Sync button states
+  document.getElementById('fbtnAll')?.classList.toggle('active', activeFilters.size === 0);
+  document.getElementById('fbtnUrgent')?.classList.toggle('active', activeFilters.has('urgent'));
+  document.getElementById('fbtnHigh')?.classList.toggle('active', activeFilters.has('high'));
+  document.getElementById('fbtnUnread')?.classList.toggle('active', activeFilters.has('unread'));
+
+  // Update label
   const lbl = document.getElementById('inboxFilterLabel');
   if (lbl) {
-    if (f === 'all') lbl.textContent = 'All emails';
-    else if (f === 'urgent') lbl.textContent = 'Urgent emails';
-    else if (f === 'unread') lbl.textContent = 'Unread emails';
+    if (activeFilters.size === 0) lbl.textContent = 'All emails';
     else if (f.startsWith('sender:')) lbl.textContent = 'From: ' + f.slice(7);
-    else lbl.textContent = f.charAt(0).toUpperCase() + f.slice(1) + ' emails';
+    else {
+      const labels = [];
+      if (activeFilters.has('urgent')) labels.push('Urgent');
+      if (activeFilters.has('high')) labels.push('High');
+      if (activeFilters.has('unread')) labels.push('Unread');
+      lbl.textContent = labels.join(' + ') + ' emails';
+    }
   }
   renderEmailList();
 }
@@ -1669,16 +1703,11 @@ function addMsg(role, text, inboxAction = null) {
 
 // Switch to inbox and apply a filter — called from KAI action buttons
 function filterInboxBy(filter, label) {
-  // Switch to inbox panel
   const inboxNav = document.querySelector('.nav-item[data-panel="inbox"]');
   if (inboxNav) switchPanel(inboxNav);
   const mobInbox = document.querySelector('.mob-nav-item[data-panel="inbox"]');
   if (mobInbox) { document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active')); mobInbox.classList.add('active'); }
-  // Apply filter — no matching fbtn for custom filters so pass null
-  const urgentBtn = filter === 'urgent' ? document.querySelector('.fbtn[onclick*="urgent"]') : null;
-  const unreadBtn = filter === 'unread' ? document.getElementById('fbtnUnread') : null;
-  const allBtn = filter === 'all' ? document.querySelector('.fbtn:first-child') : null;
-  filterEmails(filter, urgentBtn || unreadBtn || allBtn || null);
+  filterEmails(filter, null);
 }
 
 function addTyping(containerId = 'chatMsgs', typingId = 'typing') {
@@ -1782,10 +1811,7 @@ function goToUnreplied() {
   if (inboxNav) switchPanel(inboxNav);
   const mobInbox = document.querySelector('.mob-nav-item[data-panel="inbox"]');
   if (mobInbox) { document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active')); mobInbox.classList.add('active'); }
-  setTimeout(() => {
-    const unreadBtn = document.getElementById('fbtnUnread');
-    if (unreadBtn) filterEmails('unread', unreadBtn);
-  }, 100);
+  setTimeout(() => filterEmails('unread', null), 100);
 }
 
 function goToCalendar() {
