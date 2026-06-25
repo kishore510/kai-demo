@@ -74,7 +74,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .kai-pill-sub { font-size: 10px; color: #666; }
 
 /* MAIN */
-.main { overflow-y: auto; display: flex; flex-direction: column; background: #F4F4F0; height: 100%; }
+.main { overflow-y: auto; display: flex; flex-direction: column; background: #F4F4F0; }
 .panel { display: none; flex-direction: column; height: 100%; }
 .panel.active { display: flex; }
 
@@ -2291,6 +2291,12 @@ let kaiNotes = { actions: [], lastUpdated: null };
 // { actions: [{ id, text, due, createdAt, done }], lastUpdated }
 
 async function loadKaiNotes() {
+  if (!accessToken) { renderNotes(); return; }
+  // Skip silently if token is stale — avoids CORS/401 errors from Drive
+  try {
+    const chk = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', { headers: { Authorization: 'Bearer ' + accessToken } });
+    if (!chk.ok) { renderNotes(); return; }
+  } catch(e) { renderNotes(); return; }
   try {
     // 1. Ask Worker for the stored file ID
     const r = await fetch(WORKER_URL + '/notes-id');
