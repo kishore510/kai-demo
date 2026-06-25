@@ -977,6 +977,9 @@ let selectedEmailId = null;
 let currentFilter = 'all';
 let currentMeeting = null;
 let prepChatHistory = [];
+let clashedEventIds = new Set();
+let clashDayDate = null;
+let kaiNotesFileId = null;
 
 // ── AUTH ──
 
@@ -2286,8 +2289,7 @@ function renderCalendarPanel() {
 
 
 
-let clashedEventIds = new Set();
-let clashDayDate = null; // date string of the day with clashes, for scrolling
+// clashedEventIds, clashDayDate, kaiNotesFileId declared at top of script
 let kaiNotes = { actions: [], lastUpdated: null };
 
 // Notes file structure:
