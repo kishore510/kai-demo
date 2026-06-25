@@ -2111,14 +2111,10 @@ async function archiveEmail(emailId) {
   const btn = document.getElementById('archiveBtn-' + emailId);
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Archiving...'; }
 
-  // Guard: validate token before any Drive call — stale token causes CORS preflight failure
-  const tokenOk = await checkTokenValid();
-  if (!tokenOk) {
+  // Guard: token must exist
+  if (!accessToken) {
     if (btn) { btn.disabled = false; btn.textContent = '🗄️ Archive to Drive'; }
-    showArchiveToast(null, null, null, 'Session expired — click Reconnect Google in the top bar then try again.');
-    // Show the expired banner so user knows what to do
-    const banner = document.getElementById('tokenExpiredBanner');
-    if (banner) banner.style.display = 'flex';
+    showArchiveToast(null, null, null, 'Not signed in — please reconnect Google.');
     return;
   }
 
@@ -2163,18 +2159,35 @@ async function archiveEmail(emailId) {
       fileContent + '\r\n' +
       '--' + boundary + '--';
 
-    const upload = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + accessToken,
-        'Content-Type': 'multipart/related; boundary=' + boundary
-      },
-      body: body
-    });
+    let upload, uploadStatus;
+    try {
+      upload = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + accessToken,
+          'Content-Type': 'multipart/related; boundary=' + boundary
+        },
+        body: body
+      });
+      uploadStatus = upload.status;
+    } catch(networkErr) {
+      // fetch() itself threw — network blocked (office proxy, CORS, no connectivity)
+      throw new Error('Network blocked — check office proxy or VPN. Detail: ' + networkErr.message);
+    }
 
     if (!upload.ok) {
-      const errBody = await upload.text();
-      throw new Error('Drive API ' + upload.status + ': ' + errBody.substring(0, 200));
+      let errDetail = '';
+      try {
+        const errJson = await upload.json();
+        errDetail = errJson?.error?.message || errJson?.error?.status || '';
+      } catch(e) {
+        try { errDetail = await upload.text(); } catch(e2) {}
+      }
+      // Translate common status codes into plain English
+      if (uploadStatus === 401) throw new Error('Google session expired (401) — click Reconnect Google.');
+      if (uploadStatus === 403) throw new Error('Drive permission denied (403) — scope may be insufficient.');
+      if (uploadStatus === 429) throw new Error('Google rate limit hit (429) — wait a moment and retry.');
+      throw new Error('Drive API ' + uploadStatus + (errDetail ? ': ' + errDetail.substring(0, 150) : ''));
     }
 
     const file = await upload.json();
@@ -2587,8 +2600,13 @@ let kaiNotesFileId = null;
 // { actions: [{ id, text, due, createdAt, done }], lastUpdated }
 
 async function loadKaiNotes() {
-  // Guard — don't attempt Drive calls with an invalid token
+  // Guard — skip Drive calls if no token or token already known-expired
   if (!accessToken) { renderNotes(); return; }
+  // Quick expiry check — if userinfo fails, token is stale, skip silently
+  try {
+    const chk = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', { headers: { Authorization: 'Bearer ' + accessToken } });
+    if (!chk.ok) { renderNotes(); return; }
+  } catch(e) { renderNotes(); return; }
   try {
     // 1. Ask Worker for the stored file ID
     const r = await fetch(WORKER_URL + '/notes-id');
