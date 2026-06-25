@@ -74,7 +74,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .kai-pill-sub { font-size: 10px; color: #666; }
 
 /* MAIN */
-.main { overflow-y: auto; display: flex; flex-direction: column; background: #F4F4F0; }
+.main { overflow: hidden; display: flex; flex-direction: column; background: #F4F4F0; height: 100%; }
 .panel { display: none; flex-direction: column; height: 100%; }
 .panel.active { display: flex; }
 
@@ -450,6 +450,18 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
 .wb-nudge-icon { font-size: 16px; flex-shrink: 0; line-height: 1.3; }
 
 .silence-card { background: white; border: 0.5px solid #E0E0D8; border-radius: 12px; overflow: hidden; }
+.silence-item { display: flex; align-items: center; gap: 10px; padding: 9px 13px; border-bottom: 0.5px solid #F4F4F0; cursor: pointer; transition: background 0.12s; }
+.silence-item:last-child { border-bottom: none; }
+.silence-item:hover { background: #F9F9F6; }
+.silence-age { font-size: 9px; font-weight: 600; padding: 2px 7px; border-radius: 100px; white-space: nowrap; flex-shrink: 0; }
+.silence-age.critical { background: var(--red-lt); color: var(--red); }
+.silence-age.warning  { background: var(--amber-lt); color: var(--amber); }
+.silence-age.normal   { background: var(--teal-lt); color: var(--teal-dk); }
+.silence-tier { font-size: 9px; font-weight: 500; color: var(--muted); flex-shrink: 0; min-width: 52px; }
+.silence-body { flex: 1; min-width: 0; }
+.silence-from { font-size: 11px; font-weight: 500; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.silence-subj { font-size: 10px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.silence-arrow { font-size: 13px; color: #ccc; flex-shrink: 0; }
 /* RESPONSIVE */
 @media (max-width: 768px) {
   .app { grid-template-columns: 1fr; grid-template-rows: 52px 1fr; height: 100dvh; }
@@ -3145,7 +3157,9 @@ function goToSilence() {
 function goToEmailAndSelect(emailId) {
   const inboxNav = document.querySelector('.nav-item[data-panel="inbox"]');
   if (inboxNav) switchPanel(inboxNav);
-  setTimeout(() => selectEmail(emailId), 100);
+  // Reset to all-emails filter so the list is populated before selecting
+  filterEmails('all', null);
+  setTimeout(() => selectEmail(emailId), 150);
 }
 
 // ── EMAIL INTENT DETECTION ──
