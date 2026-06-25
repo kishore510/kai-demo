@@ -555,7 +555,7 @@ body { font-family: 'Segoe UI', system-ui, Arial, sans-serif; background: #F4F4F
     <div class="t-logo">
       <div class="t-badge">KAI</div>
       <span class="t-name">KAI</span>
-      <span style="font-size:11px;color:#555">· Knowledge Action Intelligence</span>
+      <span style="font-size:11px;color:#555">· Knowledge Action Intelligence</span><span style="font-size:9px;color:#bbb;margin-left:6px;font-family:monospace">v2.4</span>
     </div>
     <div class="t-right">
       <div class="t-dot"></div>
@@ -1272,6 +1272,8 @@ function analyseBriefing(emails, events) {
   if (emails.filter(e => e.unread && (e.priority === 'urgent' || e.priority === 'high')).length > 2)
     nudges.push({ level: '#ddaa00', text: `<b>Multiple high-priority unread emails.</b> Recommend addressing these before your first meeting.` });
   nudges.push({ level: '#22aa55', text: `<b>Timecodes ready</b> — KAI has matched this week's meetings to PRJ-042, GOV-011 and BAU-001.` });
+
+  detectSilence(emails);
 
   document.getElementById('wellbeingNudges').innerHTML = nudges.slice(0, 3).map(n =>
     `<div class="wb-row"><div class="wb-dot" style="background:${n.level}"></div><div class="wb-txt">${n.text}</div></div>`
