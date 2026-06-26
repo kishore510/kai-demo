@@ -12,19 +12,23 @@ let DEMO_MODE = false;
 // so the demo always shows "this week" regardless of when it's run
 
 function getMockWeekDates() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const dow = today.getDay();
+  // Build today's date string from local time parts — avoids UTC/BST shift
+  const now = new Date();
+  const todayLocal = now.getFullYear() + '-' +
+    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+    String(now.getDate()).padStart(2, '0');
+
+  // Parse back using T12:00:00 to stay in local time zone safely
+  const today = new Date(todayLocal + 'T12:00:00');
+  const dow = today.getDay(); // 0=Sun,1=Mon...
   const diff = dow === 0 ? -6 : 1 - dow;
   const monday = new Date(today);
   monday.setDate(today.getDate() + diff);
 
-  // Use local date formatting to avoid UTC/BST day shift
-  const localDateStr = (d) => {
-    return d.getFullYear() + '-' +
-      String(d.getMonth() + 1).padStart(2, '0') + '-' +
-      String(d.getDate()).padStart(2, '0');
-  };
+  const localDateStr = (d) =>
+    d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
 
   const dates = {};
   ['mon','tue','wed','thu','fri'].forEach((key, i) => {
