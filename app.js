@@ -960,6 +960,25 @@ async function archiveEmail(emailId) {
   if (!email) return;
   const btn = document.getElementById('archiveBtn-' + emailId);
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Archiving...'; }
+
+  // Demo mode — simulate archive without Drive
+  if (DEMO_MODE) {
+    await new Promise(r => setTimeout(r, 800)); // simulate async feel
+    const folder = getArchiveFolder(email);
+    email.archived = true;
+    archivedItems.unshift({ email, folder, fileName: email.subject, fileId: null, link: null, archivedAt: new Date() });
+    if (btn) { btn.textContent = '✅ Archived'; btn.style.background = 'rgba(34,197,94,0.2)'; }
+    renderEmailList();
+    updateArchivePanel();
+    showArchiveToast(email, folder, null);
+    document.getElementById('archiveBadge').textContent = archivedItems.length;
+    const mab = document.getElementById('mobArchiveBadge');
+    if (mab) { mab.textContent = archivedItems.length; mab.style.display = 'block'; }
+    chatHistory.push({ role: 'user', content: `I just archived the email "${email.subject}" from ${email.from}` });
+    chatHistory.push({ role: 'assistant', content: `Done — I've archived "${email.subject}" to ${folder}. Do you want me to draft a response acknowledging receipt?` });
+    return;
+  }
+
   try {
     const folder = getArchiveFolder(email);
     const folderId = await ensureDriveFolder(folder);
