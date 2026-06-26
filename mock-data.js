@@ -326,6 +326,20 @@ function getMockCalendarEvents() {
     // ── FRIDAY — Light day ──
     {
       id: 'mock-cal-16',
+      summary: '1:1 with Programme Director (BAU-001)',
+      description: 'KAI timecode: BAU-001\nWeekly catch-up with programme director.',
+      start: { dateTime: d.fri + 'T10:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: d.fri + 'T11:00:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-17',
+      summary: 'Architecture Peer Review (PRJ-042)',
+      description: 'KAI timecode: PRJ-042\nPRJ-042 architecture peer review session.',
+      start: { dateTime: d.fri + 'T14:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: d.fri + 'T15:00:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-18',
       summary: 'KAI Timecode Reminder — log this week',
       description: 'KAI timecode: BAU-001\nWeekly reminder to submit timecodes before 5pm.',
       start: { dateTime: d.fri + 'T16:00:00', timeZone: 'Europe/London' },
