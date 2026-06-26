@@ -26,10 +26,15 @@
     <button class="auth-btn" onclick="startAuth()">
       🔐 Connect with Google to Start
     </button>
+    <div class="auth-divider"><span>or explore without signing in</span></div>
+    <div class="auth-demo-badge">✨ No login required</div>
+    <button class="auth-btn demo" onclick="startDemoMode()">
+      🎭 Try Demo Mode
+    </button>
     <div class="auth-note">
-      Sign in with your KAI demo Gmail account (kai.demo.assistant@gmail.com).<br>
-      If Google shows "app not verified" — click Advanced → Go to KAI Demo (unsafe).<br>
-      This is safe — you own the app and the account.
+      <b>Google:</b> Sign in with kai.demo.assistant@gmail.com for live data.<br>
+      <b>Demo Mode:</b> Uses built-in mock data — fully functional, no Google account needed.<br>
+      If Google shows "app not verified" — click Advanced → Go to KAI Demo (unsafe).
     </div>
     <div style="margin-top:12px;font-size:10px;color:#ccc;font-family:monospace">v4.1</div>
   </div>
@@ -52,6 +57,7 @@
     <div class="t-right">
       <div class="t-dot"></div>
       <span class="t-user" id="topbarEmail"></span>
+      <span class="demo-mode-pill" id="demoModePill" style="display:none">Demo Mode</span>
       <button class="t-refresh" id="refreshBtn" onclick="refreshData()" title="Refresh inbox and calendar">↻</button>
       <button class="t-help" onclick="openHelp()" title="Help">?</button>
       <button class="t-signout" onclick="signOut()">Sign out</button>
@@ -509,6 +515,7 @@
 </div>
 
 <script src="utils.js"></script>
+<script src="mock-data.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
