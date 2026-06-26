@@ -15,15 +15,22 @@ function getMockWeekDates() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const dow = today.getDay();
-  const diff = dow === 0 ? -6 : 1 - dow; // Monday = day 1
+  const diff = dow === 0 ? -6 : 1 - dow;
   const monday = new Date(today);
   monday.setDate(today.getDate() + diff);
 
+  // Use local date formatting to avoid UTC/BST day shift
+  const localDateStr = (d) => {
+    return d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0');
+  };
+
   const dates = {};
-  ['mon','tue','wed','thu','fri'].forEach((d, i) => {
+  ['mon','tue','wed','thu','fri'].forEach((key, i) => {
     const dt = new Date(monday);
     dt.setDate(monday.getDate() + i);
-    dates[d] = dt.toISOString().split('T')[0];
+    dates[key] = localDateStr(dt);
   });
   return dates;
 }
