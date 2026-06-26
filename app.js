@@ -872,7 +872,8 @@ async function loadApp() {
     chatHistory = [];
     document.getElementById('chatMsgs').innerHTML = `<div class="msg"><div class="m-av kai">KAI</div><div class="m-bub kai">Hi — I've read your inbox and calendar. You have <b>${urgentEmails.length} high-priority emails</b> and <b>${events.length} calendar events</b> this week. What would you like help with?</div></div>`;
     checkAutoArchiveRecommendations();
-    loadKaiNotes(); // async — non-blocking
+    if (DEMO_MODE) { kaiNotes = { actions: [], lastUpdated: null }; renderNotes(); }
+    else { loadKaiNotes(); } // async — non-blocking
     scanEmailsForCalendarIntents(emails); // async — fires after 5s delay
   } catch(e) {
     console.error(e);
@@ -1476,7 +1477,7 @@ function renderNotes() {
   const now = new Date();
   const overdue = open.filter(a => a.due && new Date(a.due + 'T12:00:00') < now);
 
-  if (status) status.textContent = kaiNotesFileId ? '✓ Synced to Drive' : 'Not synced';
+  if (status) status.textContent = DEMO_MODE ? 'Demo mode — changes not saved' : (kaiNotesFileId ? '✓ Synced to Drive' : 'Not synced');
 
   if (open.length === 0) {
     list.innerHTML = '<div style="padding:12px 13px;font-size:11px;color:var(--muted)">No open actions. Tell KAI to remember something.</div>';
