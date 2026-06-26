@@ -339,6 +339,11 @@ function getMockCalendarEvents() {
 // Bypasses all Google API calls and loads the app with mock data
 
 function startDemoMode() {
+  const pwd = prompt('Enter demo password:');
+  if (pwd !== 'KAI-Demo-2026') {
+    if (pwd !== null) alert('Incorrect password.');
+    return;
+  }
   DEMO_MODE = true;
 
   // Set a fake user display name in session
