@@ -161,10 +161,13 @@ function parseEmail(msg) {
 // ── CALENDAR ──
 
 async function fetchCalendar() {
-  const now = new Date();
-  const end = new Date(now); end.setDate(now.getDate() + 7);
+  // Anchor to Monday 00:00 of current week so earlier days are included
+  const weekStart = getWeekStart(todayStr(), 0);
+  const timeMin = new Date(weekStart + 'T00:00:00').toISOString();
+  const timeMax = new Date(weekStart + 'T00:00:00');
+  timeMax.setDate(timeMax.getDate() + 7);
   const r = await fetch(
-    `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${now.toISOString()}&timeMax=${end.toISOString()}&singleEvents=true&orderBy=startTime&maxResults=30`,
+    `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${timeMin}&timeMax=${timeMax.toISOString()}&singleEvents=true&orderBy=startTime&maxResults=50`,
     { headers: { Authorization: 'Bearer ' + accessToken } }
   );
   if (r.status === 401) { showTokenExpiredBanner(); return []; }
@@ -246,10 +249,13 @@ function analyseBriefing(emails, events) {
   const unreadCount = emails.filter(e => e.unread).length;
   document.getElementById('statEmails').textContent = unreadCount;
 
-  // Count clashes and store clashing event IDs
+  // Count clashes and store clashing event IDs — future events only
+  const now = new Date();
   const byDay = {};
   events.forEach(ev => {
     const d = ev.start?.dateTime?.split('T')[0];
+    // Skip events that have already ended
+    if (ev.end?.dateTime && new Date(ev.end.dateTime) < now) return;
     if (d) { if (!byDay[d]) byDay[d] = []; byDay[d].push(ev); }
   });
   let clashes = 0;
@@ -1801,10 +1807,12 @@ async function resolveClashes() {
   const mobChat = document.querySelector('.mob-nav-item[data-panel="chat"]');
   if (mobChat) { document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active')); mobChat.classList.add('active'); }
 
-  // Find all clashing event pairs
+  // Find all clashing event pairs — future events only
+  const now = new Date();
   const byDay = {};
   calendarData.forEach(ev => {
     const d = ev.start?.dateTime?.split('T')[0];
+    if (ev.end?.dateTime && new Date(ev.end.dateTime) < now) return;
     if (d) { if (!byDay[d]) byDay[d] = []; byDay[d].push(ev); }
   });
 
