@@ -1357,7 +1357,7 @@ function renderCalendarPanel() {
 
   const html = weekDays.map(date => {
     const isToday = date === today;
-    const isPast = date < today;
+    const isPast = !isToday && date < today;
     const dayName = getDayName(date);
     const dateLabel = new Date(date + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
     const todayLabel = isToday ? ' — Today' : '';
