@@ -1390,6 +1390,7 @@ function renderCalendarPanel() {
 let clashedEventIds = new Set();
 let clashDayDate = null; // date string of the day with clashes, for scrolling
 let kaiNotes = { actions: [], lastUpdated: null };
+let kaiNotesFileId = null;
 
 // Notes file structure:
 // { actions: [{ id, text, due, createdAt, done }], lastUpdated }
