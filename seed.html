@@ -92,7 +92,7 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--ink); color
 <div id="gateScreen" class="gate-screen">
   <div class="gate-card">
     <div class="gate-badge">KAI</div>
-    <div class="gate-title">KAI Demo Tools v3</div>
+    <div class="gate-title">KAI Demo Tools</div>
     <div class="gate-sub">Enter the demo password to continue</div>
     <input class="gate-input" type="password" id="gateInput"
       placeholder="Password"
@@ -175,9 +175,9 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--ink); color
 </div>
 
 <script>
-const CLIENT_ID = '61547713726-04f7c0c7i54l3rbiovf260gm2r7prml1.apps.googleusercontent.com';
+const CLIENT_ID = '294776404978-p9p6q310nqisej0ohvt0kbsfd1hoqrkm.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/gmail.compose https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/calendar';
-const REDIRECT_URI = window.location.origin + window.location.pathname;
+const REDIRECT_URI = 'https://kishore510.github.io/kai-demo/seed/';
 
 let accessToken = null;
 
@@ -203,7 +203,6 @@ async function startAuth() {
     login_hint: 'kai.demo.2026@gmail.com'
   });
   window.location = 'https://accounts.google.com/o/oauth2/v2/auth?' + p;
-
 }
 
 
@@ -299,14 +298,16 @@ async function insertEvent(event) {
 }
 
 function nextWeekday(day) {
-  // Returns date for next Monday=1, Tuesday=2 etc
+  // Returns date for the current week's Monday=1, Tuesday=2 etc
+  // Always anchors to THIS week — never pushes to next week
   const now = new Date();
   const today = now.getDay(); // 0=Sun
-  let diff = day - today;
-  if (diff <= 0) diff += 7;
-  const d = new Date(now);
-  d.setDate(now.getDate() + diff);
-  d.setHours(0, 0, 0, 0);
+  const mondayDiff = today === 0 ? -6 : 1 - today; // diff to get to Monday
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + mondayDiff);
+  monday.setHours(0, 0, 0, 0);
+  const d = new Date(monday);
+  d.setDate(monday.getDate() + (day - 1)); // day 1=Mon, 2=Tue etc
   return d;
 }
 
