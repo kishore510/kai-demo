@@ -31,6 +31,7 @@
       If Google shows "app not verified" — click Advanced → Go to KAI Demo (unsafe).<br>
       This is safe — you own the app and the account.
     </div>
+    <div style="margin-top:12px;font-size:10px;color:#ccc;font-family:monospace">v4.1</div>
   </div>
 </div>
 
@@ -507,6 +508,7 @@
   </main>
 </div>
 
+<script src="utils.js"></script>
 <script>
 const CLIENT_ID = '61547713726-04f7c0c7i54l3rbiovf260gm2r7prml1.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/drive.file';
@@ -679,30 +681,9 @@ async function fetchCalendar() {
 
 // ── RENDER ──
 
-function getDayName(dateStr) {
-  if (!dateStr) return '';
-  // Append T12:00:00 to parse as local noon, avoiding UTC midnight DST day-shift
-  const d = new Date(dateStr.length === 10 ? dateStr + 'T12:00:00' : dateStr);
-  return ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][d.getDay()];
-}
-
-function getTime(ev) {
-  if (ev.start?.date) return 'All day';
-  if (!ev.start?.dateTime) return '';
-  return new Date(ev.start.dateTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-}
 
 // Returns YYYY-MM-DD for today in local time
-function todayStr() {
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-}
 
-function formatFullDate(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr + 'T12:00:00'); // noon to avoid DST edge cases
-  return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
-}
 
 function renderEventRow(ev) {
   const t = getTime(ev);
@@ -851,20 +832,6 @@ function analyseBriefing(emails, events) {
 
 // ── SILENCE DETECTOR ──
 
-function getSenderTier(from) {
-  const f = from.toLowerCase();
-  if (f.includes('director') || f.includes('chief') || f.includes('cto') || f.includes('ceo')) return { label: 'Director', rank: 1 };
-  if (f.includes('head of') || f.includes('vp ')) return { label: 'Head', rank: 2 };
-  if (f.includes('manager') || f.includes('lead') || f.includes('senior')) return { label: 'Senior', rank: 3 };
-  return { label: 'Colleague', rank: 4 };
-}
-
-function getEmailAgeHours(timeStr) {
-  if (!timeStr) return 0;
-  if (timeStr.includes('h ago')) return parseInt(timeStr) || 0;
-  if (timeStr.includes('d ago')) return (parseInt(timeStr) || 0) * 24;
-  return 0;
-}
 
 function detectSilence(emails) {
   const silent = emails
@@ -1446,11 +1413,6 @@ init();
 const archivedItems = [];
 const REGULATORY_KEYWORDS = ['governance', 'regulatory', 'compliance', 'sign-off', 'board decision', 'risk framework', 'control framework', 'audit', 'policy', 'approval', 'minister', 'exco', 'urgent'];
 
-function shouldAutoArchive(email) {
-  if (email.priority === 'urgent' || email.priority === 'high') return true;
-  const combined = (email.subject + ' ' + email.snippet + ' ' + (email.body || '')).toLowerCase();
-  return REGULATORY_KEYWORDS.some(kw => combined.includes(kw));
-}
 
 function getArchiveFolder(email) {
   const subj = (email.subject + ' ' + (email.body || '')).toLowerCase();
@@ -1931,7 +1893,6 @@ function renderCalendarPanel() {
 }
 
 
-
 let clashedEventIds = new Set();
 let clashDayDate = null; // date string of the day with clashes, for scrolling
 let kaiNotes = { actions: [], lastUpdated: null };
@@ -2084,52 +2045,8 @@ function parseRememberIntent(text) {
 }
 
 // Extract due date hint from action text — simple patterns only
-function extractDueDate(text) {
-  const t = text.toLowerCase();
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  // Helper — returns the date of the next occurrence of a weekday (0=Sun..6=Sat)
-  // If today IS that day, returns today (not next week)
-  function nextWeekday(target) {
-    const d = new Date(today);
-    const diff = (target - d.getDay() + 7) % 7; // 0 if today is target day
-    d.setDate(d.getDate() + diff);
-    return d.toISOString().split('T')[0];
-  }
-
-  if (t.includes('today')) return today.toISOString().split('T')[0];
-  if (t.includes('tomorrow')) { const d = new Date(today); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0]; }
-  if (t.includes('friday'))   return nextWeekday(5);
-  if (t.includes('thursday')) return nextWeekday(4);
-  if (t.includes('wednesday'))return nextWeekday(3);
-  if (t.includes('tuesday'))  return nextWeekday(2);
-  if (t.includes('monday'))   return nextWeekday(1);
-  if (t.includes('next week')) { const d = new Date(today); d.setDate(d.getDate() + 7); return d.toISOString().split('T')[0]; }
-  if (t.includes('end of week')) return nextWeekday(5);
-  if (t.includes('end of month')) {
-    const d = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    return d.toISOString().split('T')[0];
-  }
-  return null;
-}
 
 // Build notes context for KAI system prompt
-function buildNotesContext() {
-  const open = kaiNotes.actions.filter(a => !a.done);
-  if (!open.length) return '';
-  const now = new Date();
-  const overdue = open.filter(a => a.due && new Date(a.due + 'T12:00:00') < now);
-  const lines = open.map(a => {
-    const isOverdue = a.due && new Date(a.due + 'T12:00:00') < now;
-    const dueStr = a.due ? ` (due ${new Date(a.due + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })})` : '';
-    return `- ${isOverdue ? '[OVERDUE] ' : ''}${a.text}${dueStr}`;
-  }).join('\n');
-  return `
-OPEN ACTIONS (${open.length} total, ${overdue.length} overdue):
-${lines}`;
-}
-
 
 // Uses Claude to detect calendar intent from any natural language phrasing
 // Returns {title, dateStr, timeStr, duration} or null if not a calendar request
@@ -2186,7 +2103,6 @@ If the message is NOT a calendar request, respond with ONLY:
     return null;
   }
 }
-
 
 
 // Proposal counter for unique IDs
@@ -2304,61 +2220,8 @@ function proposeEvent(title, dateStr, timeStr, durationMins, reason) {
 
 // ── EMAIL INTENT DETECTION ──
 
-const MEETING_REQUEST_PATTERNS = [
-  /can we (meet|catch up|find time|grab time|schedule|book)/i,
-  /are you (free|available)/i,
-  /let'?s (meet|catch up|connect|talk|discuss|schedule)/i,
-  /(find|schedule|book|arrange) (a |an )?(meeting|call|time|slot|session)/i,
-  /would (you|you be able to) (meet|join|attend)/i,
-  /(quick |brief )?(call|chat|meeting|catch-?up)/i,
-  /calendar invite/i,
-  /when are you (free|available|next free)/i,
-];
 
-const APPROVAL_PATTERNS = [
-  /(leave|holiday|annual leave|time off).{0,30}(approved|confirmed|granted)/i,
-  /(approved|confirmed).{0,30}(leave|holiday|time off|annual leave)/i,
-  /your (request|application).{0,30}(approved|granted|confirmed)/i,
-];
-
-const TRAINING_PATTERNS = [
-  /(mandatory|required|compulsory).{0,40}(training|course|module|learning)/i,
-  /(training|course|module).{0,40}(mandatory|required|compulsory|must complete|please complete)/i,
-  /complete.{0,30}by/i,
-  /compliance training/i,
-  /you are required to (attend|complete)/i,
-];
-
-const DEADLINE_PATTERNS = [
-  /(deadline|due date).{0,30}\d{1,2}[\/\-\s](jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|\d{1,2})/i,
-  /submit.{0,30}by/i,
-  /required by.{0,30}(monday|tuesday|wednesday|thursday|friday|\d)/i,
-  /please (respond|reply|submit|complete|return).{0,30}by/i,
-];
-
-function detectEmailCalendarIntent(email) {
-  const combined = (email.subject + ' ' + (email.body || email.snippet)).toLowerCase();
-  const full = email.subject + ' ' + (email.body || email.snippet);
-
-  // Meeting request
-  if (MEETING_REQUEST_PATTERNS.some(p => p.test(full))) {
-    return { type: 'meeting', email };
-  }
-  // Approval (holiday/leave)
-  if (APPROVAL_PATTERNS.some(p => p.test(full))) {
-    return { type: 'approval', email };
-  }
-  // Training deadline
-  if (TRAINING_PATTERNS.some(p => p.test(full))) {
-    return { type: 'training', email };
-  }
-  // Deadline
-  if (DEADLINE_PATTERNS.some(p => p.test(full))) {
-    return { type: 'deadline', email };
-  }
-  return null;
-}
-
+/* REMOVED_TO_UTILS: function detectEmailCalendarIntent(email) */
 // Scan emails and surface calendar action suggestions in chat after load
 function scanEmailsForCalendarIntents(emails) {
   const intents = emails
@@ -2429,103 +2292,11 @@ function scanEmailsForCalendarIntents(emails) {
 
 // ── CHAT COMMAND — REMIND ME / ADD TO CALENDAR ──
 
-function parseCalendarCommand(text) {
-  const t = text.toLowerCase().trim();
-
-  // "remind me on [day] to/about Y" or "remind me on [day] at HH:MM to Y"
-  const onDay = text.match(/remind me (?:on )?(monday|tuesday|wednesday|thursday|friday|saturday|sunday|tomorrow|today)(?:\s+at (\d{1,2}(?::\d{2})?))?(?:\s+to\s+|\s+about\s+|\s+to\s+complete\s+|\s+re[:\s])(.+)/i);
-  if (onDay) {
-    const dateStr = extractDueDate(onDay[1]);
-    const timeRaw = onDay[2];
-    const timeStr = timeRaw ? (timeRaw.includes(':') ? timeRaw : timeRaw + ':00').padStart(5,'0') : '09:00';
-    const title = 'Reminder: ' + onDay[3].trim();
-    return { title, dateStr, timeStr, duration: 15 };
-  }
-
-  // "remind me in X days (time) about/to Y"
-  const inDays = text.match(/remind me in (\d+) days?(?:\s+time)?(?:\s+(?:about|to))\s+(.+)/i);
-  if (inDays) {
-    const days = parseInt(inDays[1]);
-    const title = inDays[2].trim();
-    const d = new Date(); d.setDate(d.getDate() + days);
-    return { title: 'Reminder: ' + title, dateStr: d.toISOString().split('T')[0], timeStr: '09:00', duration: 15 };
-  }
-
-  // "remind me tomorrow at HH:MM to Y"
-  const tomorrowAt = text.match(/remind me tomorrow at (\d{1,2}(?::\d{2})?) (?:to |about )?(.+)/i);
-  if (tomorrowAt) {
-    const d = new Date(); d.setDate(d.getDate() + 1);
-    const time = tomorrowAt[1].includes(':') ? tomorrowAt[1] : tomorrowAt[1] + ':00';
-    return { title: 'Reminder: ' + tomorrowAt[2].trim(), dateStr: d.toISOString().split('T')[0], timeStr: time.padStart(5,'0'), duration: 15 };
-  }
-
-  // "add [something] to my calendar [day] at [time]"
-  const addCal = text.match(/add (.+?) to my calendar(?: on)?(?: (?:monday|tuesday|wednesday|thursday|friday|tomorrow|today))?(?: at (\d{1,2}(?::\d{2})?))?/i);
-  if (addCal) {
-    const title = addCal[1].trim();
-    const timeRaw = addCal[2];
-    const timeStr = timeRaw ? (timeRaw.includes(':') ? timeRaw : timeRaw + ':00').padStart(5,'0') : '09:00';
-    const dateStr = extractDueDate(t) || todayStr();
-    return { title, dateStr, timeStr, duration: 30 };
-  }
-
-  // "block [day] [at time] for [title]"
-  const blockFor = text.match(/block (.+?) for (.+)/i);
-  if (blockFor) {
-    const dayPart = blockFor[1].trim();
-    const title = blockFor[2].trim();
-    const dateStr = extractDueDate(dayPart) || todayStr();
-    return { title, dateStr, timeStr: '09:00', duration: 60 };
-  }
-
-  // "create a meeting with [name] on [day] at [time]"
-  const createWith = text.match(/create (?:a )?meeting with (.+?) on (.+?)(?:\s+at (\d{1,2}(?::\d{2})?))?$/i);
-  if (createWith) {
-    const name = createWith[1].trim();
-    const dayPart = createWith[2].trim();
-    const timeRaw = createWith[3];
-    const timeStr = timeRaw ? (timeRaw.includes(':') ? timeRaw : timeRaw + ':00').padStart(5,'0') : '10:00';
-    const dateStr = extractDueDate(dayPart) || todayStr();
-    return { title: 'Meeting with ' + name, dateStr, timeStr, duration: 30 };
-  }
-
-  return null;
-}
-
 
 // ── CLASH RESOLUTION ──
 
 // Determines meeting priority for clash resolution
-function getMeetingPriority(ev) {
-  const s = (ev.summary || '').toLowerCase();
-  const d = (ev.description || '').toLowerCase();
-  const combined = s + ' ' + d;
-  // Own reminders and auto-created events — always low
-  if (s.startsWith('reminder:') || s.includes('focus:') || s.includes('prep:') ||
-      s.includes('focus block') || s.includes('transit') || s.includes('kai timecode') ||
-      d.includes('created by kai') || d.includes('knowledge action intelligence')) return 'low';
-  // Critical — never decline
-  if (combined.includes('director') || combined.includes('exco') || combined.includes('1:1 with') ||
-      combined.includes('board') || combined.includes('governance') || combined.includes('minister') ||
-      combined.includes('cto') || s.includes('gov-011')) return 'critical';
-  // High
-  if (combined.includes('programme') || combined.includes('milestone') || combined.includes('prj-042') ||
-      combined.includes('risk') || combined.includes('compliance') || combined.includes('stakeholder') ||
-      combined.includes('mandatory') || combined.includes('required') || combined.includes('compulsory')) return 'high';
-  // Medium
-  if (combined.includes('guild') || combined.includes('peer review') || combined.includes('vendor') ||
-      combined.includes('briefing') || combined.includes('catch-up') || combined.includes('catch up') ||
-      combined.includes('bau-001') || combined.includes('standup') || combined.includes('stand-up')) return 'medium';
-  // Training/health/wellbeing blocks created by user — low unless mandatory
-  if (s.includes('training') || s.includes('health') || s.includes('safety') || s.includes('e-learning')) return 'low';
-  return 'medium';
-}
 
-const PRIORITY_SCORE = { critical: 4, high: 3, medium: 2, low: 1 };
-
-function getPriorityLabel(priority) {
-  return { critical: '🔴 Critical', high: '🟠 High', medium: '🟡 Medium', low: '🟢 Low' }[priority] || '⚪ Unknown';
-}
 
 async function resolveClashes() {
   // Switch to Ask KAI and show resolution there
@@ -2652,100 +2423,19 @@ function proposeReschedule(evId, evTitle) {
 }
 
 
-
-const TC_DEFINITIONS = [
-  {
-    code: 'PRJ-042', name: 'Digital Transformation',
-    desc: 'Architecture, delivery, AI programme, vendor briefings',
-    badgeClass: 'tc-badge-prj', hrsColor: 'var(--teal)',
-    barColor: 'var(--teal)', barColorLt: '#C8E6CA',
-    keywords: ['prj-042','digital transformation','architecture review','ai strategy','vendor briefing','control plane','peer review','milestone','architecture peer','architecture strategy'],
-  },
-  {
-    code: 'GOV-011', name: 'Governance and Oversight',
-    desc: 'Board meetings, risk reviews, compliance, policy',
-    badgeClass: 'tc-badge-gov', hrsColor: 'var(--purple)',
-    barColor: 'var(--purple)', barColorLt: '#D1C4E9',
-    keywords: ['gov-011','governance','board','risk','compliance','framework','oversight','committee','technology committee','architecture guild','guild'],
-  },
-  {
-    code: 'BAU-001', name: 'Business As Usual',
-    desc: 'Standups, 1:1s, team meetings, general ops',
-    badgeClass: 'tc-badge-bau', hrsColor: 'var(--amber)',
-    barColor: 'var(--amber)', barColorLt: '#FFE082',
-    keywords: ['bau-001','standup','stand-up','1:1','one to one','programme director','team meeting','catch up','catch-up'],
-  },
-];
-
 // Returns events for a date range
-function getEventsForRange(startDate, endDate) {
-  return calendarData.filter(ev => {
-    const d = ev.start?.dateTime?.split('T')[0] || ev.start?.date;
-    if (!d) return false;
-    return d >= startDate && d <= endDate;
-  });
-}
 
 // Match an event to a timecode
-function matchTimecode(ev) {
-  const s = (ev.summary || '').toLowerCase();
-  const d = (ev.description || '').toLowerCase();
-  const combined = s + ' ' + d;
-  // Skip non-meeting events
-  if (s.includes('focus:') || s.includes('transit') || s.includes('kai timecode') || s.includes('prep:') || s.includes('travel')) return null;
-  for (const tc of TC_DEFINITIONS) {
-    if (tc.keywords.some(kw => combined.includes(kw))) return tc.code;
-  }
-  return null; // unmatched
-}
 
 // Get duration in hours from a calendar event
-function getEventHours(ev) {
-  if (!ev.start?.dateTime || !ev.end?.dateTime) return 0;
-  return (new Date(ev.end.dateTime) - new Date(ev.start.dateTime)) / 3600000;
-}
 
 // Get week start (Monday) for a date
-function getWeekStart(date, offsetWeeks = 0) {
-  const d = new Date(date + 'T12:00:00');
-  const day = d.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
-  d.setDate(d.getDate() + diff + offsetWeeks * 7);
-  return d.toISOString().split('T')[0];
-}
 
-function getWeekEnd(weekStart) {
-  const d = new Date(weekStart + 'T12:00:00');
-  d.setDate(d.getDate() + 4); // Friday
-  return d.toISOString().split('T')[0];
-}
 
 let tcCurrentWeek = 'this';
 
 // ── WELLBEING PANEL ──
 
-function weatherCodeToEmoji(code) {
-  if (code === 0) return '☀️';
-  if (code <= 2) return '⛅';
-  if (code <= 3) return '☁️';
-  if (code <= 49) return '🌫️';
-  if (code <= 67) return '🌧️';
-  if (code <= 77) return '❄️';
-  if (code <= 82) return '🌦️';
-  return '⛈️';
-}
-
-function weatherCodeToDesc(code) {
-  if (code === 0) return 'Clear sky';
-  if (code <= 2) return 'Partly cloudy';
-  if (code <= 3) return 'Overcast';
-  if (code <= 49) return 'Foggy';
-  if (code <= 55) return 'Drizzle';
-  if (code <= 67) return 'Rainy';
-  if (code <= 77) return 'Snowy';
-  if (code <= 82) return 'Rain showers';
-  return 'Thunderstorm';
-}
 
 async function renderWellbeingPanel() {
   const today = todayStr();
@@ -2874,7 +2564,6 @@ async function renderWellbeingPanel() {
     }
   }
 }
-
 
 
 function switchTcWeek(week) {
