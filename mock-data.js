@@ -1,6 +1,7 @@
 /* ── KAI — Knowledge Action Intelligence ── */
 /* mock-data.js — hardcoded demo data for offline / Google-independent demo mode */
 /* Data matches the seed.html spec exactly. Dates anchor to current week dynamically. */
+/* v4.2 — 3 Friday events, full week scaffold */
 
 // ── DEMO MODE FLAG ──
 // Set to true by startDemoMode(), checked by fetchEmails / fetchCalendar stubs
@@ -353,11 +354,25 @@ function getMockCalendarEvents() {
 // Bypasses all Google API calls and loads the app with mock data
 
 function startDemoMode() {
-  const pwd = prompt('Enter demo password:');
+  const modal = document.getElementById('demoPasswordModal');
+  modal.style.display = 'flex';
+  document.getElementById('demoPasswordInput').value = '';
+  document.getElementById('demoPasswordError').textContent = '';
+  setTimeout(() => document.getElementById('demoPasswordInput').focus(), 100);
+}
+
+function closeDemoPasswordModal() {
+  document.getElementById('demoPasswordModal').style.display = 'none';
+}
+
+function submitDemoPassword() {
+  const pwd = document.getElementById('demoPasswordInput').value;
   if (pwd !== 'KAI-Demo-2026') {
-    if (pwd !== null) alert('Incorrect password.');
+    document.getElementById('demoPasswordError').textContent = 'Incorrect password. Please try again.';
+    document.getElementById('demoPasswordInput').select();
     return;
   }
+  closeDemoPasswordModal();
   DEMO_MODE = true;
 
   // Set a fake user display name in session
