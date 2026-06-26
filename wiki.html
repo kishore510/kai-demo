@@ -470,25 +470,19 @@ footer {
     <div class="section-eyebrow">02 · The Solution</div>
     <h2 class="section-h2">KAI is an Intelligent Assistant for every colleague.</h2>
     <div class="divider"></div>
-    <p class="section-lead">KAI connects to the tools colleagues already use — Gmail, Google Calendar, Google Drive — and brings the intelligence of a well-briefed PA to every interaction. Not generic AI. Organisational intelligence.</p>
+    <p class="section-lead">KAI connects to the tools colleagues already use — in production, Outlook, Teams Calendar, and SharePoint via Microsoft Graph API. The demo runs on Google APIs to prove the concept end-to-end. Not generic AI. Organisational intelligence.</p>
     <div class="features-grid">
       <div class="feature-card">
         <div class="feature-pill pill-live">✓ Live</div>
         <div class="feature-icon">🌅</div>
         <h3 class="feature-h3">Morning Briefing</h3>
-        <p class="feature-desc">A three-column dashboard: Schedule, Intelligence, Admin. Six stat tiles at the top surface unread emails, awaiting replies, clashes, timecodes, meeting hours, and wellbeing flags at a glance. KAI doesn't just show your diary — it shows what needs your attention right now.</p>
+        <p class="feature-desc">Every morning KAI reads your inbox and calendar and delivers a concise brief — today's meetings, urgent emails, clashes, wellbeing nudges, and timecode suggestions. Like arriving at your desk to find it all laid out.</p>
       </div>
       <div class="feature-card">
         <div class="feature-pill pill-live">✓ Live</div>
         <div class="feature-icon">📬</div>
         <h3 class="feature-h3">Smart Inbox Triage</h3>
         <p class="feature-desc">Emails ranked by stakeholder importance — not just arrival time. URGENT items from Director level and above surface immediately. FYI noise is separated automatically. Never miss what matters.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-pill pill-live">✓ Live</div>
-        <div class="feature-icon">🔇</div>
-        <h3 class="feature-h3">Silence Detector</h3>
-        <p class="feature-desc">KAI tracks every email that hasn't had a reply — sorted by seniority first (Director, Head, Senior, Colleague), then by age. A 26-hour silence from your CTO surfaces above a 3-hour wait from a vendor. Displayed in the briefing as an Awaiting Reply card. Click any row to jump directly to that email.</p>
       </div>
       <div class="feature-card">
         <div class="feature-pill pill-live">✓ Live</div>
@@ -524,7 +518,7 @@ footer {
         <div class="feature-pill pill-live">✓ Live</div>
         <div class="feature-icon">💚</div>
         <h3 class="feature-h3">Wellbeing Nudges</h3>
-        <p class="feature-desc">A dedicated panel — not just a tile. KAI generates a warm, specific paragraph about your week from actual calendar data, then surfaces day-by-day load cards, actionable nudges (hydration, movement, breaks), and a London travel day weather forecast. Heavy days get a + Protect lunch slot button that proposes a calendar block directly in Ask KAI. No generic product will ever have context this precise.</p>
+        <p class="feature-desc">KAI detects overloaded days — back-to-back meetings, no lunch break, heavy late finishes — and surfaces a nudge before the day becomes a problem. Not patronising. Specific, actionable, and calibrated to your actual calendar. No generic product will ever have context this precise.</p>
       </div>
       <div class="feature-card">
         <div class="feature-pill pill-live">✓ Live</div>
@@ -557,16 +551,22 @@ footer {
         <p class="feature-desc">Floating ? button opens a quick reference sheet — exact command phrasings, where to find every feature, and tips for getting the most out of KAI. Designed so someone picking up the demo cold can be up to speed in 30 seconds.</p>
       </div>
       <div class="feature-card">
+        <div class="feature-pill pill-live">✓ Live</div>
+        <div class="feature-icon">🎭</div>
+        <h3 class="feature-h3">Demo Mode</h3>
+        <p class="feature-desc">Two-entry-point auth screen — connect with Google for live data, or enter Demo Mode with a password for a fully functional offline experience using built-in mock data. All features work identically. No Google account needed. Resilient against OAuth issues on panel day.</p>
+      </div>
+      <div class="feature-card">
         <div class="feature-pill pill-soon">Soon</div>
         <div class="feature-icon">📄</div>
         <h3 class="feature-h3">Meeting Minutes Ingestion</h3>
         <p class="feature-desc">Paste a meeting transcript or upload notes. KAI extracts action items with owners and due dates, adds them to your Open Actions store, and reminds you if they go stale.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-pill pill-future">Future</div>
+        <div class="feature-pill pill-live">✓ Live</div>
         <div class="feature-icon">🕐</div>
         <h3 class="feature-h3">Timecode Assist</h3>
-        <p class="feature-desc">KAI maps each calendar event to our project taxonomy automatically — PRJ-042, GOV-011, BAU-001 — and pre-fills your timesheet at end of week. Our codes, our context. No generic product will ever have this.</p>
+        <p class="feature-desc">KAI maps each calendar event to our project taxonomy automatically — PRJ-042, GOV-011, BAU-001 — and pre-fills your timesheet at end of week. Full week view shows all days Mon–Fri, with hours per code for this week and last week. Our codes, our context. No generic product will ever have this.</p>
       </div>
       <div class="feature-card">
         <div class="feature-pill pill-future">Future</div>
@@ -725,7 +725,7 @@ footer {
         <div class="stack-card">
           <div class="stack-layer">Demo · Frontend</div>
           <div class="stack-name">GitHub Pages</div>
-          <div class="stack-note">Single-file HTML/JS. No build step. Deployable in minutes.</div>
+          <div class="stack-note">Modular architecture — index.html, styles.css, utils.js, app.js, mock-data.js. No build step. Each file has a single concern. Deployable in minutes.</div>
         </div>
         <div class="stack-card">
           <div class="stack-layer">Demo · Proxy</div>
@@ -739,8 +739,8 @@ footer {
         </div>
         <div class="stack-card">
           <div class="stack-layer">Demo · Data</div>
-          <div class="stack-name">Google APIs</div>
-          <div class="stack-note">Gmail, Calendar, Drive — OAuth implicit flow. Real data, not mocked.</div>
+          <div class="stack-name">Google APIs + Mock Mode</div>
+          <div class="stack-note">Gmail, Calendar, Drive — OAuth implicit flow for live data. Built-in mock data layer for offline demo resilience. Switches transparently — same code path either way.</div>
         </div>
         <div class="stack-card">
           <div class="stack-layer">Production · Agent</div>
@@ -794,9 +794,9 @@ footer {
       </div>
 
       <div class="phase-row">
-        <div class="phase-dot building">P2</div>
+        <div class="phase-dot active">P2</div>
         <div class="phase-content">
-          <div class="phase-label building">Phase 2 · In progress — Features built, deploying</div>
+          <div class="phase-label active">Phase 2 · Complete — All features live</div>
           <div class="phase-h3">Org Intelligence — Context gets richer</div>
           <div class="phase-desc">KAI learns more about the organisation — stakeholder registry integration, calendar clash resolution, meeting slot suggestions, persistent action tracking across sessions, email-to-calendar intelligence.</div>
           <div class="phase-tags">
@@ -805,9 +805,15 @@ footer {
             <span class="phase-tag done">Open Actions store</span>
             <span class="phase-tag done">Calendar event creation</span>
             <span class="phase-tag done">Email intent detection</span>
-            <span class="phase-tag done">Calendar view</span>
+            <span class="phase-tag done">Calendar view (full week)</span>
             <span class="phase-tag done">AI clash resolution</span>
             <span class="phase-tag done">Timecode panel</span>
+            <span class="phase-tag done">Help panel</span>
+            <span class="phase-tag done">Today / Rest of Week split</span>
+            <span class="phase-tag done">Date-aware KAI</span>
+            <span class="phase-tag done">Chat → inbox filters</span>
+            <span class="phase-tag done">Demo Mode (offline)</span>
+            <span class="phase-tag done">Modular architecture</span>
             <span class="phase-tag">Meeting slot suggester</span>
             <span class="phase-tag">Stakeholder registry</span>
             <span class="phase-tag">FYI weekly digest</span>
