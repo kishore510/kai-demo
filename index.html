@@ -36,7 +36,7 @@
       <b>Demo Mode:</b> Uses built-in mock data — fully functional, no Google account needed.<br>
       If Google shows "app not verified" — click Advanced → Go to KAI Demo (unsafe).
     </div>
-    <div style="margin-top:12px;font-size:10px;color:#ccc;font-family:monospace">v4.2</div>
+    <div style="margin-top:12px;font-size:10px;color:#ccc;font-family:monospace">v4.3</div>
   </div>
 </div>
 
@@ -69,7 +69,7 @@
     <div class="t-logo">
       <div class="t-badge">KAI</div>
       <span class="t-name">KAI</span>
-      <span style="font-size:11px;color:#555">· Knowledge Action Intelligence</span><span style="font-size:9px;color:#bbb;margin-left:6px;font-family:monospace">v4.2</span>
+      <span style="font-size:11px;color:#555">· Knowledge Action Intelligence</span><span style="font-size:9px;color:#bbb;margin-left:6px;font-family:monospace">v4.3</span>
     </div>
     <div class="t-right">
       <div class="t-dot"></div>
@@ -98,6 +98,9 @@
     </button>
     <button class="mob-nav-item" data-panel="timecodes" onclick="mobNav(this)">
       <span class="mob-icon">🕐</span>Timecodes
+    </button>
+    <button class="mob-nav-item" data-panel="wellbeing" onclick="mobNav(this)">
+      <span class="mob-icon">💚</span>Wellbeing
     </button>
     <button class="mob-nav-item" data-panel="archive" onclick="mobNav(this)">
       <span class="mob-icon">🗄️</span>Archive
@@ -161,9 +164,9 @@
 
         <!-- STAT STRIP — 6 tiles horizontal -->
         <div class="b-stat-strip">
-          <div class="stat-c stat-clickable" onclick="goToUnreplied()" title="View unread emails">
+          <div class="stat-c stat-clickable" onclick="goToActions()" title="View open actions">
             <div class="stat-n" id="statEmails">–</div>
-            <div class="stat-l">Unread<br>emails</div>
+            <div class="stat-l">Open<br>actions</div>
             <div class="stat-arrow">→</div>
           </div>
           <div class="stat-c stat-clickable" onclick="goToCalendar()" title="View calendar clashes">
