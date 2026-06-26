@@ -105,6 +105,7 @@ setInterval(async () => {
 // ── GMAIL ──
 
 async function fetchEmails() {
+  if (typeof DEMO_MODE !== 'undefined' && DEMO_MODE) return getMockEmails();
   const r = await fetch(
     'https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=20&labelIds=INBOX',
     { headers: { Authorization: 'Bearer ' + accessToken } }
@@ -161,6 +162,7 @@ function parseEmail(msg) {
 // ── CALENDAR ──
 
 async function fetchCalendar() {
+  if (typeof DEMO_MODE !== 'undefined' && DEMO_MODE) return getMockCalendarEvents();
   // Anchor to Monday 00:00 of current week so earlier days are included
   const weekStart = getWeekStart(todayStr(), 0);
   const timeMin = new Date(weekStart + 'T00:00:00').toISOString();
@@ -1310,6 +1312,15 @@ function renderCalendarPanel() {
   if (!container) return;
 
   const today = todayStr();
+  const weekStart = getWeekStart(today, 0);
+
+  // Build Mon–Fri scaffold for current week
+  const weekDays = [];
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(weekStart + 'T12:00:00');
+    d.setDate(d.getDate() + i);
+    weekDays.push(d.toISOString().split('T')[0]);
+  }
 
   // Group events by date
   const days = {};
@@ -1320,9 +1331,7 @@ function renderCalendarPanel() {
     days[d].push(ev);
   });
 
-  const sorted = Object.entries(days).sort(([a], [b]) => a.localeCompare(b));
-
-  if (!sorted.length) {
+  if (!Object.keys(days).length && !weekDays.includes(today)) {
     container.innerHTML = '<div class="cal-empty">No calendar events found. Make sure you ran the data seeder.</div>';
     return;
   }
@@ -1346,18 +1355,19 @@ function renderCalendarPanel() {
     <div class="cal-legend-item"><span class="tag travel" style="font-size:9px;padding:1px 6px">TRAVEL</span> Travel day</div>
   </div>`;
 
-  const html = sorted.map(([date, evs]) => {
+  const html = weekDays.map(date => {
     const isToday = date === today;
+    const isPast = date < today;
     const dayName = getDayName(date);
     const dateLabel = new Date(date + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
     const todayLabel = isToday ? ' — Today' : '';
+    const evs = days[date] || [];
 
-    const eventRows = evs.map(ev => {
+    const eventRows = evs.length ? evs.map(ev => {
       const isClashing = clashedEventIds.has(ev.id);
       const s = ev.summary || '';
       const t = getTime(ev);
 
-      // Determine tag
       let tagClass = '', tagLabel = '';
       if (s.includes('FOCUS'))  { tagClass = 'focus';  tagLabel = 'FOCUS'; }
       else if (s.includes('PREP'))   { tagClass = 'prep';   tagLabel = 'PREP'; }
@@ -1369,7 +1379,7 @@ function renderCalendarPanel() {
       const isSkip = s.includes('Transit') || s.includes('KAI Timecode');
       const clickable = !isSkip;
 
-      return `<div class="cal-event ${isClashing ? 'clash-event' : ''}" 
+      return `<div class="cal-event ${isClashing ? 'clash-event' : ''}" style="${isPast ? 'opacity:0.55' : ''}"
         ${clickable ? `onclick="openMeetingPrep(${evIdx})" title="Click to prep for this meeting"` : ''}>
         <div class="cal-event-time">${t || '·'}</div>
         <div class="cal-event-title">${displayName}</div>
@@ -1378,7 +1388,7 @@ function renderCalendarPanel() {
         </div>
         ${clickable ? '<div class="cal-event-arrow">›</div>' : ''}
       </div>`;
-    }).join('');
+    }).join('') : `<div class="cal-empty" style="padding:10px 14px;font-size:11px;color:#bbb">${isPast ? 'No meetings' : 'No meetings scheduled'}</div>`;
 
     return `<div class="cal-day">
       <div class="cal-day-hdr ${isToday ? 'today' : ''}">
