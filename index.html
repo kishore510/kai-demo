@@ -1067,8 +1067,7 @@ function buildKaiSystem() {
 
   const emailSummary = gmailData.slice(0, 8).map(e =>
     `- [${e.priority.toUpperCase()}] From: ${e.from} | Subject: ${e.subject} | ${e.unread ? 'UNREAD' : 'read'} | Received: ${e.time}`
-  ).join('
-');
+  ).join('\n');
 
   // Split calendar into today vs rest of week
   const todayEvs = calendarData.filter(ev => {
@@ -1087,10 +1086,8 @@ function buildKaiSystem() {
     return `- ${start}: ${ev.summary || '(no title)'}`;
   };
 
-  const todaySummary = todayEvs.length ? todayEvs.map(fmtEv).join('
-') : 'No meetings today.';
-  const restSummary = restEvs.slice(0, 10).map(fmtEv).join('
-') || 'No further events this week.';
+  const todaySummary = todayEvs.length ? todayEvs.map(fmtEv).join('\n') : 'No meetings today.';
+  const restSummary = restEvs.slice(0, 10).map(fmtEv).join('\n') || 'No further events this week.';
 
   return `You are KAI — Knowledge Action Intelligence. You are the personal organisational intelligence assistant for a senior Enterprise Platform Architect at a UK financial services regulatory organisation.
 
@@ -1191,8 +1188,7 @@ function addMsg(role, text, inboxAction = null) {
   const msgs = document.getElementById('chatMsgs');
   const d = document.createElement('div');
   d.className = 'msg ' + role;
-  const formatted = text.replace(/
-/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+  const formatted = text.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
   let actionHtml = '';
   if (inboxAction) {
     actionHtml = `<div style="margin-top:8px"><button class="kai-action-btn" onclick="filterInboxBy('${inboxAction.filter}','${inboxAction.label.replace(/'/g, '')}')">${inboxAction.label}</button></div>`;
@@ -1524,8 +1520,7 @@ async function archiveEmail(emailId) {
       '',
       '---',
       'Archived by KAI — Knowledge Action Intelligence',
-    ].join('
-');
+    ].join('\n');
 
     const metadata = { name: fileName, parents: [folderId] };
     const form = new FormData();
@@ -1742,8 +1737,7 @@ async function generateMeetingBrief(ev) {
     const words = cleanTitle.toLowerCase().split(/\s+/).filter(w => w.length > 3);
     const combined = (email.subject + ' ' + email.snippet).toLowerCase();
     return words.some(w => combined.includes(w));
-  }).slice(0, 3).map(e => `- Email from ${e.from}: "${e.subject}"`).join('
-');
+  }).slice(0, 3).map(e => `- Email from ${e.from}: "${e.subject}"`).join('\n');
 
   const system = `You are KAI, an AI assistant for a senior Enterprise Platform Architect at a UK financial services regulator.
 
@@ -1766,19 +1760,16 @@ Be specific to a financial services regulator context — governance-heavy, seni
     const parts = response.split('|||');
     if (parts[0]) {
       document.getElementById('prepSummary').innerHTML =
-        `<div class="prep-content">${parts[0].trim().replace(/
-/g, '<br>')}</div>`;
+        `<div class="prep-content">${parts[0].trim().replace(/\n/g, '<br>')}</div>`;
     }
     if (parts[1]) {
-      const bullets = parts[1].trim().split('
-').filter(l => l.trim().startsWith('•'));
+      const bullets = parts[1].trim().split('\n').filter(l => l.trim().startsWith('•'));
       document.getElementById('prepTalkingPoints').innerHTML = bullets.map(b =>
         `<div class="prep-bullet"><div class="prep-bullet-dot"></div><div class="prep-bullet-text">${b.replace('•', '').trim()}</div></div>`
       ).join('') || `<div class="prep-content">${parts[1].trim()}</div>`;
     }
     if (parts[2]) {
-      const bullets = parts[2].trim().split('
-').filter(l => l.trim().startsWith('•'));
+      const bullets = parts[2].trim().split('\n').filter(l => l.trim().startsWith('•'));
       document.getElementById('prepWatchOut').innerHTML = bullets.map(b =>
         `<div class="prep-bullet"><div class="prep-bullet-dot" style="background:var(--coral)"></div><div class="prep-bullet-text">${b.replace('•', '').trim()}</div></div>`
       ).join('') || `<div class="prep-content">${parts[2].trim()}</div>`;
@@ -1832,8 +1823,7 @@ When drafting structured content, use headers and bullets. Keep responses concis
     prepChatHistory.push({ role: 'assistant', content: reply });
     const replyDiv = document.createElement('div');
     replyDiv.className = 'msg';
-    replyDiv.innerHTML = `<div class="m-av kai">KAI</div><div class="m-bub kai" style="max-width:100%">${reply.replace(/
-/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/^- /gm, '• ')}</div>`;
+    replyDiv.innerHTML = `<div class="m-av kai">KAI</div><div class="m-bub kai" style="max-width:100%">${reply.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/^- /gm, '• ')}</div>`;
     msgs.appendChild(replyDiv);
     msgs.scrollTop = msgs.scrollHeight;
   } catch(e) {
@@ -2134,8 +2124,7 @@ function buildNotesContext() {
     const isOverdue = a.due && new Date(a.due + 'T12:00:00') < now;
     const dueStr = a.due ? ` (due ${new Date(a.due + 'T12:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })})` : '';
     return `- ${isOverdue ? '[OVERDUE] ' : ''}${a.text}${dueStr}`;
-  }).join('
-');
+  }).join('\n');
   return `
 OPEN ACTIONS (${open.length} total, ${overdue.length} overdue):
 ${lines}`;
@@ -2579,9 +2568,7 @@ async function resolveClashes() {
     return `Clash ${i+1} on ${dateLabel}:
   - "${p.a.summary}" at ${getTime(p.a)} [Priority: ${priA}]
   - "${p.b.summary}" at ${getTime(p.b)} [Priority: ${priB}]`;
-  }).join('
-
-');
+  }).join('\n\n');
 
   const system = `You are KAI — an intelligent assistant for a senior Enterprise Platform Architect at a UK financial services regulator.
 
@@ -2639,8 +2626,7 @@ End with a one-line summary of total actions needed.`;
       </div>`;
     }).join('');
 
-    d.innerHTML = `<div class="m-av kai">KAI</div><div class="m-bub kai" style="max-width:95%">${reply.replace(/
-/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>')}${actionButtons}</div>`;
+    d.innerHTML = `<div class="m-av kai">KAI</div><div class="m-bub kai" style="max-width:95%">${reply.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>')}${actionButtons}</div>`;
     msgs.appendChild(d);
     msgs.scrollTop = msgs.scrollHeight;
 
@@ -3033,8 +3019,7 @@ function renderTimecodePanel() {
   });
   const copyText = `Week: ${weekLabel}
 ${'━'.repeat(50)}
-${lines.join('
-')}
+${lines.join('\n')}
 ${'━'.repeat(50)}
 TOTAL    Logged${' '.repeat(22)}${totalLogged.toFixed(1)} hrs
          Unmatched${' '.repeat(19)}${totalUnmatched.toFixed(1)} hrs
