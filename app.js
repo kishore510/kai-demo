@@ -249,7 +249,8 @@ function renderWeekAhead(events) {
 function analyseBriefing(emails, events) {
   const urgentCount = emails.filter(e => e.priority === 'urgent' || e.priority === 'high').length;
   const unreadCount = emails.filter(e => e.unread).length;
-  document.getElementById('statEmails').textContent = unreadCount;
+  const openActions = kaiNotes?.actions?.filter(a => !a.done).length || 0;
+  document.getElementById('statEmails').textContent = openActions;
 
   // Count clashes and store clashing event IDs — future events only
   const now = new Date();
@@ -467,6 +468,10 @@ function selectEmail(id) {
   renderEmailList();
   if (window.innerWidth <= 768) { document.getElementById('emailDetail').classList.add('mob-open'); }
 
+  // Detect meeting request intent
+  const intent = detectEmailCalendarIntent(email);
+  const intentCard = (intent?.type === 'meeting') ? buildMeetingIntentCard(email) : '';
+
   document.getElementById('emailDetail').innerHTML = `
     <div class="ed-hdr">
       <div class="ed-subject">${email.subject}</div>
@@ -474,6 +479,7 @@ function selectEmail(id) {
       <span class="pri ${email.priority}">${email.priority.toUpperCase()} PRIORITY</span>
     </div>
     <div class="ed-body"><div class="ed-text">${email.body || email.snippet}</div></div>
+    ${intentCard}
     <div class="ed-actions">
       <button class="btn btn-p" onclick="draftReply('${email.id}')">✨ KAI Draft Reply</button>
       <button class="btn btn-archive" id="archiveBtn-${email.id}" onclick="archiveEmail('${email.id}')">🗄️ Archive to Drive</button>
@@ -489,6 +495,117 @@ function selectEmail(id) {
       </div>
     </div>
   `;
+}
+
+// ── MEETING SCHEDULING ASSISTANT ──
+
+function buildMeetingIntentCard(email) {
+  // Extract suggested days from email body
+  const body = (email.body || email.snippet || '').toLowerCase();
+  const today = todayStr();
+
+  // Find days mentioned in the email
+  const dayNames = ['monday','tuesday','wednesday','thursday','friday'];
+  const mentionedDays = dayNames.filter(d => body.includes(d));
+
+  // Build slots — check calendar for conflicts and travel days
+  const slots = mentionedDays.map(dayName => {
+    const dayIndex = dayNames.indexOf(dayName) + 1; // 1=Mon
+    const weekStart = getWeekStart(today, 0);
+    const dt = new Date(weekStart + 'T12:00:00');
+    dt.setDate(dt.getDate() + (dayIndex - 1));
+    const dateStr = dt.getFullYear() + '-' +
+      String(dt.getMonth()+1).padStart(2,'0') + '-' +
+      String(dt.getDate()).padStart(2,'0');
+
+    // Check if it's a travel day
+    const isTravelDay = calendarData.some(ev =>
+      (ev.start?.date === dateStr || ev.start?.dateTime?.startsWith(dateStr)) &&
+      (ev.summary?.toLowerCase().includes('travel') || ev.summary?.toLowerCase().includes('transit'))
+    );
+
+    // Find a free slot — default afternoon for tuesday, morning for others
+    const timeStr = body.includes(dayName + ' afternoon') ? '14:00' :
+                    body.includes(dayName + ' morning')   ? '09:30' : '14:00';
+
+    // Check for conflicts at that time
+    const hasConflict = calendarData.some(ev => {
+      if (!ev.start?.dateTime?.startsWith(dateStr)) return false;
+      const evStart = new Date(ev.start.dateTime);
+      const slotStart = new Date(dateStr + 'T' + timeStr + ':00');
+      const slotEnd = new Date(slotStart.getTime() + 30 * 60000);
+      const evEnd = new Date(ev.end?.dateTime || ev.start.dateTime);
+      return evStart < slotEnd && evEnd > slotStart;
+    });
+
+    const dayLabel = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+    const dateLabel = dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
+    return { dayName, dateStr, timeStr, dayLabel, dateLabel, isTravelDay, hasConflict, isPast: dateStr < today };
+  });
+
+  // Find recommended slot — prefer non-travel, non-conflict, non-past
+  const recommended = slots.find(s => !s.isTravelDay && !s.hasConflict && !s.isPast)
+    || slots.find(s => !s.isTravelDay && !s.isPast)
+    || slots[0];
+
+  const slotRows = slots.map(s => {
+    const isRec = recommended && s.dateStr === recommended.dateStr;
+    let statusIcon = '✓';
+    let statusText = 'Available';
+    let statusClass = 'slot-ok';
+    if (s.isPast) { statusIcon = '✕'; statusText = 'Past'; statusClass = 'slot-conflict'; }
+    else if (s.isTravelDay) { statusIcon = '✈️'; statusText = 'Travel day'; statusClass = 'slot-travel'; }
+    else if (s.hasConflict) { statusIcon = '⚠️'; statusText = 'Conflict'; statusClass = 'slot-conflict'; }
+
+    return `<div class="slot-row ${isRec ? 'slot-recommended' : ''}">
+      <div class="slot-info">
+        <div class="slot-day">${s.dayLabel} ${s.dateLabel}</div>
+        <div class="slot-time">${s.timeStr} · 30 mins</div>
+      </div>
+      <div class="slot-status ${statusClass}">${statusIcon} ${statusText}</div>
+      ${!s.isPast ? `<button class="slot-btn ${isRec ? 'slot-btn-primary' : ''}"
+        onclick="confirmMeetingSlot('${email.id}','${s.dateStr}','${s.timeStr}','${email.from}','${email.subject.replace(/'/g,"\\'")}')">
+        ${isRec ? 'Schedule ›' : 'Use this'}
+      </button>` : '<div></div>'}
+    </div>`;
+  }).join('');
+
+  const travelWarning = slots.some(s => s.isTravelDay)
+    ? `<div class="slot-warning">⚠️ Thursday is a travel day — London. KAI recommends Tuesday instead.</div>`
+    : '';
+
+  return `<div class="meeting-intent-card">
+    <div class="meeting-intent-hdr">
+      <span class="meeting-intent-icon">📅</span>
+      <div>
+        <div class="meeting-intent-title">KAI detected a meeting request</div>
+        <div class="meeting-intent-sub">from ${email.from} · 30 mins · PRJ-042 Milestone Review</div>
+      </div>
+    </div>
+    ${travelWarning}
+    <div class="slot-list">${slotRows}</div>
+    <div class="meeting-intent-footer" id="meetingIntentResult-${email.id}"></div>
+  </div>`;
+}
+
+async function confirmMeetingSlot(emailId, dateStr, timeStr, fromName, subject) {
+  const resultEl = document.getElementById('meetingIntentResult-' + emailId);
+  if (resultEl) resultEl.innerHTML = '<div style="font-size:12px;color:#888;padding:6px 0">⏳ Creating calendar event...</div>';
+
+  const title = 'PRJ-042 Milestone Review — ' + fromName.split(' ')[0];
+  try {
+    await createCalendarEvent(title, dateStr, timeStr, 30);
+    const dateLabel = new Date(dateStr + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+    if (resultEl) resultEl.innerHTML = `
+      <div class="event-created">
+        ✅ Calendar event created — ${title} · ${dateLabel} at ${timeStr}
+      </div>`;
+    // Refresh calendar panel
+    renderCalendarPanel();
+  } catch(e) {
+    if (resultEl) resultEl.innerHTML = '<div style="font-size:12px;color:#D85A30;padding:6px 0">Could not create event — try Ask KAI instead.</div>';
+  }
 }
 
 async function draftReply(emailId) {
@@ -768,6 +885,18 @@ function mobNav(btn) {
     i.classList.toggle('active', i.dataset.panel === panel && !i.dataset.scroll);
   });
   if (panel === 'wellbeing') renderWellbeingPanel();
+}
+
+function goToActions() {
+  // Navigate to briefing panel and scroll to open actions section
+  const briefNav = document.querySelector('.nav-item[data-panel="briefing"]');
+  if (briefNav) switchPanel(briefNav);
+  const mobBrief = document.querySelector('.mob-nav-item[data-panel="briefing"]');
+  if (mobBrief) { document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active')); mobBrief.classList.add('active'); }
+  setTimeout(() => {
+    const actionsEl = document.getElementById('actionsSection');
+    if (actionsEl) actionsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 150);
 }
 
 function goToUnreplied() {
