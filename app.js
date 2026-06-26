@@ -856,7 +856,9 @@ async function loadApp() {
   document.getElementById('loadingScreen').style.display = 'flex';
   try {
     const email = sessionStorage.getItem('userEmail') || '';
-    document.getElementById('topbarEmail').textContent = email;
+    document.getElementById('topbarEmail').textContent = DEMO_MODE ? '' : email;
+    const demoModePill = document.getElementById('demoModePill');
+    if (demoModePill) demoModePill.style.display = DEMO_MODE ? 'inline-flex' : 'none';
     const [emails, events] = await Promise.all([fetchEmails(), fetchCalendar()]);
     gmailData = emails;
     calendarData = events;
