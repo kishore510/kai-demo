@@ -9,7 +9,7 @@ let DEMO_MODE = false;
 
 // ── DATE ANCHORING ──
 // All mock dates are computed relative to the current week's Monday
-// so the demo always shows "this week" regardless of when it is run
+// so the demo always shows "this week" regardless of when it's run
 
 function getMockWeekDates() {
   // Build today's date string from local time parts — avoids UTC/BST shift
@@ -221,6 +221,22 @@ Communications Team`,
 function getMockCalendarEvents() {
   const d = getMockWeekDates();
 
+  // Last week dates
+  const lw = {};
+  ['mon','tue','wed','thu','fri'].forEach((key, i) => {
+    const dt = new Date(d.mon + 'T12:00:00');
+    dt.setDate(dt.getDate() - 7 + i);
+    lw[key] = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+  });
+
+  // Next week dates
+  const nw = {};
+  ['mon','tue','wed','thu','fri'].forEach((key, i) => {
+    const dt = new Date(d.mon + 'T12:00:00');
+    dt.setDate(dt.getDate() + 7 + i);
+    nw[key] = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+  });
+
   return [
     // ── MONDAY ──
     {
@@ -356,6 +372,122 @@ function getMockCalendarEvents() {
       description: 'KAI timecode: BAU-001\nWeekly reminder to submit timecodes before 5pm.',
       start: { dateTime: d.fri + 'T16:00:00', timeZone: 'Europe/London' },
       end:   { dateTime: d.fri + 'T16:15:00', timeZone: 'Europe/London' }
+    },
+
+    // ── LAST WEEK ──
+    {
+      id: 'mock-cal-lw-1',
+      summary: 'FOCUS: Platform Strategy Review',
+      description: 'KAI timecode: PRJ-042\nProtected focus time.',
+      start: { dateTime: lw.mon + 'T09:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: lw.mon + 'T11:00:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-lw-2',
+      summary: 'Technology Committee (GOV-011)',
+      description: 'KAI timecode: GOV-011\nMonthly Technology Committee.',
+      start: { dateTime: lw.mon + 'T14:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: lw.mon + 'T15:30:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-lw-3',
+      summary: 'PRJ-042 Sprint Planning',
+      description: 'KAI timecode: PRJ-042\nDigital Transformation sprint planning.',
+      start: { dateTime: lw.tue + 'T10:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: lw.tue + 'T11:00:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-lw-4',
+      summary: 'Stakeholder Briefing — Risk Team (GOV-011)',
+      description: 'KAI timecode: GOV-011\nRisk team briefing on AI governance.',
+      start: { dateTime: lw.tue + 'T14:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: lw.tue + 'T15:00:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-lw-5',
+      summary: 'Team Standup (BAU-001)',
+      description: 'KAI timecode: BAU-001\nDaily standup.',
+      start: { dateTime: lw.wed + 'T09:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: lw.wed + 'T09:30:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-lw-6',
+      summary: 'Architecture Review (PRJ-042)',
+      description: 'KAI timecode: PRJ-042\nArchitecture review session.',
+      start: { dateTime: lw.wed + 'T11:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: lw.wed + 'T12:00:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-lw-7',
+      summary: 'TRAVEL: Birmingham — Regional Office',
+      description: 'Travel day — regional office visit.',
+      start: { date: lw.thu },
+      end:   { date: lw.thu }
+    },
+    {
+      id: 'mock-cal-lw-8',
+      summary: 'Regional Leadership Briefing (GOV-011)',
+      description: 'KAI timecode: GOV-011\nLeadership briefing at regional office.',
+      start: { dateTime: lw.thu + 'T10:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: lw.thu + 'T11:30:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-lw-9',
+      summary: '1:1 with Programme Director (BAU-001)',
+      description: 'KAI timecode: BAU-001\nWeekly 1:1.',
+      start: { dateTime: lw.fri + 'T10:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: lw.fri + 'T11:00:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-lw-10',
+      summary: 'KAI Timecode Reminder — log this week',
+      description: 'KAI timecode: BAU-001\nWeekly timecode reminder.',
+      start: { dateTime: lw.fri + 'T16:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: lw.fri + 'T16:15:00', timeZone: 'Europe/London' }
+    },
+
+    // ── NEXT WEEK ──
+    {
+      id: 'mock-cal-nw-1',
+      summary: 'FOCUS: AI Strategy Paper',
+      description: 'KAI timecode: PRJ-042\nProtected focus time for AI strategy paper.',
+      start: { dateTime: nw.mon + 'T09:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: nw.mon + 'T11:00:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-nw-2',
+      summary: 'PRJ-042 Milestone Review — Priya Sharma',
+      description: 'KAI timecode: PRJ-042\nQ2 milestone review with programme manager.',
+      start: { dateTime: nw.tue + 'T14:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: nw.tue + 'T14:30:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-nw-3',
+      summary: 'Team Standup (BAU-001)',
+      description: 'KAI timecode: BAU-001\nDaily standup.',
+      start: { dateTime: nw.wed + 'T09:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: nw.wed + 'T09:30:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-nw-4',
+      summary: 'Governance Board (GOV-011)',
+      description: 'KAI timecode: GOV-011\nQuarterly Governance Board.',
+      start: { dateTime: nw.wed + 'T10:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: nw.wed + 'T12:00:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-nw-5',
+      summary: 'Architecture Peer Review (PRJ-042)',
+      description: 'KAI timecode: PRJ-042\nArchitecture peer review.',
+      start: { dateTime: nw.thu + 'T14:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: nw.thu + 'T15:00:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-nw-6',
+      summary: 'Risk Review (GOV-011)',
+      description: 'KAI timecode: GOV-011\nQuarterly risk review.',
+      start: { dateTime: nw.fri + 'T10:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: nw.fri + 'T11:00:00', timeZone: 'Europe/London' }
     }
   ];
 }
