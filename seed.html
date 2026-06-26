@@ -319,7 +319,9 @@ function dt(base, h, m = 0) {
 
 function dateOnly(base) {
   const d = new Date(base);
-  return d.toISOString().split('T')[0];
+  return d.getFullYear() + '-' +
+    String(d.getMonth()+1).padStart(2,'0') + '-' +
+    String(d.getDate()).padStart(2,'0');
 }
 
 // ── SEEDING ──
@@ -336,6 +338,21 @@ async function runSeeding() {
   const wed = nextWeekday(3);
   const thu = nextWeekday(4);
   const fri = nextWeekday(5);
+
+  // Last week dates
+  function lastWeekday(day) {
+    const d = nextWeekday(day);
+    d.setDate(d.getDate() - 7);
+    return d;
+  }
+  // Next week dates
+  function nextNextWeekday(day) {
+    const d = nextWeekday(day);
+    d.setDate(d.getDate() + 7);
+    return d;
+  }
+  const lMon = lastWeekday(1), lTue = lastWeekday(2), lWed = lastWeekday(3), lThu = lastWeekday(4), lFri = lastWeekday(5);
+  const nMon = nextNextWeekday(1), nTue = nextNextWeekday(2), nWed = nextNextWeekday(3), nThu = nextNextWeekday(4), nFri = nextNextWeekday(5);
 
   let emailCount = 0, eventCount = 0;
 
@@ -509,6 +526,43 @@ Internal Comms`,
       { summary: '1:1 with Programme Director (BAU-001)', description: 'Regular 1:1. KAI timecode: BAU-001', start: { dateTime: dt(fri,10) }, end: { dateTime: dt(fri,11) } },
       { summary: 'Architecture Peer Review (PRJ-042)', description: 'PRJ-042 architecture peer review session. KAI timecode: PRJ-042', start: { dateTime: dt(fri,14) }, end: { dateTime: dt(fri,15) } },
       { summary: 'KAI Timecode Reminder — Log this week', description: 'KAI weekly reminder: log your timecodes before end of day. Suggested: PRJ-042 (5hrs), GOV-011 (4hrs), BAU-001 (2.5hrs)', start: { dateTime: dt(fri,16) }, end: { dateTime: dt(fri,16,15) }, colorId: '2' },
+    ]},
+
+    // ── LAST WEEK ──
+    { id: 'cal7', events: [
+      { summary: 'FOCUS: Platform Strategy Review', description: 'Protected focus time. KAI timecode: PRJ-042', start: { dateTime: dt(lMon,9) }, end: { dateTime: dt(lMon,11) }, colorId: '2' },
+      { summary: 'Technology Committee (GOV-011)', description: 'Monthly Technology Committee meeting. KAI timecode: GOV-011', start: { dateTime: dt(lMon,14) }, end: { dateTime: dt(lMon,15,30) }, colorId: '9' },
+    ]},
+    { id: 'cal8', events: [
+      { summary: 'PRJ-042 Sprint Planning', description: 'Digital Transformation sprint planning session. KAI timecode: PRJ-042', start: { dateTime: dt(lTue,10) }, end: { dateTime: dt(lTue,11) } },
+      { summary: 'Stakeholder Briefing — Risk Team (GOV-011)', description: 'Risk team briefing on AI governance framework. KAI timecode: GOV-011', start: { dateTime: dt(lTue,14) }, end: { dateTime: dt(lTue,15) } },
+    ]},
+    { id: 'cal9', events: [
+      { summary: 'Team Standup (BAU-001)', description: 'Daily standup. KAI timecode: BAU-001', start: { dateTime: dt(lWed,9) }, end: { dateTime: dt(lWed,9,30) } },
+      { summary: 'Architecture Review (PRJ-042)', description: 'Architecture review session. KAI timecode: PRJ-042', start: { dateTime: dt(lWed,11) }, end: { dateTime: dt(lWed,12) } },
+      { summary: 'Vendor Briefing — AWS (PRJ-042)', description: 'AWS briefing on cloud infrastructure options. KAI timecode: PRJ-042', start: { dateTime: dt(lWed,14) }, end: { dateTime: dt(lWed,15) } },
+    ]},
+    { id: 'cal10', events: [
+      { summary: 'TRAVEL: Birmingham — Regional Office', description: 'Travel day — regional office visit.', start: { date: dateOnly(lThu) }, end: { date: dateOnly(lThu) }, colorId: '3' },
+      { summary: 'Regional Leadership Briefing (GOV-011)', description: 'Leadership briefing at regional office. KAI timecode: GOV-011', start: { dateTime: dt(lThu,10) }, end: { dateTime: dt(lThu,11,30) } },
+    ]},
+    { id: 'cal11', events: [
+      { summary: '1:1 with Programme Director (BAU-001)', description: 'Weekly 1:1. KAI timecode: BAU-001', start: { dateTime: dt(lFri,10) }, end: { dateTime: dt(lFri,11) } },
+      { summary: 'KAI Timecode Reminder — Log this week', description: 'KAI weekly reminder: log your timecodes.', start: { dateTime: dt(lFri,16) }, end: { dateTime: dt(lFri,16,15) }, colorId: '2' },
+    ]},
+
+    // ── NEXT WEEK ──
+    { id: 'cal12', events: [
+      { summary: 'FOCUS: AI Strategy Paper', description: 'Protected focus time for AI strategy paper. KAI timecode: PRJ-042', start: { dateTime: dt(nMon,9) }, end: { dateTime: dt(nMon,11) }, colorId: '2' },
+      { summary: 'PRJ-042 Milestone Review — Priya Sharma', description: 'PRJ-042 Q2 milestone review. KAI timecode: PRJ-042', start: { dateTime: dt(nTue,14) }, end: { dateTime: dt(nTue,14,30) } },
+    ]},
+    { id: 'cal13', events: [
+      { summary: 'Governance Board (GOV-011)', description: 'Quarterly Governance Board. KAI timecode: GOV-011', start: { dateTime: dt(nWed,10) }, end: { dateTime: dt(nWed,12) }, colorId: '9' },
+      { summary: 'Team Standup (BAU-001)', description: 'Daily standup. KAI timecode: BAU-001', start: { dateTime: dt(nWed,9) }, end: { dateTime: dt(nWed,9,30) } },
+    ]},
+    { id: 'cal14', events: [
+      { summary: 'Architecture Peer Review (PRJ-042)', description: 'PRJ-042 architecture peer review. KAI timecode: PRJ-042', start: { dateTime: dt(nThu,14) }, end: { dateTime: dt(nThu,15) } },
+      { summary: 'Risk Review (GOV-011)', description: 'Quarterly risk review. KAI timecode: GOV-011', start: { dateTime: dt(nFri,10) }, end: { dateTime: dt(nFri,11) } },
     ]},
   ];
 
