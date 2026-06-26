@@ -163,13 +163,13 @@ function parseEmail(msg) {
 
 async function fetchCalendar() {
   if (typeof DEMO_MODE !== 'undefined' && DEMO_MODE) return getMockCalendarEvents();
-  // Anchor to Monday 00:00 of current week so earlier days are included
-  const weekStart = getWeekStart(todayStr(), 0);
+  // Fetch last week Monday through next week Sunday — 3 weeks of context
+  const weekStart = getWeekStart(todayStr(), -1); // last week Monday
   const timeMin = new Date(weekStart + 'T00:00:00').toISOString();
   const timeMax = new Date(weekStart + 'T00:00:00');
-  timeMax.setDate(timeMax.getDate() + 7);
+  timeMax.setDate(timeMax.getDate() + 21); // 3 weeks
   const r = await fetch(
-    `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${timeMin}&timeMax=${timeMax.toISOString()}&singleEvents=true&orderBy=startTime&maxResults=50`,
+    `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${timeMin}&timeMax=${timeMax.toISOString()}&singleEvents=true&orderBy=startTime&maxResults=100`,
     { headers: { Authorization: 'Bearer ' + accessToken } }
   );
   if (r.status === 401) { showTokenExpiredBanner(); return []; }
@@ -509,39 +509,47 @@ function buildMeetingIntentCard(email) {
   const mentionedDays = dayNames.filter(d => body.includes(d));
 
   // Build slots — check calendar for conflicts and travel days
+  // For each mentioned day, try this week first, then next week if past
   const slots = mentionedDays.map(dayName => {
-    const dayIndex = dayNames.indexOf(dayName) + 1; // 1=Mon
-    const weekStart = getWeekStart(today, 0);
-    const dt = new Date(weekStart + 'T12:00:00');
-    dt.setDate(dt.getDate() + (dayIndex - 1));
-    const dateStr = dt.getFullYear() + '-' +
-      String(dt.getMonth()+1).padStart(2,'0') + '-' +
-      String(dt.getDate()).padStart(2,'0');
+    const dayIndex = dayNames.indexOf(dayName) + 1;
 
-    // Check if it's a travel day
-    const isTravelDay = calendarData.some(ev =>
-      (ev.start?.date === dateStr || ev.start?.dateTime?.startsWith(dateStr)) &&
-      (ev.summary?.toLowerCase().includes('travel') || ev.summary?.toLowerCase().includes('transit'))
-    );
+    const buildSlot = (weekOffset) => {
+      const weekStart = getWeekStart(today, weekOffset);
+      const dt = new Date(weekStart + 'T12:00:00');
+      dt.setDate(dt.getDate() + (dayIndex - 1));
+      const dateStr = dt.getFullYear() + '-' +
+        String(dt.getMonth()+1).padStart(2,'0') + '-' +
+        String(dt.getDate()).padStart(2,'0');
 
-    // Find a free slot — default afternoon for tuesday, morning for others
-    const timeStr = body.includes(dayName + ' afternoon') ? '14:00' :
-                    body.includes(dayName + ' morning')   ? '09:30' : '14:00';
+      const isTravelDay = calendarData.some(ev =>
+        (ev.start?.date === dateStr || ev.start?.dateTime?.startsWith(dateStr)) &&
+        (ev.summary?.toLowerCase().includes('travel') || ev.summary?.toLowerCase().includes('transit'))
+      );
 
-    // Check for conflicts at that time
-    const hasConflict = calendarData.some(ev => {
-      if (!ev.start?.dateTime?.startsWith(dateStr)) return false;
-      const evStart = new Date(ev.start.dateTime);
-      const slotStart = new Date(dateStr + 'T' + timeStr + ':00');
-      const slotEnd = new Date(slotStart.getTime() + 30 * 60000);
-      const evEnd = new Date(ev.end?.dateTime || ev.start.dateTime);
-      return evStart < slotEnd && evEnd > slotStart;
-    });
+      const timeStr = body.includes(dayName + ' afternoon') ? '14:00' :
+                      body.includes(dayName + ' morning')   ? '09:30' : '14:00';
 
+      const hasConflict = calendarData.some(ev => {
+        if (!ev.start?.dateTime?.startsWith(dateStr)) return false;
+        const evStart = new Date(ev.start.dateTime);
+        const slotStart = new Date(dateStr + 'T' + timeStr + ':00');
+        const slotEnd = new Date(slotStart.getTime() + 30 * 60000);
+        const evEnd = new Date(ev.end?.dateTime || ev.start.dateTime);
+        return evStart < slotEnd && evEnd > slotStart;
+      });
+
+      const isPast = dateStr < today;
+      return { dayName, dateStr, timeStr, isTravelDay, hasConflict, isPast };
+    };
+
+    // Try this week — if past, use next week instead
+    let slot = buildSlot(0);
+    if (slot.isPast) slot = buildSlot(1);
+
+    const dt2 = new Date(slot.dateStr + 'T12:00:00');
     const dayLabel = dayName.charAt(0).toUpperCase() + dayName.slice(1);
-    const dateLabel = dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-
-    return { dayName, dateStr, timeStr, dayLabel, dateLabel, isTravelDay, hasConflict, isPast: dateStr < today };
+    const dateLabel = dt2.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    return { ...slot, dayLabel, dateLabel };
   });
 
   // Find recommended slot — prefer non-travel, non-conflict, non-past
@@ -1462,7 +1470,9 @@ function renderCalendarPanel() {
   const today = todayStr();
   const weekStart = getWeekStart(today, 0);
 
-  // Build Mon–Fri scaffold for current week
+  // Only show current week Mon–Fri in the calendar panel
+  // 3-week data is fetched for timecodes/scheduling but calendar view stays as week view
+  const weekEnd = getWeekEnd(weekStart);
   const weekDays = [];
   for (let i = 0; i < 5; i++) {
     const d = new Date(weekStart + 'T12:00:00');
@@ -1470,11 +1480,11 @@ function renderCalendarPanel() {
     weekDays.push(d.toISOString().split('T')[0]);
   }
 
-  // Group events by date
+  // Group THIS WEEK events by date only
   const days = {};
   calendarData.forEach(ev => {
     const d = ev.start?.date || ev.start?.dateTime?.split('T')[0];
-    if (!d) return;
+    if (!d || d < weekStart || d > weekEnd) return; // skip other weeks
     if (!days[d]) days[d] = [];
     days[d].push(ev);
   });
