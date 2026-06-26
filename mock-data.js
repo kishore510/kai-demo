@@ -9,7 +9,7 @@ let DEMO_MODE = false;
 
 // ── DATE ANCHORING ──
 // All mock dates are computed relative to the current week's Monday
-// so the demo always shows "this week" regardless of when it's run
+// so the demo always shows "this week" regardless of when it is run
 
 function getMockWeekDates() {
   // Build today's date string from local time parts — avoids UTC/BST shift
