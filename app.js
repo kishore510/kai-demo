@@ -186,17 +186,19 @@ function renderEventRow(ev) {
   const t = getTime(ev);
   const s = ev.summary || '';
   const isClashing = clashedEventIds.has(ev.id);
-  let tagClass = 'reply', tagLabel = t || '';
+  let tagClass = '', tagLabel = '';
   const isSkip = s.includes('Transit') || s.includes('KAI Timecode');
-  if (s.includes('FOCUS') || s.includes('PREP')) { tagClass = 'focus'; tagLabel = s.includes('PREP') ? 'PREP' : 'FOCUS'; }
-  else if (isClashing || s.includes('CLASH') || s.toLowerCase().includes('clash')) { tagClass = 'clash'; tagLabel = 'CLASH'; }
+  if (s.includes('FOCUS') || s.includes('PREP')) { tagClass = s.includes('PREP') ? 'prep' : 'focus'; tagLabel = s.includes('PREP') ? 'PREP' : 'FOCUS'; }
+  else if (isClashing) { tagClass = 'clash'; tagLabel = 'CLASH'; }
   else if (s.includes('TRAVEL') || s.includes('Transit')) { tagClass = 'travel'; tagLabel = 'TRAVEL'; }
   const displayName = s.replace(/\s*\(.*?\)\s*/g, '').replace(/^(FOCUS|PREP|TRAVEL):\s*/, '').substring(0, 52);
   const evIdx = calendarData.findIndex(e => e.id === ev.id);
   const clickable = !isSkip;
   const clashAttr = isClashing ? `data-clash="true"` : '';
   return `<div class="day-item ${clickable ? 'meeting-clickable' : ''} ${isClashing ? 'clash-row' : ''}" ${clashAttr} ${clickable ? `onclick="openMeetingPrep(${evIdx})" style="cursor:pointer"` : ''} title="${clickable ? 'Click to prep for this meeting' : ''}">
-    <span class="tag ${tagClass}">${tagLabel}</span>
+    ${tagLabel ? `<span class="tag ${tagClass}">${tagLabel}</span>` : ''}
+    ${t && !tagLabel ? `<span style="font-size:10px;color:var(--faint);font-family:monospace;flex-shrink:0">${t}</span>` : ''}
+    ${t && tagLabel ? `<span style="font-size:10px;color:var(--faint);font-family:monospace;flex-shrink:0">${t}</span>` : ''}
     <span style="flex:1">${displayName}</span>
     ${clickable ? '<span style="font-size:10px;color:#ccc;margin-left:4px">›</span>' : ''}
   </div>`;
