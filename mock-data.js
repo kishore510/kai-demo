@@ -1,559 +1,673 @@
-/* ── KAI — Knowledge Action Intelligence ── */
-/* mock-data.js — hardcoded demo data for offline / Google-independent demo mode */
-/* Data matches the seed.html spec exactly. Dates anchor to current week dynamically. */
-/* v4.2 — 3 Friday events, full week scaffold */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KAI — Data Seeder</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #07081a; --teal: #00c2b3; --coral: #ff5f4e;
+  --yellow: #ffd84d; --purple: #7b5ea7; --green: #22c55e;
+  --white: #fff; --surface: #111120; --border: rgba(255,255,255,0.08);
+  --muted: rgba(255,255,255,0.45); --text: rgba(255,255,255,0.88);
+}
+body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--ink); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 40px 20px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 36px; width: 100%; max-width: 720px; margin-bottom: 20px; }
+.logo { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.badge { width: 42px; height: 42px; border-radius: 11px; background: linear-gradient(135deg, var(--teal), var(--purple)); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; box-shadow: 0 0 20px rgba(0,194,179,0.4); }
+.title { font-weight: 800; font-size: 22px; }
+.subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.desc { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.65; margin-bottom: 28px; }
+.desc b { color: var(--white); }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 10px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+.btn-primary { background: var(--teal); color: var(--ink); }
+.btn-primary:hover { background: #00d9c8; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.btn-secondary { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: rgba(255,255,255,0.1); }
+.status-list { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+.status-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); font-size: 13px; }
+.status-icon { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+.status-icon.pending { background: rgba(255,255,255,0.08); color: var(--muted); }
+.status-icon.running { background: rgba(0,194,179,0.2); color: var(--teal); animation: spin 1s linear infinite; }
+.status-icon.done { background: rgba(34,197,94,0.2); color: var(--green); }
+.status-icon.error { background: rgba(255,95,78,0.2); color: var(--coral); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.status-label { flex: 1; }
+.status-detail { font-size: 11px; color: var(--muted); }
+.progress-bar { width: 100%; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-top: 20px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--teal), var(--purple)); border-radius: 2px; transition: width 0.4s ease; }
+.summary-box { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-radius: 12px; padding: 18px 20px; margin-top: 20px; display: none; }
+.summary-box.visible { display: block; }
+.summary-title { font-weight: 700; color: var(--green); font-size: 14px; margin-bottom: 10px; }
+.summary-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.summary-stat { text-align: center; }
+.summary-n { font-weight: 800; font-size: 24px; color: var(--teal); }
+.summary-l { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.warning-box { background: rgba(255,95,78,0.08); border: 1px solid rgba(255,95,78,0.25); border-radius: 12px; padding: 16px 18px; margin-bottom: 20px; font-size: 12.5px; color: rgba(255,255,255,0.7); line-height: 1.6; }
+.warning-box b { color: var(--coral); }
+.auth-section { display: none; }
+.auth-section.visible { display: block; }
+.signin-section { text-align: center; padding: 20px 0; }
+.section-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 14px; }
 
-// ── DEMO MODE FLAG ──
-// Set to true by startDemoMode(), checked by fetchEmails / fetchCalendar stubs
-let DEMO_MODE = false;
+.gate-screen {
+  min-height: 100vh; display: flex; align-items: center;
+  justify-content: center; background: #F4F4F0; padding: 20px;
+}
+.gate-card {
+  background: white; border: 0.5px solid #E0E0D8;
+  border-radius: 16px; padding: 36px 32px;
+  max-width: 380px; width: 100%; text-align: center;
+}
+.gate-badge {
+  width: 52px; height: 52px; border-radius: 14px;
+  background: #1D9E75; margin: 0 auto 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 18px; color: white;
+}
+.gate-title { font-size: 20px; font-weight: 500; color: #1a1a1a; margin-bottom: 6px; }
+.gate-sub { font-size: 13px; color: #888; margin-bottom: 24px; }
+.gate-input {
+  width: 100%; padding: 10px 14px; border: 0.5px solid #E0E0D8;
+  border-radius: 9px; font-size: 14px; outline: none;
+  font-family: inherit; margin-bottom: 12px; text-align: center;
+  letter-spacing: 2px; transition: border-color 0.15s;
+  background: #F8F8F5; color: #1a1a1a;
+}
+.gate-input:focus { border-color: #9FE1CB; background: white; }
+.gate-btn {
+  width: 100%; padding: 11px; background: #1D9E75; color: white;
+  border: none; border-radius: 9px; font-size: 14px; font-weight: 500;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.gate-btn:hover { background: #0F6E56; }
+.gate-error { font-size: 12px; color: #D85A30; margin-top: 8px; display: none; }
 
-// ── DATE ANCHORING ──
-// All mock dates are computed relative to the current week's Monday
-// so the demo always shows "this week" regardless of when it's run
+</style>
+</head>
+<body>
 
-function getMockWeekDates() {
-  // Build today's date string from local time parts — avoids UTC/BST shift
-  const now = new Date();
-  const todayLocal = now.getFullYear() + '-' +
-    String(now.getMonth() + 1).padStart(2, '0') + '-' +
-    String(now.getDate()).padStart(2, '0');
+<div id="gateScreen" class="gate-screen">
+  <div class="gate-card">
+    <div class="gate-badge">KAI</div>
+    <div class="gate-title">KAI Demo Tools</div>
+    <div class="gate-sub">Enter the demo password to continue</div>
+    <input class="gate-input" type="password" id="gateInput"
+      placeholder="Password"
+      onkeydown="if(event.key==='Enter') checkGate()">
+    <button class="gate-btn" onclick="checkGate()">Continue</button>
+    <div class="gate-error" id="gateError">Incorrect password — try again</div>
+  </div>
+</div>
 
-  // Parse back using T12:00:00 to stay in local time zone safely
-  const today = new Date(todayLocal + 'T12:00:00');
-  const dow = today.getDay(); // 0=Sun,1=Mon...
-  const diff = dow === 0 ? -6 : 1 - dow;
-  const monday = new Date(today);
-  monday.setDate(today.getDate() + diff);
 
-  const localDateStr = (d) =>
-    d.getFullYear() + '-' +
-    String(d.getMonth() + 1).padStart(2, '0') + '-' +
-    String(d.getDate()).padStart(2, '0');
+<div class="card" style="display:none">
+  <div class="logo">
+    <div class="badge">KAI</div>
+    <div>
+      <div class="title">KAI Demo — Data Seeder</div>
+      <div class="subtitle">Populates your Gmail account with realistic mock data</div>
+    </div>
+  </div>
 
-  const dates = {};
-  ['mon','tue','wed','thu','fri'].forEach((key, i) => {
-    const dt = new Date(monday);
-    dt.setDate(monday.getDate() + i);
-    dates[key] = localDateStr(dt);
+  <p class="desc">
+    This tool creates <b>7 realistic emails</b> and <b>16 calendar events</b> in your KAI demo Gmail account.
+    All data is crafted to showcase every KAI feature — stakeholder prioritisation, calendar clash detection,
+    wellbeing nudges, timecode suggestions and travel-aware mode.<br><br>
+    Sign in with <b>kai.demo.2026@gmail.com</b> when prompted. Do not use your real account.
+  </p>
+
+  <div class="warning-box">
+    <b>Important:</b> Sign in with your KAI demo Gmail account only (kai.demo.2026@gmail.com).
+    If Google shows an "app not verified" warning, click <b>Advanced</b> then <b>Go to KAI Demo (unsafe)</b> — this is safe, you own both the app and the account.
+  </div>
+
+  <!-- Not signed in -->
+  <div id="signinSection">
+    <div class="signin-section">
+      <div class="section-label">Step 1 — Authorise Access</div>
+      <button class="btn btn-primary" onclick="startAuth()">
+        🔐 Sign in with Google to Begin
+      </button>
+    </div>
+  </div>
+
+  <!-- Signed in -->
+  <div id="seedSection" style="display:none">
+    <div class="section-label">Step 2 — Create Mock Data</div>
+    <p style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:16px">
+      Signed in as: <span id="userEmail" style="color:var(--teal);font-weight:600"></span>
+    </p>
+    <button class="btn btn-primary" id="seedBtn" onclick="runSeeding()">
+      🌱 Create All Mock Data
+    </button>
+    <button class="btn btn-secondary" style="margin-left:10px" onclick="signOut()">Sign out</button>
+
+    <div class="progress-bar" id="progressBar" style="display:none">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+
+    <div class="status-list" id="statusList"></div>
+
+    <div class="summary-box" id="summaryBox">
+      <div class="summary-title">✅ All mock data created successfully</div>
+      <div class="summary-stats">
+        <div class="summary-stat">
+          <div class="summary-n" id="emailCount">0</div>
+          <div class="summary-l">Emails created</div>
+        </div>
+        <div class="summary-stat">
+          <div class="summary-n" id="eventCount">0</div>
+          <div class="summary-l">Calendar events</div>
+        </div>
+        <div class="summary-stat">
+          <div class="summary-n">✓</div>
+          <div class="summary-l">Ready to demo</div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:14px;line-height:1.6">
+        Your demo Gmail account is now populated. Open the KAI demo app and sign in with the same account to see KAI in action.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+const CLIENT_ID = '294776404978-p9p6q310nqisej0ohvt0kbsfd1hoqrkm.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/gmail.compose https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/calendar';
+const REDIRECT_URI = 'https://kishore510.github.io/kai-demo/seed/';
+
+let accessToken = null;
+
+// ── PKCE HELPERS ──
+function generateCodeVerifier() {
+  const arr = new Uint8Array(32);
+  crypto.getRandomValues(arr);
+  return btoa(String.fromCharCode(...arr)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+}
+async function generateCodeChallenge(verifier) {
+  const enc = new TextEncoder().encode(verifier);
+  const hash = await crypto.subtle.digest('SHA-256', enc);
+  return btoa(String.fromCharCode(...new Uint8Array(hash))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+}
+
+async function startAuth() {
+  const p = new URLSearchParams({
+    client_id: CLIENT_ID,
+    redirect_uri: REDIRECT_URI,
+    response_type: 'token',
+    scope: SCOPES,
+    prompt: 'consent',
+    login_hint: 'kai.demo.2026@gmail.com'
   });
-  return dates;
+  window.location = 'https://accounts.google.com/o/oauth2/v2/auth?' + p;
 }
 
-// ── MOCK EMAILS ──
-// Shape matches parseEmail() output exactly:
-// { id, from, fromEmail, subject, snippet, body, time, priority, unread }
 
-function getMockEmails() {
-  return [
-    {
-      id: 'mock-email-1',
-      from: 'Sarah Chen',
-      fromEmail: 'sarah.chen.director@org.co.uk',
-      subject: 'URGENT: Strategy paper needed by 2pm today',
-      snippet: 'I need the platform strategy paper on my desk before the 2pm ExCo briefing. This is blocking the board decision.',
-      body: `Hi,
-
-I need the platform strategy paper on my desk before the 2pm ExCo briefing. This is blocking the board decision on the Digital Transformation programme funding.
-
-Please can you ensure it covers:
-- Current state architecture
-- Target state and migration path
-- Risk register summary
-- Cost estimate for Phase 2
-
-This is time-critical. The board meets at 3pm and I need time to review.
-
-Sarah Chen
-Director, Technology & Change`,
-      time: '2h ago',
-      priority: 'urgent',
-      unread: true
-    },
-    {
-      id: 'mock-email-2',
-      from: 'Marcus Webb',
-      fromEmail: 'marcus.webb@org.co.uk',
-      subject: 'AI Control Framework — sign-off needed before Governance Board',
-      snippet: 'The AI Control Framework paper needs your sign-off before it goes to the Governance Board tomorrow morning.',
-      body: `Hi,
-
-The AI Control Framework paper needs your sign-off before it goes to the Governance Board tomorrow morning at 10am.
-
-I've incorporated the feedback from the last Architecture Review. Key changes:
-- Section 3 updated with new model risk thresholds
-- Appendix B now includes the vendor assessment matrix
-- Data residency controls aligned to UK South requirement
-
-Can you review and confirm by COB today?
-
-Marcus Webb
-Head of Risk & Technology`,
-      time: '4h ago',
-      priority: 'urgent',
-      unread: true
-    },
-    {
-      id: 'mock-email-3',
-      from: 'James Thornton',
-      fromEmail: 'james.thornton.cto@org.co.uk',
-      subject: 'Control Plane analysis — still waiting',
-      snippet: 'Following up on the Control Plane analysis I requested last week. This is now blocking the vendor evaluation.',
-      body: `Hi,
-
-Following up on the Control Plane analysis I requested last week. This is now blocking the vendor evaluation we have scheduled for next Tuesday.
-
-We need to understand:
-1. Current latency profile under load
-2. Failure mode analysis for the API gateway layer
-3. Recommendation on active/active vs active/passive for the DR configuration
-
-I appreciate you're busy but this has been outstanding for 26 hours now.
-
-James Thornton
-Chief Technology Officer`,
-      time: '26h ago',
-      priority: 'high',
-      unread: true
-    },
-    {
-      id: 'mock-email-4',
-      from: 'Priya Sharma',
-      fromEmail: 'priya.sharma@org.co.uk',
-      subject: 'PRJ-042 milestone review — overdue',
-      snippet: 'The Q2 milestone review for PRJ-042 was due last Friday. Can we schedule 30 minutes this week?',
-      body: `Hi,
-
-The Q2 milestone review for PRJ-042 was due last Friday. We need to update the programme board on delivery status before the end of month report goes out.
-
-Can we schedule 30 minutes this week? I have availability Tuesday afternoon or Thursday morning.
-
-The key items to cover:
-- RAG status update for all workstreams
-- Dependency tracker review
-- Budget vs actuals for Q2
-- Risks and mitigations
-
-Priya Sharma
-Programme Manager, Digital Transformation`,
-      time: '1d ago',
-      priority: 'high',
-      unread: true
-    },
-    {
-      id: 'mock-email-5',
-      from: 'Rachel Okonkwo',
-      fromEmail: 'rachel.okonkwo@org.co.uk',
-      subject: 'Architecture Guild — materials for Thursday session',
-      snippet: 'Please find attached the agenda and pre-read materials for Thursday\'s Architecture Guild session.',
-      body: `Hi all,
-
-Please find attached the agenda and pre-read materials for Thursday's Architecture Guild session.
-
-Agenda:
-1. Review of cloud platform decisions (15 min)
-2. API governance framework update (20 min)
-3. PRJ-042 architecture checkpoint (25 min)
-4. AOB
-
-Pre-read: Cloud Strategy Decision Log v2.3 (attached)
-
-The session will be recorded for those who cannot attend.
-
-Rachel Okonkwo
-EA Lead, Architecture Practice`,
-      time: '3h ago',
-      priority: 'normal',
-      unread: false
-    },
-    {
-      id: 'mock-email-6',
-      from: 'IT Helpdesk',
-      fromEmail: 'helpdesk.noreply@org.co.uk',
-      subject: 'Your ticket INC0047821 has been updated',
-      snippet: 'Your IT support ticket INC0047821 (VPN access issue) has been updated. Status: In Progress.',
-      body: `This is an automated notification.
-
-Your IT support ticket INC0047821 (VPN access issue) has been updated.
-
-Status: In Progress
-Assigned to: Infrastructure Team
-Expected resolution: Within 4 hours
-
-You will receive another notification when the ticket is resolved.
-
-IT Helpdesk
-Do not reply to this email.`,
-      time: '5h ago',
-      priority: 'fyi',
-      unread: false
-    },
-    {
-      id: 'mock-email-7',
-      from: 'All Staff Newsletter',
-      fromEmail: 'communications.noreply@org.co.uk',
-      subject: 'This week at the organisation — staff bulletin',
-      snippet: 'This week\'s staff bulletin includes updates on the new hybrid working policy, upcoming town hall, and wellbeing resources.',
-      body: `Good morning,
-
-This week's staff bulletin:
-
-HYBRID WORKING POLICY UPDATE
-The updated hybrid working policy takes effect from 1st July. Please review the guidance on the intranet.
-
-TOWN HALL — 3RD JULY
-The all-staff town hall will be held on 3rd July at 10am. Join via Teams or in-person at the main auditorium.
-
-WELLBEING RESOURCES
-New mental health resources are now available on the wellbeing hub. See the intranet for details.
-
-Communications Team`,
-      time: '8h ago',
-      priority: 'fyi',
-      unread: false
-    }
-  ];
+async function getUserEmail() {
+  const res = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+    headers: { Authorization: 'Bearer ' + accessToken }
+  });
+  const data = await res.json();
+  return data.email;
 }
 
-// ── MOCK CALENDAR EVENTS ──
-// Shape matches Google Calendar API items exactly:
-// { id, summary, description, start: {dateTime|date}, end: {dateTime|date} }
+function signOut() {
+  accessToken = null;
+  sessionStorage.clear();
+  document.getElementById('signinSection').style.display = 'block';
+  document.getElementById('seedSection').style.display = 'none';
+}
 
-function getMockCalendarEvents() {
-  const d = getMockWeekDates();
+// ── STATUS UI ──
+const tasks = [
+  { id: 'email1', label: 'Email: URGENT from Director (Sarah Chen)',          type: 'email' },
+  { id: 'email2', label: 'Email: URGENT from Head of Risk (Marcus Webb)',     type: 'email' },
+  { id: 'email3', label: 'Email: HIGH from CTO (James Thornton)',             type: 'email' },
+  { id: 'email4', label: 'Email: HIGH from Programme Manager (Priya Sharma)', type: 'email' },
+  { id: 'email5', label: 'Email: NORMAL from EA Lead (Rachel Okonkwo)',       type: 'email' },
+  { id: 'email6', label: 'Email: FYI from IT Helpdesk',                       type: 'email' },
+  { id: 'email7', label: 'Email: FYI All Staff Newsletter',                   type: 'email' },
+  { id: 'cal1',   label: 'Calendar: Monday — Focus block + Director clash',    type: 'cal'   },
+  { id: 'cal2',   label: 'Calendar: Tuesday — Governance Board + prep slot',   type: 'cal'   },
+  { id: 'cal3',   label: 'Calendar: Tuesday — Digital Transformation review',  type: 'cal'   },
+  { id: 'cal4',   label: 'Calendar: Wednesday — 6 back-to-back meetings',      type: 'cal'   },
+  { id: 'cal5',   label: 'Calendar: Thursday — London travel day',             type: 'cal'   },
+  { id: 'cal6',   label: 'Calendar: Friday — Light day + timecode reminder',   type: 'cal'   },
+];
+
+function renderTasks() {
+  const list = document.getElementById('statusList');
+  list.innerHTML = tasks.map(t => `
+    <div class="status-item" id="task-${t.id}">
+      <div class="status-icon pending" id="icon-${t.id}">○</div>
+      <div class="status-label">${t.label}</div>
+      <div class="status-detail" id="detail-${t.id}"></div>
+    </div>
+  `).join('');
+}
+
+function setTaskState(id, state, detail = '') {
+  const icon = document.getElementById('icon-' + id);
+  const det = document.getElementById('detail-' + id);
+  if (!icon) return;
+  icon.className = 'status-icon ' + state;
+  icon.textContent = state === 'pending' ? '○' : state === 'running' ? '↻' : state === 'done' ? '✓' : '✗';
+  det.textContent = detail;
+}
+
+function setProgress(pct) {
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+// ── GMAIL HELPERS ──
+function makeEmail(to, from, fromName, subject, body, date) {
+  const headers = [
+    `From: ${fromName} <${from}>`,
+    `To: ${to}`,
+    `Subject: ${subject}`,
+    `Date: ${date.toUTCString()}`,
+    `Content-Type: text/plain; charset=utf-8`,
+    `MIME-Version: 1.0`,
+  ].join('\r\n');
+  const full = headers + '\r\n\r\n' + body;
+  return btoa(unescape(encodeURIComponent(full))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+}
+
+async function insertEmail(raw, labelIds = ['INBOX', 'UNREAD']) {
+  const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages?internalDateSource=dateHeader', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ raw, labelIds })
+  });
+  if (!res.ok) throw new Error('Gmail insert failed: ' + res.status);
+  return res.json();
+}
+
+// ── CALENDAR HELPERS ──
+async function insertEvent(event) {
+  const res = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+    body: JSON.stringify(event)
+  });
+  if (!res.ok) throw new Error('Calendar insert failed: ' + res.status);
+  return res.json();
+}
+
+function nextWeekday(day) {
+  // Returns date for the current week's Monday=1, Tuesday=2 etc
+  // Always anchors to THIS week — never pushes to next week
+  const now = new Date();
+  const today = now.getDay(); // 0=Sun
+  const mondayDiff = today === 0 ? -6 : 1 - today; // diff to get to Monday
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + mondayDiff);
+  monday.setHours(0, 0, 0, 0);
+  const d = new Date(monday);
+  d.setDate(monday.getDate() + (day - 1)); // day 1=Mon, 2=Tue etc
+  return d;
+}
+
+function dt(base, h, m = 0) {
+  const d = new Date(base);
+  d.setHours(h, m, 0, 0);
+  return d.toISOString();
+}
+
+function dateOnly(base) {
+  const d = new Date(base);
+  return d.getFullYear() + '-' +
+    String(d.getMonth()+1).padStart(2,'0') + '-' +
+    String(d.getDate()).padStart(2,'0');
+}
+
+// ── SEEDING ──
+async function runSeeding() {
+  document.getElementById('seedBtn').disabled = true;
+  document.getElementById('progressBar').style.display = 'block';
+  renderTasks();
+  setProgress(0);
+
+  const userEmail = document.getElementById('userEmail').textContent;
+  const now = new Date();
+  const mon = nextWeekday(1);
+  const tue = nextWeekday(2);
+  const wed = nextWeekday(3);
+  const thu = nextWeekday(4);
+  const fri = nextWeekday(5);
 
   // Last week dates
-  const lw = {};
-  ['mon','tue','wed','thu','fri'].forEach((key, i) => {
-    const dt = new Date(d.mon + 'T12:00:00');
-    dt.setDate(dt.getDate() - 7 + i);
-    lw[key] = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
-  });
-
+  function lastWeekday(day) {
+    const d = nextWeekday(day);
+    d.setDate(d.getDate() - 7);
+    return d;
+  }
   // Next week dates
-  const nw = {};
-  ['mon','tue','wed','thu','fri'].forEach((key, i) => {
-    const dt = new Date(d.mon + 'T12:00:00');
-    dt.setDate(dt.getDate() + 7 + i);
-    nw[key] = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
-  });
+  function nextNextWeekday(day) {
+    const d = nextWeekday(day);
+    d.setDate(d.getDate() + 7);
+    return d;
+  }
+  const lMon = lastWeekday(1), lTue = lastWeekday(2), lWed = lastWeekday(3), lThu = lastWeekday(4), lFri = lastWeekday(5);
+  const nMon = nextNextWeekday(1), nTue = nextNextWeekday(2), nWed = nextNextWeekday(3), nThu = nextNextWeekday(4), nFri = nextNextWeekday(5);
 
-  return [
-    // ── MONDAY ──
-    {
-      id: 'mock-cal-1',
-      summary: 'FOCUS: Platform Strategy Paper',
-      description: 'KAI timecode: BAU-001\nProtected focus time — do not book.',
-      start: { dateTime: d.mon + 'T09:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: d.mon + 'T11:00:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-2',
-      summary: 'Director 1:1 — Sarah Chen',
-      description: 'KAI timecode: GOV-011\nMonthly 1:1 with Director of Technology & Change.',
-      start: { dateTime: d.mon + 'T14:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: d.mon + 'T14:30:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-3',
-      summary: 'Architecture Review — Control Plane',
-      description: 'KAI timecode: PRJ-042\nReview of control plane analysis and vendor evaluation inputs.',
-      start: { dateTime: d.mon + 'T14:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: d.mon + 'T15:00:00', timeZone: 'Europe/London' }
-    },
+  let emailCount = 0, eventCount = 0;
 
-    // ── TUESDAY ──
+  const emailDefs = [
     {
-      id: 'mock-cal-4',
-      summary: 'PREP: Governance Board',
-      description: 'KAI timecode: BAU-001\nPrep slot before Governance Board.',
-      start: { dateTime: d.tue + 'T09:30:00', timeZone: 'Europe/London' },
-      end:   { dateTime: d.tue + 'T10:00:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-5',
-      summary: 'Governance Board',
-      description: 'KAI timecode: GOV-011\nQuarterly Governance Board — AI Control Framework on agenda.',
-      start: { dateTime: d.tue + 'T10:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: d.tue + 'T12:00:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-6',
-      summary: 'PRJ-042 Digital Transformation Review',
-      description: 'KAI timecode: PRJ-042\nQ2 milestone review with programme manager.',
-      start: { dateTime: d.tue + 'T14:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: d.tue + 'T15:00:00', timeZone: 'Europe/London' }
-    },
+      id: 'email1',
+      from: 'sarah.chen@organisation.gov.uk',
+      fromName: 'Sarah Chen',
+      subject: 'URGENT: Strategy paper needed by COB today',
+      body: `Hi,
 
-    // ── WEDNESDAY — 6 back-to-backs, no lunch ──
-    {
-      id: 'mock-cal-7',
-      summary: 'Platform Architecture Standup',
-      description: 'KAI timecode: BAU-001\nDaily standup with platform architecture team.',
-      start: { dateTime: d.wed + 'T09:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: d.wed + 'T09:30:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-8',
-      summary: 'Vendor Briefing — Cloud Infrastructure',
-      description: 'KAI timecode: PRJ-042\nAWS briefing on UK South resilience options.',
-      start: { dateTime: d.wed + 'T09:30:00', timeZone: 'Europe/London' },
-      end:   { dateTime: d.wed + 'T10:30:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-9',
-      summary: 'Risk Committee — Technology Sub-Group',
-      description: 'KAI timecode: GOV-011\nTechnology risk sub-group. Standing agenda item.',
-      start: { dateTime: d.wed + 'T10:30:00', timeZone: 'Europe/London' },
-      end:   { dateTime: d.wed + 'T11:30:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-10',
-      summary: 'AI Strategy Peer Review',
-      description: 'KAI timecode: PRJ-042\nPeer review of AI strategy paper before ExCo submission.',
-      start: { dateTime: d.wed + 'T11:30:00', timeZone: 'Europe/London' },
-      end:   { dateTime: d.wed + 'T12:30:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-11',
-      summary: 'Programme Director Catch-up',
-      description: 'KAI timecode: BAU-001\nWeekly catch-up with programme director.',
-      start: { dateTime: d.wed + 'T13:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: d.wed + 'T13:30:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-12',
-      summary: 'Architecture Strategy — Leadership Briefing',
-      description: 'KAI timecode: PRJ-042\nBriefing to leadership on 3-year architecture strategy.',
-      start: { dateTime: d.wed + 'T13:30:00', timeZone: 'Europe/London' },
-      end:   { dateTime: d.wed + 'T16:00:00', timeZone: 'Europe/London' }
-    },
+I need the updated architecture strategy paper before the 3pm briefing with the ExCo today. The minister's office has requested a summary of our AI governance position as well — can you include a one-pager on that?
 
-    // ── THURSDAY — Travel day ──
-    {
-      id: 'mock-cal-13',
-      summary: 'TRAVEL: London (All Day)',
-      description: 'Travel to London for ExCo briefing and stakeholder meetings.',
-      start: { date: d.thu },
-      end:   { date: d.thu }
-    },
-    {
-      id: 'mock-cal-14',
-      summary: 'Transit: Manchester → London Euston',
-      description: 'Avanti West Coast 07:23. Arrive 09:15.',
-      start: { dateTime: d.thu + 'T07:23:00', timeZone: 'Europe/London' },
-      end:   { dateTime: d.thu + 'T09:15:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-15',
-      summary: 'ExCo Technology Briefing',
-      description: 'KAI timecode: GOV-011\nPresentation to ExCo on Digital Transformation programme status.',
-      start: { dateTime: d.thu + 'T10:30:00', timeZone: 'Europe/London' },
-      end:   { dateTime: d.thu + 'T11:30:00', timeZone: 'Europe/London' }
-    },
+Please send by 2pm at the latest so I have time to review.
 
-    // ── FRIDAY — Light day ──
-    {
-      id: 'mock-cal-16',
-      summary: '1:1 with Programme Director (BAU-001)',
-      description: 'KAI timecode: BAU-001\nWeekly catch-up with programme director.',
-      start: { dateTime: d.fri + 'T10:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: d.fri + 'T11:00:00', timeZone: 'Europe/London' }
+Thanks,
+Sarah`,
+      hoursAgo: 2
     },
     {
-      id: 'mock-cal-17',
-      summary: 'Architecture Peer Review (PRJ-042)',
-      description: 'KAI timecode: PRJ-042\nPRJ-042 architecture peer review session.',
-      start: { dateTime: d.fri + 'T14:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: d.fri + 'T15:00:00', timeZone: 'Europe/London' }
+      id: 'email2',
+      from: 'marcus.webb@organisation.gov.uk',
+      fromName: 'Marcus Webb',
+      subject: 'RE: Governance Board agenda — item 3 needs your input',
+      body: `Following up on yesterday's discussion.
+
+We need your sign-off on the agentic AI control framework before Tuesday's Governance Board. Item 3 on the agenda specifically references the architecture team's position on agent accountability.
+
+Can you confirm you're presenting this, or should I ask someone else to cover?
+
+Marcus`,
+      hoursAgo: 3
     },
     {
-      id: 'mock-cal-18',
-      summary: 'KAI Timecode Reminder — log this week',
-      description: 'KAI timecode: BAU-001\nWeekly reminder to submit timecodes before 5pm.',
-      start: { dateTime: d.fri + 'T16:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: d.fri + 'T16:15:00', timeZone: 'Europe/London' }
+      id: 'email3',
+      from: 'james.thornton@organisation.gov.uk',
+      fromName: 'James Thornton',
+      subject: 'AI Control Plane — PoC recommendation deck',
+      body: `Good work on the Control Plane analysis. The AI Board found it very useful — particularly the PoC-rather-than-procure recommendation.
+
+The Chair has asked whether we can extend the analysis to cover Microsoft Fabric. Can you scope that out?
+
+Also — are you free for a brief catch-up next week? Would value your perspective on the broader strategy.
+
+James`,
+      hoursAgo: 26
     },
+    {
+      id: 'email4',
+      from: 'priya.sharma@organisation.gov.uk',
+      fromName: 'Priya Sharma',
+      subject: 'Digital Transformation project — timeline review needed',
+      body: `Hi,
+
+Wanted to flag that the PRJ-042 milestone review is now 3 days overdue. The programme board meets on Thursday and I need your sign-off on the revised delivery plan before then.
+
+Could we find 30 minutes this week? I've checked your calendar and Thursday morning looks clear before your London travel.
+
+Best,
+Priya`,
+      hoursAgo: 28
+    },
+    {
+      id: 'email5',
+      from: 'rachel.okonkwo@organisation.gov.uk',
+      fromName: 'Rachel Okonkwo',
+      subject: 'Architecture Guild — Thursday session materials',
+      body: `Hi all,
+
+Please find below the agenda for Thursday's Architecture Guild session:
+
+1. Target architecture methodology update
+2. Capability mapping framework review
+3. AOB
+
+Please review before the session. Let me know if you have items to add to AOB.
+
+Rachel`,
+      hoursAgo: 48,
+      unread: false
+    },
+    {
+      id: 'email6',
+      from: 'helpdesk@organisation.gov.uk',
+      fromName: 'IT Helpdesk',
+      subject: 'RE: RE: RE: Laptop refresh programme — Q3 cohort',
+      body: `Your request has been logged.
+
+Reference: HD-29341
+Expected resolution: 5-7 working days
+
+You will receive an automated update when your ticket progresses.
+
+IT Helpdesk`,
+      hoursAgo: 52,
+      unread: false
+    },
+    {
+      id: 'email7',
+      from: 'noreply@organisation.gov.uk',
+      fromName: 'All Staff Newsletter',
+      subject: "This week's all-staff bulletin — issue 47",
+      body: `Welcome to this week's all-staff bulletin.
+
+In this issue:
+• Summer social — save the date: 18 July
+• New expenses policy effective 1 August
+• Mental health awareness week resources
+• Canteen menu changes from next Monday
+
+Have a great week.
+
+Internal Comms`,
+      hoursAgo: 60,
+      unread: false
+    },
+  ];
+
+  // Send emails
+  for (let i = 0; i < emailDefs.length; i++) {
+    const e = emailDefs[i];
+    setTaskState(e.id, 'running', 'creating...');
+    try {
+      const d = new Date(now.getTime() - e.hoursAgo * 3600000);
+      const labels = e.unread === false ? ['INBOX'] : ['INBOX', 'UNREAD'];
+      const raw = makeEmail(userEmail, e.from, e.fromName, e.subject, e.body, d);
+      await insertEmail(raw, labels);
+      setTaskState(e.id, 'done', 'created');
+      emailCount++;
+    } catch(err) {
+      setTaskState(e.id, 'error', err.message);
+    }
+    setProgress(((i + 1) / tasks.length) * 100);
+    await new Promise(r => setTimeout(r, 600));
+  }
+
+  // Calendar events
+  const calEvents = [
+    // Monday
+    { id: 'cal1', events: [
+      { summary: 'FOCUS: Architecture Strategy Paper', description: 'Protected focus time — strategy paper deadline today. KAI: FOCUS block, do not schedule over.', start: { dateTime: dt(mon,9) }, end: { dateTime: dt(mon,11) }, colorId: '2' },
+      { summary: 'Architecture Review — PRJ-042', description: 'Monthly architecture review for Digital Transformation project.', start: { dateTime: dt(mon,14) }, end: { dateTime: dt(mon,15) }, colorId: '6' },
+      { summary: '1:1 with Director (Sarah Chen)', description: 'Regular Director 1:1 — KAI: HIGH PRIORITY clash with Architecture Review at 14:00. Reschedule one?', start: { dateTime: dt(mon,14) }, end: { dateTime: dt(mon,14,30) }, colorId: '11' },
+    ]},
+    // Tuesday
+    { id: 'cal2', events: [
+      { summary: 'PREP: Governance Board', description: 'KAI: Auto-booked prep time before Governance Board. Review agenda and AI control framework position.', start: { dateTime: dt(tue,9,30) }, end: { dateTime: dt(tue,10) }, colorId: '2' },
+      { summary: 'Governance Board — AI Control Framework (GOV-011)', description: 'Quarterly Governance Board. Item 3: Agentic AI accountability framework — architecture team presenting. KAI timecode: GOV-011', start: { dateTime: dt(tue,10) }, end: { dateTime: dt(tue,11) }, colorId: '9' },
+    ]},
+    // Tuesday PRJ
+    { id: 'cal3', events: [
+      { summary: 'Digital Transformation Milestone Review (PRJ-042)', description: 'PRJ-042 programme milestone review. Delivery plan sign-off required. KAI timecode: PRJ-042', start: { dateTime: dt(tue,14) }, end: { dateTime: dt(tue,15) }, colorId: '6' },
+    ]},
+    // Wednesday (heavy day)
+    { id: 'cal4', events: [
+      { summary: 'Team Standup (BAU-001)', description: 'Daily team standup. KAI timecode: BAU-001', start: { dateTime: dt(wed,9) }, end: { dateTime: dt(wed,9,30) } },
+      { summary: 'Architecture Guild — Capability Review (GOV-011)', description: 'Architecture Guild session. KAI timecode: GOV-011', start: { dateTime: dt(wed,9,30) }, end: { dateTime: dt(wed,10,30) } },
+      { summary: 'AI Strategy Session (PRJ-042)', description: 'AI strategy planning session. KAI timecode: PRJ-042', start: { dateTime: dt(wed,10,30) }, end: { dateTime: dt(wed,11,30) } },
+      { summary: 'Risk Framework Review (GOV-011)', description: 'Risk framework quarterly review — no lunch break before this. KAI: WELLBEING FLAG — no lunch detected.', start: { dateTime: dt(wed,11,30) }, end: { dateTime: dt(wed,12,30) }, colorId: '11' },
+      { summary: 'Technology Committee Prep (GOV-011)', description: 'Prep session for next week Technology Committee. KAI timecode: GOV-011', start: { dateTime: dt(wed,13) }, end: { dateTime: dt(wed,14) } },
+      { summary: 'Vendor Briefing — Azure Services (PRJ-042)', description: 'Microsoft Azure services briefing for Digital Transformation programme. KAI timecode: PRJ-042', start: { dateTime: dt(wed,15) }, end: { dateTime: dt(wed,16) } },
+    ]},
+    // Thursday (travel)
+    { id: 'cal5', events: [
+      { summary: 'TRAVEL: London — Canary Wharf Office', description: 'Full day London travel. KAI: TRAVEL MODE — email replies paused, transit time blocked.', start: { date: dateOnly(thu) }, end: { date: dateOnly(thu) }, colorId: '3' },
+      { summary: 'Transit: Liverpool St → Canary Wharf (blocked)', description: 'KAI auto-blocked transit time. Approx 45 mins travel.', start: { dateTime: dt(thu,8) }, end: { dateTime: dt(thu,9) }, colorId: '3' },
+      { summary: 'Architecture Guild Evening Session', description: 'Architecture Guild — evening session in London office.', start: { dateTime: dt(thu,17) }, end: { dateTime: dt(thu,18,30) } },
+    ]},
+    // Friday (light)
+    { id: 'cal6', events: [
+      { summary: '1:1 with Programme Director (BAU-001)', description: 'Regular 1:1. KAI timecode: BAU-001', start: { dateTime: dt(fri,10) }, end: { dateTime: dt(fri,11) } },
+      { summary: 'Architecture Peer Review (PRJ-042)', description: 'PRJ-042 architecture peer review session. KAI timecode: PRJ-042', start: { dateTime: dt(fri,14) }, end: { dateTime: dt(fri,15) } },
+      { summary: 'KAI Timecode Reminder — Log this week', description: 'KAI weekly reminder: log your timecodes before end of day. Suggested: PRJ-042 (5hrs), GOV-011 (4hrs), BAU-001 (2.5hrs)', start: { dateTime: dt(fri,16) }, end: { dateTime: dt(fri,16,15) }, colorId: '2' },
+    ]},
 
     // ── LAST WEEK ──
-    {
-      id: 'mock-cal-lw-1',
-      summary: 'FOCUS: Platform Strategy Review',
-      description: 'KAI timecode: PRJ-042\nProtected focus time.',
-      start: { dateTime: lw.mon + 'T09:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: lw.mon + 'T11:00:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-lw-2',
-      summary: 'Technology Committee (GOV-011)',
-      description: 'KAI timecode: GOV-011\nMonthly Technology Committee.',
-      start: { dateTime: lw.mon + 'T14:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: lw.mon + 'T15:30:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-lw-3',
-      summary: 'PRJ-042 Sprint Planning',
-      description: 'KAI timecode: PRJ-042\nDigital Transformation sprint planning.',
-      start: { dateTime: lw.tue + 'T10:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: lw.tue + 'T11:00:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-lw-4',
-      summary: 'Stakeholder Briefing — Risk Team (GOV-011)',
-      description: 'KAI timecode: GOV-011\nRisk team briefing on AI governance.',
-      start: { dateTime: lw.tue + 'T14:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: lw.tue + 'T15:00:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-lw-5',
-      summary: 'Team Standup (BAU-001)',
-      description: 'KAI timecode: BAU-001\nDaily standup.',
-      start: { dateTime: lw.wed + 'T09:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: lw.wed + 'T09:30:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-lw-6',
-      summary: 'Architecture Review (PRJ-042)',
-      description: 'KAI timecode: PRJ-042\nArchitecture review session.',
-      start: { dateTime: lw.wed + 'T11:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: lw.wed + 'T12:00:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-lw-7',
-      summary: 'TRAVEL: Birmingham — Regional Office',
-      description: 'Travel day — regional office visit.',
-      start: { date: lw.thu },
-      end:   { date: lw.thu }
-    },
-    {
-      id: 'mock-cal-lw-8',
-      summary: 'Regional Leadership Briefing (GOV-011)',
-      description: 'KAI timecode: GOV-011\nLeadership briefing at regional office.',
-      start: { dateTime: lw.thu + 'T10:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: lw.thu + 'T11:30:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-lw-9',
-      summary: '1:1 with Programme Director (BAU-001)',
-      description: 'KAI timecode: BAU-001\nWeekly 1:1.',
-      start: { dateTime: lw.fri + 'T10:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: lw.fri + 'T11:00:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-lw-10',
-      summary: 'KAI Timecode Reminder — log this week',
-      description: 'KAI timecode: BAU-001\nWeekly timecode reminder.',
-      start: { dateTime: lw.fri + 'T16:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: lw.fri + 'T16:15:00', timeZone: 'Europe/London' }
-    },
+    { id: 'cal7', events: [
+      { summary: 'FOCUS: Platform Strategy Review', description: 'Protected focus time. KAI timecode: PRJ-042', start: { dateTime: dt(lMon,9) }, end: { dateTime: dt(lMon,11) }, colorId: '2' },
+      { summary: 'Technology Committee (GOV-011)', description: 'Monthly Technology Committee meeting. KAI timecode: GOV-011', start: { dateTime: dt(lMon,14) }, end: { dateTime: dt(lMon,15,30) }, colorId: '9' },
+    ]},
+    { id: 'cal8', events: [
+      { summary: 'PRJ-042 Sprint Planning', description: 'Digital Transformation sprint planning session. KAI timecode: PRJ-042', start: { dateTime: dt(lTue,10) }, end: { dateTime: dt(lTue,11) } },
+      { summary: 'Stakeholder Briefing — Risk Team (GOV-011)', description: 'Risk team briefing on AI governance framework. KAI timecode: GOV-011', start: { dateTime: dt(lTue,14) }, end: { dateTime: dt(lTue,15) } },
+    ]},
+    { id: 'cal9', events: [
+      { summary: 'Team Standup (BAU-001)', description: 'Daily standup. KAI timecode: BAU-001', start: { dateTime: dt(lWed,9) }, end: { dateTime: dt(lWed,9,30) } },
+      { summary: 'Architecture Review (PRJ-042)', description: 'Architecture review session. KAI timecode: PRJ-042', start: { dateTime: dt(lWed,11) }, end: { dateTime: dt(lWed,12) } },
+      { summary: 'Vendor Briefing — AWS (PRJ-042)', description: 'AWS briefing on cloud infrastructure options. KAI timecode: PRJ-042', start: { dateTime: dt(lWed,14) }, end: { dateTime: dt(lWed,15) } },
+    ]},
+    { id: 'cal10', events: [
+      { summary: 'TRAVEL: Birmingham — Regional Office', description: 'Travel day — regional office visit.', start: { date: dateOnly(lThu) }, end: { date: dateOnly(lThu) }, colorId: '3' },
+      { summary: 'Regional Leadership Briefing (GOV-011)', description: 'Leadership briefing at regional office. KAI timecode: GOV-011', start: { dateTime: dt(lThu,10) }, end: { dateTime: dt(lThu,11,30) } },
+    ]},
+    { id: 'cal11', events: [
+      { summary: '1:1 with Programme Director (BAU-001)', description: 'Weekly 1:1. KAI timecode: BAU-001', start: { dateTime: dt(lFri,10) }, end: { dateTime: dt(lFri,11) } },
+      { summary: 'KAI Timecode Reminder — Log this week', description: 'KAI weekly reminder: log your timecodes.', start: { dateTime: dt(lFri,16) }, end: { dateTime: dt(lFri,16,15) }, colorId: '2' },
+    ]},
 
     // ── NEXT WEEK ──
-    {
-      id: 'mock-cal-nw-1',
-      summary: 'FOCUS: AI Strategy Paper',
-      description: 'KAI timecode: PRJ-042\nProtected focus time for AI strategy paper.',
-      start: { dateTime: nw.mon + 'T09:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: nw.mon + 'T11:00:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-nw-2',
-      summary: 'PRJ-042 Milestone Review — Priya Sharma',
-      description: 'KAI timecode: PRJ-042\nQ2 milestone review with programme manager.',
-      start: { dateTime: nw.tue + 'T14:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: nw.tue + 'T14:30:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-nw-3',
-      summary: 'Team Standup (BAU-001)',
-      description: 'KAI timecode: BAU-001\nDaily standup.',
-      start: { dateTime: nw.wed + 'T09:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: nw.wed + 'T09:30:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-nw-4',
-      summary: 'Governance Board (GOV-011)',
-      description: 'KAI timecode: GOV-011\nQuarterly Governance Board.',
-      start: { dateTime: nw.wed + 'T10:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: nw.wed + 'T12:00:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-nw-5',
-      summary: 'Architecture Peer Review (PRJ-042)',
-      description: 'KAI timecode: PRJ-042\nArchitecture peer review.',
-      start: { dateTime: nw.thu + 'T14:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: nw.thu + 'T15:00:00', timeZone: 'Europe/London' }
-    },
-    {
-      id: 'mock-cal-nw-6',
-      summary: 'Risk Review (GOV-011)',
-      description: 'KAI timecode: GOV-011\nQuarterly risk review.',
-      start: { dateTime: nw.fri + 'T10:00:00', timeZone: 'Europe/London' },
-      end:   { dateTime: nw.fri + 'T11:00:00', timeZone: 'Europe/London' }
-    }
+    { id: 'cal12', events: [
+      { summary: 'FOCUS: AI Strategy Paper', description: 'Protected focus time for AI strategy paper. KAI timecode: PRJ-042', start: { dateTime: dt(nMon,9) }, end: { dateTime: dt(nMon,11) }, colorId: '2' },
+      { summary: 'PRJ-042 Milestone Review — Priya Sharma', description: 'PRJ-042 Q2 milestone review. KAI timecode: PRJ-042', start: { dateTime: dt(nTue,14) }, end: { dateTime: dt(nTue,14,30) } },
+      { summary: 'Technology Committee — AI Governance (GOV-011)', description: 'Emergency Technology Committee on AI governance sign-off. KAI timecode: GOV-011', start: { dateTime: dt(nTue,14) }, end: { dateTime: dt(nTue,15,30) }, colorId: '9' },
+    ]},
+    { id: 'cal13', events: [
+      { summary: 'Governance Board (GOV-011)', description: 'Quarterly Governance Board. KAI timecode: GOV-011', start: { dateTime: dt(nWed,10) }, end: { dateTime: dt(nWed,12) }, colorId: '9' },
+      { summary: 'Team Standup (BAU-001)', description: 'Daily standup. KAI timecode: BAU-001', start: { dateTime: dt(nWed,9) }, end: { dateTime: dt(nWed,9,30) } },
+    ]},
+    { id: 'cal14', events: [
+      { summary: 'Architecture Peer Review (PRJ-042)', description: 'PRJ-042 architecture peer review. KAI timecode: PRJ-042', start: { dateTime: dt(nThu,14) }, end: { dateTime: dt(nThu,15) } },
+      { summary: 'Risk Review (GOV-011)', description: 'Quarterly risk review. KAI timecode: GOV-011', start: { dateTime: dt(nFri,10) }, end: { dateTime: dt(nFri,11) } },
+    ]},
   ];
-}
 
-// ── DEMO MODE ENTRY POINT ──
-// Called when user clicks "Try Demo Mode" on auth screen
-// Bypasses all Google API calls and loads the app with mock data
-
-function startDemoMode() {
-  const modal = document.getElementById('demoPasswordModal');
-  modal.style.display = 'flex';
-  document.getElementById('demoPasswordInput').value = '';
-  document.getElementById('demoPasswordError').textContent = '';
-  setTimeout(() => document.getElementById('demoPasswordInput').focus(), 100);
-}
-
-function closeDemoPasswordModal() {
-  document.getElementById('demoPasswordModal').style.display = 'none';
-}
-
-function submitDemoPassword() {
-  const pwd = document.getElementById('demoPasswordInput').value;
-  if (pwd !== 'KAI-Demo-2026') {
-    document.getElementById('demoPasswordError').textContent = 'Incorrect password. Please try again.';
-    document.getElementById('demoPasswordInput').select();
-    return;
+  for (let i = 0; i < calEvents.length; i++) {
+    const group = calEvents[i];
+    setTaskState(group.id, 'running', `creating ${group.events.length} events...`);
+    try {
+      for (const ev of group.events) {
+        await insertEvent(ev);
+        await new Promise(r => setTimeout(r, 300));
+        eventCount++;
+      }
+      setTaskState(group.id, 'done', `${group.events.length} events created`);
+    } catch(err) {
+      setTaskState(group.id, 'error', err.message);
+    }
+    setProgress(((emailDefs.length + i + 1) / tasks.length) * 100);
+    await new Promise(r => setTimeout(r, 400));
   }
-  closeDemoPasswordModal();
-  DEMO_MODE = true;
 
-  // Set a fake user display name in session
-  sessionStorage.setItem('userEmail', 'demo.user@kai-demo.mode');
-
-  // Patch fetchEmails and fetchCalendar to return mock data
-  // These are defined in app.js but reassigned here before loadApp() runs
-  window._fetchEmailsReal    = window.fetchEmails;
-  window._fetchCalendarReal  = window.fetchCalendar;
-
-  window.fetchEmails   = async () => getMockEmails();
-  window.fetchCalendar = async () => getMockCalendarEvents();
-
-  // Patch createCalendarEvent to simulate success in demo mode
-  window._createCalendarEventReal = window.createCalendarEvent;
-  window.createCalendarEvent = async (title, dateStr, timeStr, durationMins) => {
-    // Simulate a created event — add to calendarData in memory
-    const id = 'mock-created-' + Date.now();
-    const start = timeStr
-      ? { dateTime: dateStr + 'T' + timeStr + ':00', timeZone: 'Europe/London' }
-      : { date: dateStr };
-    const end = timeStr
-      ? { dateTime: new Date(new Date(dateStr + 'T' + timeStr + ':00').getTime() + durationMins * 60000).toISOString(), timeZone: 'Europe/London' }
-      : { date: dateStr };
-    const ev = { id, summary: title, description: 'Created by KAI — Demo Mode', start, end };
-    calendarData.push(ev);
-    return { id, htmlLink: null };
-  };
-
-  // Patch Drive functions to no-ops in demo mode (no real Drive access)
-  window.loadKaiNotes = async () => {
-    kaiNotes = { actions: [], lastUpdated: null };
-    renderNotes();
-    const el = document.getElementById('notesStatus');
-    if (el) el.textContent = 'Demo mode — changes not saved';
-  };
-  window.saveKaiNotes = async () => { /* no-op in demo */ };
-  window.ensureKaiNotesFile = async () => null;
-
-  loadApp();
+  setProgress(100);
+  document.getElementById('emailCount').textContent = emailCount;
+  document.getElementById('eventCount').textContent = eventCount;
+  document.getElementById('summaryBox').classList.add('visible');
+  document.getElementById('seedBtn').disabled = false;
 }
+
+// ── AUTH CALLBACK ──
+async function handleCallback() {
+  const hash = window.location.hash.substring(1);
+  const params = new URLSearchParams(hash);
+  const token = params.get('access_token');
+  if (!token) return false;
+  window.history.replaceState({}, '', window.location.pathname);
+  accessToken = token;
+  sessionStorage.setItem('token', accessToken);
+  return true;
+}
+
+async function init() {
+  const stored = sessionStorage.getItem('access_token');
+  if (stored) accessToken = stored;
+  const fromCallback = await handleCallback();
+  if (accessToken) {
+    try {
+      const email = await getUserEmail();
+      document.getElementById('userEmail').textContent = email;
+      document.getElementById('signinSection').style.display = 'none';
+      document.getElementById('seedSection').style.display = 'block';
+    } catch(e) {
+      accessToken = null;
+      sessionStorage.removeItem('access_token');
+    }
+  }
+}
+
+init();
+
+function checkGate() {
+  const val = document.getElementById('gateInput').value;
+  if (val === 'KAI-Demo-2026') {
+    document.getElementById('gateScreen').style.display = 'none';
+    document.querySelector('.card').style.display = 'block';
+    sessionStorage.setItem('kai_gate', '1');
+  } else {
+    document.getElementById('gateError').style.display = 'block';
+    document.getElementById('gateInput').value = '';
+    document.getElementById('gateInput').focus();
+  }
+}
+
+// Check if already passed gate this session
+if (sessionStorage.getItem('kai_gate') === '1') {
+  document.addEventListener('DOMContentLoaded', () => {
+    const g = document.getElementById('gateScreen');
+    if (g) g.style.display = 'none';
+    const c = document.querySelector('.card');
+    if (c) c.style.display = 'block';
+  });
+}
+
+
+function checkGate() {
+  var val = document.getElementById('gateInput').value;
+  if (val === 'KAI-Demo-2026') {
+    document.getElementById('gateScreen').style.display = 'none';
+    document.querySelector('.card').style.display = 'block';
+    sessionStorage.setItem('kai_gate', '1');
+  } else {
+    document.getElementById('gateError').style.display = 'block';
+    document.getElementById('gateInput').value = '';
+    document.getElementById('gateInput').focus();
+  }
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  if (sessionStorage.getItem('kai_gate') === '1') {
+    var g = document.getElementById('gateScreen');
+    if (g) g.style.display = 'none';
+    var c = document.querySelector('.card');
+    if (c) c.style.display = 'block';
+  }
+});
+
+</script>
+</body>
+</html>
