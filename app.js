@@ -983,10 +983,10 @@ async function refreshData() {
     // fetchEmails/fetchCalendar already handle 401 by showing the banner and returning []
     gmailData = emails;
     calendarData = events;
+    analyseBriefing(emails, events); // must run first to populate clashedEventIds
     document.getElementById('todayEvents').innerHTML = renderToday(events);
     document.getElementById('weekAhead').innerHTML = renderWeekAhead(events);
     renderEmailList();
-    analyseBriefing(emails, events);
     renderCalendarPanel();
     renderTimecodePanel();
     const urgentEmails = emails.filter(e => e.priority === 'urgent' || e.priority === 'high');
@@ -1020,10 +1020,10 @@ async function loadApp() {
     const dowNow = new Date().getDay();
     const weekAheadLabel = document.getElementById('weekAheadLabel');
     if (weekAheadLabel) weekAheadLabel.textContent = dowNow >= 4 ? 'Next 7 Days' : 'Rest of Week';
+    analyseBriefing(emails, events); // must run first to populate clashedEventIds
     document.getElementById('todayEvents').innerHTML = renderToday(events);
     document.getElementById('weekAhead').innerHTML = renderWeekAhead(events);
     renderEmailList();
-    analyseBriefing(emails, events);
     renderCalendarPanel();
     renderTimecodePanel();
     const urgentEmails = emails.filter(e => e.priority === 'urgent' || e.priority === 'high');
@@ -1872,9 +1872,9 @@ async function confirmCreateEvent(proposalId) {
     // Refresh calendar data in background
     fetchCalendar().then(events => {
       calendarData = events;
+      analyseBriefing(gmailData, events); // must run first to populate clashedEventIds
       document.getElementById('todayEvents').innerHTML = renderToday(events);
       document.getElementById('weekAhead').innerHTML = renderWeekAhead(events);
-      analyseBriefing(gmailData, events);
     });
   } catch(e) {
     if (btn) { btn.disabled = false; btn.textContent = '✓ Create event'; }
