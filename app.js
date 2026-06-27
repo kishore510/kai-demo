@@ -2078,18 +2078,36 @@ End with a one-line summary of total actions needed.`;
       const scoreB = PRIORITY_SCORE[priB] || 2;
       const keepEv = scoreA >= scoreB ? p.a : p.b;
       const moveEv = keepEv === p.a ? p.b : p.a;
-      const evIdx = calendarData.findIndex(e => e.id === moveEv.id);
+      const keepIdx = calendarData.findIndex(e => e.id === keepEv.id);
       const dateLabel = new Date(p.date + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+      const moveSummary = (moveEv.summary || '').replace(/'/g, '').substring(0, 60);
+
+      // Determine if I own the event to be moved
+      // Own = organiser email matches demo account, or it's a KAI/self-created event
+      const userEmail = sessionStorage.getItem('userEmail') || '';
+      const organiserEmail = moveEv.organizer?.email || '';
+      const isMine = DEMO_MODE
+        ? isMineHeuristic(moveEv) // use heuristic in demo mode
+        : organiserEmail === userEmail || organiserEmail === '';
+
+      const actionLabel = isMine ? '↻ Reschedule' : '✕ Decline';
+      const actionTitle = isMine ? 'Reschedule' : 'Decline';
+      const actionColor = isMine ? 'var(--amber)' : 'var(--coral)';
+      const moveLabel = isMine ? '↻ Move:' : '✕ Decline:';
+      const moveColor = isMine ? 'var(--amber)' : 'var(--coral)';
 
       return `<div style="margin-top:8px;padding:10px 12px;background:#F8F8F5;border-radius:8px;border:0.5px solid #E0E0D8">
-        <div style="font-size:11px;font-weight:500;color:#1a1a1a;margin-bottom:6px">Clash on ${dateLabel}</div>
+        <div style="font-size:11px;font-weight:500;color:var(--ink);margin-bottom:6px">Clash on ${dateLabel}</div>
+        <div style="font-size:11px;color:#555;margin-bottom:4px">
+          <span style="color:var(--teal)">✓ Keep:</span> ${keepEv.summary?.substring(0,45)}
+        </div>
         <div style="font-size:11px;color:#555;margin-bottom:8px">
-          <span style="color:var(--teal)">✓ Keep:</span> ${keepEv.summary?.substring(0,40)}<br>
-          <span style="color:var(--amber)">↻ Move:</span> ${moveEv.summary?.substring(0,40)}
+          <span style="color:${moveColor}">${moveLabel}</span> ${moveEv.summary?.substring(0,45)}
+          <span style="font-size:10px;color:var(--faint);margin-left:4px">${isMine ? '(you organised this)' : '(organised by others)'}</span>
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
-          ${evIdx >= 0 ? `<button class="kai-action-btn" style="font-size:10px" onclick="openMeetingPrep(${evIdx})">📋 Prep for kept meeting</button>` : ''}
-          <button class="kai-action-btn" style="font-size:10px" onclick="proposeReschedule('${moveEv.id}','${moveEv.summary?.replace(/'/g,'')}')">↻ Find new slot</button>
+          ${keepIdx >= 0 ? `<button class="kai-action-btn" style="font-size:10px" onclick="openMeetingPrep(${keepIdx})">📋 Prep kept meeting</button>` : ''}
+          <button class="kai-action-btn" style="font-size:10px;background:${actionColor};color:white;border-color:${actionColor}" onclick="declineAndReschedule('${moveEv.id}','${moveSummary}',${isMine})">${actionLabel} &amp; Reschedule</button>
         </div>
       </div>`;
     }).join('');
@@ -2105,30 +2123,56 @@ End with a one-line summary of total actions needed.`;
 }
 
 // Propose a reschedule for a specific meeting
-function proposeReschedule(evId, evTitle) {
+// Heuristic for demo mode — infer if the user organised this event
+function isMineHeuristic(ev) {
+  const s = (ev.summary || '').toLowerCase();
+  const d = (ev.description || '').toLowerCase();
+  // Self-created or KAI-created events
+  if (s.includes('focus:') || s.includes('focus block') || s.includes('prep:') ||
+      s.includes('reminder:') || s.includes('kai timecode') || s.includes('transit') ||
+      d.includes('created by kai') || d.includes('knowledge action intelligence')) return true;
+  // Events clearly organised by others — committees, boards, governance
+  if (s.includes('committee') || s.includes('board') || s.includes('governance') ||
+      s.includes('director') || s.includes('exco') || s.includes('briefing') ||
+      s.includes('standup') || s.includes('leadership')) return false;
+  // Default — assume mine for ambiguous cases
+  return true;
+}
+
+function declineAndReschedule(evId, evTitle, isMine = false) {
   const ev = calendarData.find(e => e.id === evId);
   if (!ev) return;
 
-  // Mark as resolved in session — won't reappear on refresh in demo mode
-  if (DEMO_MODE) {
-    resolvedClashIds.add(evId);
-    // Also remove from calendarData in memory immediately
-    calendarData = calendarData.filter(e => e.id !== evId);
-    analyseBriefing(gmailData, calendarData);
-    renderCalendarPanel();
-    document.getElementById('todayEvents').innerHTML = renderToday(calendarData);
-    document.getElementById('weekAhead').innerHTML = renderWeekAhead(calendarData);
-  }
+  // Remove from memory and mark resolved
+  resolvedClashIds.add(evId);
+  calendarData = calendarData.filter(e => e.id !== evId);
+
+  // Re-run briefing and refresh panels immediately
+  analyseBriefing(gmailData, calendarData);
+  renderCalendarPanel();
+  document.getElementById('todayEvents').innerHTML = renderToday(calendarData);
+  document.getElementById('weekAhead').innerHTML = renderWeekAhead(calendarData);
+
+  // Find next Monday as default reschedule target using local dates
+  const now = new Date();
+  const daysUntilMon = (8 - now.getDay()) % 7 || 7;
+  const nextMon = new Date(now);
+  nextMon.setDate(now.getDate() + daysUntilMon);
+  const dateStr = nextMon.getFullYear() + '-' +
+    String(nextMon.getMonth()+1).padStart(2,'0') + '-' +
+    String(nextMon.getDate()).padStart(2,'0');
 
   const dur = ev.start?.dateTime && ev.end?.dateTime
     ? Math.round((new Date(ev.end.dateTime) - new Date(ev.start.dateTime)) / 60000)
     : 60;
-  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
-  const dateStr = tomorrow.getFullYear() + '-' +
-    String(tomorrow.getMonth()+1).padStart(2,'0') + '-' +
-    String(tomorrow.getDate()).padStart(2,'0');
+
+  const confirmMsg = isMine
+    ? `↻ Rescheduling <b>${evTitle}</b> — removed from its current slot.\n\nProposing next Monday as the new date — adjust as needed:`
+    : `✕ Declined <b>${evTitle}</b> — removed from your calendar. The organiser will be notified.\n\nWould you like to propose an alternative time? Suggesting next Monday:`;
+
+  addMsg('kai', confirmMsg);
   proposeEvent(evTitle || 'Rescheduled meeting', dateStr, '10:00', dur,
-    `Rescheduled to resolve calendar clash — edit date and time before confirming:`);
+    isMine ? 'New time for rescheduled meeting:' : 'Propose alternative slot to organiser:');
 }
 
 
