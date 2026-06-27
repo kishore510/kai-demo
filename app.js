@@ -228,16 +228,24 @@ function renderToday(events) {
 
 function renderWeekAhead(events) {
   const today = todayStr();
+  // Calculate 7 days ahead from today
+  const cutoff = new Date(today + 'T12:00:00');
+  cutoff.setDate(cutoff.getDate() + 7);
+  const cutoffStr = cutoff.getFullYear() + '-' +
+    String(cutoff.getMonth()+1).padStart(2,'0') + '-' +
+    String(cutoff.getDate()).padStart(2,'0');
+
   const days = {};
   events.forEach(ev => {
     const d = ev.start?.date || ev.start?.dateTime?.split('T')[0];
-    if (!d || d === today) return; // today handled separately
+    if (!d || d <= today) return; // skip today and past
+    if (d > cutoffStr) return;    // skip beyond 7 days
     if (!days[d]) days[d] = [];
     days[d].push(ev);
   });
 
-  const sorted = Object.entries(days).sort(([a], [b]) => a.localeCompare(b)).slice(0, 5);
-  if (!sorted.length) return '<div style="padding:16px;font-size:12px;color:var(--muted)">No further events this week.</div>';
+  const sorted = Object.entries(days).sort(([a], [b]) => a.localeCompare(b));
+  if (!sorted.length) return '<div style="padding:16px;font-size:12px;color:var(--muted)">No further events in the next 7 days.</div>';
 
   return sorted.map(([date, evs]) => {
     const dayName = getDayName(date);
@@ -252,13 +260,15 @@ function analyseBriefing(emails, events) {
   const openActions = kaiNotes?.actions?.filter(a => !a.done).length || 0;
   document.getElementById('statEmails').textContent = openActions;
 
-  // Count clashes and store clashing event IDs — future events only
+  // Count clashes — future events only, next 7 days
   const now = new Date();
+  const cutoffClash = new Date(now);
+  cutoffClash.setDate(cutoffClash.getDate() + 7);
   const byDay = {};
   events.forEach(ev => {
     const d = ev.start?.dateTime?.split('T')[0];
-    // Skip events that have already ended
-    if (ev.end?.dateTime && new Date(ev.end.dateTime) < now) return;
+    if (ev.end?.dateTime && new Date(ev.end.dateTime) < now) return; // past
+    if (ev.start?.dateTime && new Date(ev.start.dateTime) > cutoffClash) return; // too far ahead
     if (d) { if (!byDay[d]) byDay[d] = []; byDay[d].push(ev); }
   });
   let clashes = 0;
@@ -1007,6 +1017,9 @@ async function loadApp() {
     const [emails, events] = await Promise.all([fetchEmails(), fetchCalendar()]);
     gmailData = emails;
     calendarData = events;
+    const dowNow = new Date().getDay();
+    const weekAheadLabel = document.getElementById('weekAheadLabel');
+    if (weekAheadLabel) weekAheadLabel.textContent = dowNow >= 4 ? 'Next 7 Days' : 'Rest of Week';
     document.getElementById('todayEvents').innerHTML = renderToday(events);
     document.getElementById('weekAhead').innerHTML = renderWeekAhead(events);
     renderEmailList();
@@ -2111,13 +2124,23 @@ let tcCurrentWeek = 'this';
 
 async function renderWellbeingPanel() {
   const today = todayStr();
+
+  // Build cutoff — today through next 7 days
+  const cutoff = new Date(today + 'T12:00:00');
+  cutoff.setDate(cutoff.getDate() + 7);
+  const cutoffStr = cutoff.getFullYear() + '-' +
+    String(cutoff.getMonth()+1).padStart(2,'0') + '-' +
+    String(cutoff.getDate()).padStart(2,'0');
+
   const byDay = {};
   calendarData.forEach(ev => {
     const d = ev.start?.date || ev.start?.dateTime?.split('T')[0];
-    if (d) { if (!byDay[d]) byDay[d] = []; byDay[d].push(ev); }
+    if (!d || d < today || d > cutoffStr) return; // today onwards, max 7 days
+    if (!byDay[d]) byDay[d] = [];
+    byDay[d].push(ev);
   });
 
-  const dayStats = Object.entries(byDay).sort(([a],[b]) => a.localeCompare(b)).slice(0, 7).map(([date, evs]) => {
+  const dayStats = Object.entries(byDay).sort(([a],[b]) => a.localeCompare(b)).map(([date, evs]) => {
     const timed = evs.filter(ev => ev.start?.dateTime && ev.end?.dateTime);
     const totalHrs = timed.reduce((s, ev) => s + (new Date(ev.end.dateTime) - new Date(ev.start.dateTime)) / 3600000, 0);
     const sorted = [...timed].sort((a,b) => new Date(a.start.dateTime) - new Date(b.start.dateTime));
