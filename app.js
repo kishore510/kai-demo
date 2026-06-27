@@ -162,7 +162,13 @@ function parseEmail(msg) {
 // ── CALENDAR ──
 
 async function fetchCalendar() {
-  if (typeof DEMO_MODE !== 'undefined' && DEMO_MODE) return getMockCalendarEvents();
+  if (typeof DEMO_MODE !== 'undefined' && DEMO_MODE) {
+    const events = getMockCalendarEvents();
+    // Filter out events the user has resolved this session
+    return resolvedClashIds.size > 0
+      ? events.filter(ev => !resolvedClashIds.has(ev.id))
+      : events;
+  }
   // Fetch last week Monday through next week Sunday — 3 weeks of context
   const weekStart = getWeekStart(todayStr(), -1); // last week Monday
   const timeMin = new Date(weekStart + 'T00:00:00').toISOString();
@@ -908,13 +914,12 @@ function mobNav(btn) {
 }
 
 function goToActions() {
-  // Navigate to briefing panel and scroll to open actions section
   const briefNav = document.querySelector('.nav-item[data-panel="briefing"]');
   if (briefNav) switchPanel(briefNav);
   const mobBrief = document.querySelector('.mob-nav-item[data-panel="briefing"]');
   if (mobBrief) { document.querySelectorAll('.mob-nav-item').forEach(b => b.classList.remove('active')); mobBrief.classList.add('active'); }
   setTimeout(() => {
-    const actionsEl = document.getElementById('actionsSection');
+    const actionsEl = document.getElementById('notesSection');
     if (actionsEl) actionsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 150);
 }
@@ -1578,9 +1583,10 @@ function renderCalendarPanel() {
 
 
 let clashedEventIds = new Set();
-let clashDayDate = null; // date string of the day with clashes, for scrolling
+let clashDayDate = null;
 let kaiNotes = { actions: [], lastUpdated: null };
 let kaiNotesFileId = null;
+let resolvedClashIds = new Set(); // session only — cleared on tab close, survives refresh button
 
 // Notes file structure:
 // { actions: [{ id, text, due, createdAt, done }], lastUpdated }
@@ -1667,6 +1673,10 @@ function renderNotes() {
   const overdue = open.filter(a => a.due && new Date(a.due + 'T12:00:00') < now);
 
   if (status) status.textContent = DEMO_MODE ? 'Demo mode — changes not saved' : (kaiNotesFileId ? '✓ Synced to Drive' : 'Not synced');
+
+  // Always keep the stat tile in sync
+  const statEl = document.getElementById('statEmails');
+  if (statEl) statEl.textContent = open.length;
 
   if (open.length === 0) {
     list.innerHTML = '<div style="padding:12px 13px;font-size:11px;color:var(--muted)">No open actions. Tell KAI to remember something.</div>';
@@ -2098,13 +2108,25 @@ End with a one-line summary of total actions needed.`;
 function proposeReschedule(evId, evTitle) {
   const ev = calendarData.find(e => e.id === evId);
   if (!ev) return;
-  // Find next free slot — simple heuristic: same duration, next available morning
+
+  // Mark as resolved in session — won't reappear on refresh in demo mode
+  if (DEMO_MODE) {
+    resolvedClashIds.add(evId);
+    // Also remove from calendarData in memory immediately
+    calendarData = calendarData.filter(e => e.id !== evId);
+    analyseBriefing(gmailData, calendarData);
+    renderCalendarPanel();
+    document.getElementById('todayEvents').innerHTML = renderToday(calendarData);
+    document.getElementById('weekAhead').innerHTML = renderWeekAhead(calendarData);
+  }
+
   const dur = ev.start?.dateTime && ev.end?.dateTime
     ? Math.round((new Date(ev.end.dateTime) - new Date(ev.start.dateTime)) / 60000)
     : 60;
-  // Propose tomorrow morning or next Monday
   const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
-  const dateStr = tomorrow.toISOString().split('T')[0];
+  const dateStr = tomorrow.getFullYear() + '-' +
+    String(tomorrow.getMonth()+1).padStart(2,'0') + '-' +
+    String(tomorrow.getDate()).padStart(2,'0');
   proposeEvent(evTitle || 'Rescheduled meeting', dateStr, '10:00', dur,
     `Rescheduled to resolve calendar clash — edit date and time before confirming:`);
 }
