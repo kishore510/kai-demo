@@ -1881,12 +1881,13 @@ async function confirmCreateEvent(proposalId) {
     const dateLabel = new Date(dateStr + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
     const timeLabel = timeStr ? ' at ' + timeStr : ' (all day)';
     if (card) card.outerHTML = `<div class="event-created">✅ <div><b>${title}</b> added to your calendar — ${dateLabel}${timeLabel}${ev.htmlLink ? ' · <a href="' + ev.htmlLink + '" target="_blank" style="color:var(--teal)">Open in Calendar</a>' : ''}</div></div>`;
-    // Refresh calendar data in background
+    // Refresh calendar data — re-apply resolvedClashIds filter for demo mode
     fetchCalendar().then(events => {
-      calendarData = events;
-      analyseBriefing(gmailData, events); // must run first to populate clashedEventIds
-      document.getElementById('todayEvents').innerHTML = renderToday(events);
-      document.getElementById('weekAhead').innerHTML = renderWeekAhead(events);
+      calendarData = events.filter(ev => !resolvedClashIds.has(ev.id));
+      analyseBriefing(gmailData, calendarData);
+      renderCalendarPanel();
+      document.getElementById('todayEvents').innerHTML = renderToday(calendarData);
+      document.getElementById('weekAhead').innerHTML = renderWeekAhead(calendarData);
     });
   } catch(e) {
     if (btn) { btn.disabled = false; btn.textContent = '✓ Create event'; }
@@ -2107,7 +2108,7 @@ End with a one-line summary of total actions needed.`;
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           ${keepIdx >= 0 ? `<button class="kai-action-btn" style="font-size:10px" onclick="openMeetingPrep(${keepIdx})">📋 Prep kept meeting</button>` : ''}
-          <button class="kai-action-btn" style="font-size:10px;background:${actionColor};color:white;border-color:${actionColor}" onclick="declineAndReschedule('${moveEv.id}','${moveSummary}',${isMine})">${actionLabel} &amp; Reschedule</button>
+          <button class="kai-action-btn" style="font-size:10px;background:${actionColor};color:white;border-color:${actionColor}" onclick="declineAndReschedule('${moveEv.id}','${moveSummary}',${isMine})">${actionLabel}</button>
         </div>
       </div>`;
     }).join('');
