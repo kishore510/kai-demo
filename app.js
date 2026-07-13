@@ -272,6 +272,7 @@ function analyseBriefing(emails, events) {
   const now = new Date();
   const cutoffClash = new Date(now);
   cutoffClash.setDate(cutoffClash.getDate() + 7);
+  cutoffClash.setHours(23, 59, 59, 999);
   const byDay = {};
   events.forEach(ev => {
     const d = ev.start?.dateTime?.split('T')[0];

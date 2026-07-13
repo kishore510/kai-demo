@@ -1,7 +1,7 @@
 /* ── KAI — Knowledge Action Intelligence ── */
 /* mock-data.js — hardcoded demo data for offline / Google-independent demo mode */
 /* Data matches the seed.html spec exactly. Dates anchor to current week dynamically. */
-/* v4.2 — 3 Friday events, full week scaffold */
+/* v4.4 — Friday CLASH scenario (CTO 1:1 vs Architecture Peer Review), next-week heavy Wednesday */
 
 // ── DEMO MODE FLAG ──
 // Set to true by startDemoMode(), checked by fetchEmails / fetchCalendar stubs
@@ -351,7 +351,7 @@ function getMockCalendarEvents() {
       end:   { dateTime: d.thu + 'T11:30:00', timeZone: 'Europe/London' }
     },
 
-    // ── FRIDAY — Light day ──
+    // ── FRIDAY — Light day, with one CLASH ──
     {
       id: 'mock-cal-16',
       summary: '1:1 with Programme Director (BAU-001)',
@@ -365,6 +365,13 @@ function getMockCalendarEvents() {
       description: 'KAI timecode: PRJ-042\nPRJ-042 architecture peer review session.',
       start: { dateTime: d.fri + 'T14:00:00', timeZone: 'Europe/London' },
       end:   { dateTime: d.fri + 'T15:00:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-17b',
+      summary: 'CTO 1:1 — James Thornton',
+      description: 'KAI timecode: GOV-011\nUrgent 1:1 requested by the CTO — follow-up on the outstanding Control Plane analysis.',
+      start: { dateTime: d.fri + 'T14:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: d.fri + 'T14:30:00', timeZone: 'Europe/London' }
     },
     {
       id: 'mock-cal-18',
@@ -468,6 +475,7 @@ function getMockCalendarEvents() {
       start: { dateTime: nw.tue + 'T14:00:00', timeZone: 'Europe/London' },
       end:   { dateTime: nw.tue + 'T15:30:00', timeZone: 'Europe/London' }
     },
+    // ── NEXT WEEK WEDNESDAY — 6 back-to-backs, no lunch ──
     {
       id: 'mock-cal-nw-3',
       summary: 'Team Standup (BAU-001)',
@@ -481,6 +489,34 @@ function getMockCalendarEvents() {
       description: 'KAI timecode: GOV-011\nQuarterly Governance Board.',
       start: { dateTime: nw.wed + 'T10:00:00', timeZone: 'Europe/London' },
       end:   { dateTime: nw.wed + 'T12:00:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-nw-4b',
+      summary: 'Vendor Risk Assessment Briefing (PRJ-042)',
+      description: 'KAI timecode: PRJ-042\nVendor risk assessment for control plane migration.',
+      start: { dateTime: nw.wed + 'T12:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: nw.wed + 'T13:00:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-nw-4c',
+      summary: 'AI Governance Working Group (GOV-011)',
+      description: 'KAI timecode: GOV-011\nWorking group ahead of next Governance Board.',
+      start: { dateTime: nw.wed + 'T13:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: nw.wed + 'T14:00:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-nw-4d',
+      summary: 'Architecture Investment Committee (PRJ-042)',
+      description: 'KAI timecode: PRJ-042\nInvestment committee review of architecture roadmap spend.',
+      start: { dateTime: nw.wed + 'T14:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: nw.wed + 'T15:00:00', timeZone: 'Europe/London' }
+    },
+    {
+      id: 'mock-cal-nw-4e',
+      summary: 'Leadership Sync — Q3 Roadmap (BAU-001)',
+      description: 'KAI timecode: BAU-001\nLeadership sync on Q3 architecture roadmap.',
+      start: { dateTime: nw.wed + 'T15:00:00', timeZone: 'Europe/London' },
+      end:   { dateTime: nw.wed + 'T16:30:00', timeZone: 'Europe/London' }
     },
     {
       id: 'mock-cal-nw-5',
